@@ -23,4 +23,4 @@ if __name__ == "__main__":
 ```
 
 > * **Image viewed on Android screen**
-<img src="" width="50%" height="50%" alt="prototype"></img>
+<img src="OPENINPRA/test_image.JPG" width="50%" height="50%" alt="prototype"></img>

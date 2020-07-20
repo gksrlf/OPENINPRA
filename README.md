@@ -1,8 +1,7 @@
 # OPENINPRA PROJECT
-*****
 > ## TDC Project
-> > * **2020-07-21 upload**
-> > *Amazon Lambda server python code*
+> * **2020-07-21 upload**
+> *Amazon Lambda server python code*
 ```python
 # Create .obj, .mtl file
 def createOBJ():

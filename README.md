@@ -21,3 +21,5 @@ def createFile():
 if __name__ == "__main__":
     createFile()
 ```
+
+> * **Image viewed on Android screen**

@@ -22,5 +22,5 @@ if __name__ == "__main__":
     createFile()
 ```
 
-> * **Image viewed on Android screen**
+> * **Image viewed on Android screen**   
 <img src="test_image.JPG" width="50%" height="50%" alt="prototype"></img>

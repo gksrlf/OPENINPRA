@@ -14,6 +14,7 @@
 
     <string-array name="menu_items">
         <item>Load Model</item>
+        <item>Load Image</item>
         <!--<item>Models</item>-->
         <item>Demo</item>
         <item>Help</item>

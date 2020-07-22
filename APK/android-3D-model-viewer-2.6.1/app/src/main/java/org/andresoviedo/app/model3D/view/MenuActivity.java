@@ -8,7 +8,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -39,9 +41,9 @@ public class MenuActivity extends ListActivity {
     private static final int REQUEST_CODE_OPEN_TEXTURE = 1103;
     private static final String SUPPORTED_FILE_TYPES_REGEX = "(?i).*\\.(obj|stl|dae)";
 
-
+    // TODO 2020-07-22 change enum code add LOAD_IMAGE
     private enum Action {
-        LOAD_MODEL, GITHUB, SETTINGS, HELP, ABOUT, EXIT, UNKNOWN, DEMO
+        LOAD_MODEL, LOAD_IMAGE, GITHUB, SETTINGS, HELP, ABOUT, EXIT, UNKNOWN, DEMO
     }
 
     /**
@@ -57,6 +59,7 @@ public class MenuActivity extends ListActivity {
                 getResources().getStringArray(R.array.menu_items)));
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.P)
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         String selectedItem = (String) getListView().getItemAtPosition(position);
@@ -81,6 +84,10 @@ public class MenuActivity extends ListActivity {
                     break;
                 case LOAD_MODEL:
                     loadModel();
+                    break;
+                case LOAD_IMAGE:
+                    // TODO 2020-07-22 build code here
+                    loadSelectActivity();
                     break;
                 case ABOUT:
                     Intent aboutIntent = new Intent(MenuActivity.this.getApplicationContext(), TextActivity.class);
@@ -108,6 +115,12 @@ public class MenuActivity extends ListActivity {
             Toast.makeText(getApplicationContext(), ex.getMessage(), Toast.LENGTH_LONG).show();
         }
 
+    }
+
+    // TODO 2020-07-22 build code start SelectActivity
+    private void loadSelectActivity() {
+        Intent intent = new Intent(this,SelectActivity.class);
+        startActivity(intent);
     }
 
     private void loadModel() {

@@ -1,10 +1,12 @@
-# This is prototype
-# TODO Initialize image file's name from document's path
+import os
+import sys
+import uuid
+import boto3
+from urllib.parse import unquote_plus
 
-# Initialize .obj file's code
-# TODO Currently, mtllib, g, usemtl keywords are using the name of the prototype image file.
+# obj file initialize
 objText = """
-mtllib Test.mtl
+mtllib {}{}
 
 #     (3)---------------------(4)
 #      |                       |
@@ -29,33 +31,58 @@ usemtl picture
 f 1/1 2/2 3/3 4/4
 """
 
-# Initialize .mtl File's code
-# TODO Currently, newmtl, map_Kd keywords are using the name of the prototype image file.
+# mtl file initialize
 mtlText = """
 newmtl face
 illum 2
 Ka 0.0000 0.0000 0.0000
 Kd 0.0000 0.0000 0.0000
 Ks 0.0000 0.0000 0.0000
-map_Kd Test.png
+map_Kd {}
 """
 
+s3_client = boto3.client('s3')
 
+def lambda_handler(event, context):
+    for record in event['Records']:
+        bucket = record['s3']['bucket']['name']
+        key = unquote_plus(record['s3']['object']['key'])
+        upload_object = key.replace('/', '')
 
-# Create .obj, .mtl file
-def createOBJ():
-    file = open('test.obj', 'w')
-    file.write(objText)
-    file.close()
+        # initialize file name and extension
+        name = upload_object[:-4]
+        obj = ".obj"
+        mtl = ".mtl"
 
-def createMTL():
-    file = open('test.mtl', 'w')
-    file.write(mtlText)
-    file.close()
+        # initialize download and upload URL
+        download_image = '/tmp/{}{}'.format(uuid.uuid4(), upload_object)
+        upload_image = '/tmp/{}'.format(upload_object)
+        upload_obj = '/tmp/{}{}'.format(name, obj)
+        upload_mtl = '/tmp/{}{}'.format(name, mtl)
 
-def createFile():
-    createOBJ()
-    createMTL()
+        s3_client.download_file(bucket, key, download_image)
 
-if __name__ == "__main__":
-    createFile()
+        # download image data
+        with open(download_image, 'rb') as image:
+            data = image.read()
+            image.close()
+
+        # copy image data and build same image file
+        with open(upload_image, 'wb') as image:
+            image.write(data)
+            image.close()
+
+        # write code for obj file and build up
+        with open(upload_obj, 'w+') as file:
+            file.write(objText.format(name, mtl))
+            file.close()
+
+        # write code for mtl file and build up
+        with open(upload_mtl, 'w+') as file:
+            file.write(mtlText.format(upload_object))
+            file.close()
+
+        # upload files to another s3 bucket
+        s3_client.upload_file(upload_image, '{}-resized'.format(bucket), key)
+        s3_client.upload_file(upload_obj, '{}-resized'.format(bucket), '{}{}'.format(name, obj))
+        s3_client.upload_file(upload_mtl, '{}-resized'.format(bucket), '{}{}'.format(name, mtl))

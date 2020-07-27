@@ -27,7 +27,6 @@ import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -44,16 +43,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferNetworkLossHandler;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
 import com.little_wizard.tdc.R;
 import com.little_wizard.tdc.ui.main.MainActivity;
 import com.little_wizard.tdc.util.permission.PermissionHelper;
@@ -102,14 +96,7 @@ public class CameraActivity extends AppCompatActivity {
         album.setBackgroundResource(MainActivity.darkMode
                 ? R.drawable.btn_bg_white : R.drawable.btn_bg_black);
 
-        CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
-                getApplicationContext(),
-                "ap-northeast-2:13fe9921-fc1f-49ab-b998-c59c0a367efe", // 자격 증명 풀 ID
-                Regions.AP_NORTHEAST_2 // 리전
-        );
-
-        AmazonS3 s3 = new AmazonS3Client(credentialsProvider, Region.getRegion(Regions.AP_NORTHEAST_2));
-        transferUtility = TransferUtility.builder().s3Client(s3).context(this).build();
+        transferUtility = TransferUtility.builder().s3Client(MainActivity.s3).context(this).build();
         TransferNetworkLossHandler.getInstance(this);
 
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -117,7 +104,7 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == PERMISSIONS_REQUEST) {
             boolean success = true;
             for (int result : grantResults) {
@@ -183,6 +170,7 @@ public class CameraActivity extends AppCompatActivity {
             CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(cameraID);
             StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
 
+            assert map != null;
             Size largestPreviewSize = map.getOutputSizes(ImageFormat.JPEG)[0];
             Log.i(TAG, "LargestSize: " + largestPreviewSize.getWidth() + " " + largestPreviewSize.getHeight());
 
@@ -199,21 +187,25 @@ public class CameraActivity extends AppCompatActivity {
         }
     }
 
-    private ImageReader.OnImageAvailableListener mOnImageAvailableListener = new ImageReader.OnImageAvailableListener() {
-        @Override
-        public void onImageAvailable(ImageReader reader) {
-            Image image = reader.acquireNextImage();
-            ByteBuffer buffer = image.getPlanes()[0].getBuffer();
-            byte[] bytes = new byte[buffer.remaining()];
-            buffer.get(bytes);
-            final Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-            new SaveImageTask().execute(bitmap);
+    private ImageReader.OnImageAvailableListener mOnImageAvailableListener = reader -> runOnUiThread(() -> {
+        Image image = reader.acquireNextImage();
+        ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+        byte[] bytes = new byte[buffer.remaining()];
+        buffer.get(bytes);
+        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+        try {
+            bitmap = getRotatedBitmap(bitmap, 90);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    };
+        String path = getRealPathFromURI(Uri.parse(insertImage(getContentResolver(), bitmap
+                , "" + System.currentTimeMillis(), "")));
+        upload(path);
+    });
 
     private CameraDevice.StateCallback deviceStateCallback = new CameraDevice.StateCallback() {
         @Override
-        public void onOpened(CameraDevice camera) {
+        public void onOpened(@NonNull CameraDevice camera) {
             mCameraDevice = camera;
             try {
                 takePreview();
@@ -231,7 +223,7 @@ public class CameraActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onError(CameraDevice camera, int error) {
+        public void onError(@NonNull CameraDevice camera, int error) {
             Toast.makeText(CameraActivity.this, "카메라를 열지 못했습니다.", Toast.LENGTH_SHORT).show();
         }
     };
@@ -263,7 +255,7 @@ public class CameraActivity extends AppCompatActivity {
 
     private CameraCaptureSession.CaptureCallback mSessionCaptureCallback = new CameraCaptureSession.CaptureCallback() {
         @Override
-        public void onCaptureCompleted(CameraCaptureSession session, CaptureRequest request, TotalCaptureResult result) {
+        public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
             mSession = session;
             unlockFocus();
         }
@@ -292,7 +284,7 @@ public class CameraActivity extends AppCompatActivity {
         }
     }
 
-    public Bitmap getRotatedBitmap(Bitmap bitmap, int degrees) throws Exception {
+    public Bitmap getRotatedBitmap(Bitmap bitmap, int degrees) {
         if (bitmap == null) return null;
         if (degrees == 0) return bitmap;
 
@@ -319,10 +311,10 @@ public class CameraActivity extends AppCompatActivity {
         }
     }
 
-    public static final String insertImage(ContentResolver cr,
-                                           Bitmap source,
-                                           String title,
-                                           String description) {
+    public static String insertImage(ContentResolver cr,
+                                     Bitmap source,
+                                     String title,
+                                     String description) {
 
         ContentValues values = new ContentValues();
         values.put(MediaStore.Images.Media.TITLE, title);
@@ -339,13 +331,10 @@ public class CameraActivity extends AppCompatActivity {
             url = cr.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
 
             if (source != null) {
-                OutputStream imageOut = cr.openOutputStream(url);
-                try {
+                assert url != null;
+                try (OutputStream imageOut = cr.openOutputStream(url)) {
                     source.compress(Bitmap.CompressFormat.JPEG, 50, imageOut);
-                } finally {
-                    imageOut.close();
                 }
-
             } else {
                 cr.delete(url, null, null);
                 url = null;
@@ -380,14 +369,14 @@ public class CameraActivity extends AppCompatActivity {
 
     private void upload(String path) {
         ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage(getString(R.string.progressDialog));
+        progressDialog.setMessage(getString(R.string.progress_dialog));
         progressDialog.setCancelable(false);
         progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Horizontal);
         progressDialog.show();
 
         File file = new File(path);
         TransferObserver transferObserver = transferUtility.upload(
-                "imagebucket20200724",
+                getString(R.string.s3_bucket),
                 file.getName(),
                 file
         );
@@ -431,24 +420,5 @@ public class CameraActivity extends AppCompatActivity {
     @OnClick(R.id.capture)
     public void onCaptureClicked() {
         takePicture();
-    }
-
-    private class SaveImageTask extends AsyncTask<Bitmap, Void, String> {
-        @Override
-        protected String doInBackground(Bitmap... data) {
-            Bitmap bitmap = null;
-            try {
-                bitmap = getRotatedBitmap(data[0], 90);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return insertImage(getContentResolver(), bitmap
-                    , "" + System.currentTimeMillis(), "");
-        }
-
-        @Override
-        protected void onPostExecute(String path) {
-            upload(getRealPathFromURI(Uri.parse(path)));
-        }
     }
 }

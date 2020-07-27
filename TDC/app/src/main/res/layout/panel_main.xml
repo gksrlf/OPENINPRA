@@ -29,6 +29,7 @@
         android:layout_width="300dp"
         android:layout_height="100dp"
         android:layout_marginTop="240dp"
+        android:background="@drawable/btn_bg_black"
         android:drawableTop="@drawable/camera_drawable"
         android:text="@string/takePicture"
         app:layout_constraintEnd_toEndOf="parent"

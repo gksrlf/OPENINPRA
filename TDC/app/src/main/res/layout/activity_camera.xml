@@ -34,7 +34,7 @@
             android:id="@+id/capture"
             android:layout_width="80dp"
             android:layout_height="80dp"
-            android:background="@android:color/transparent"
+            android:background="?attr/selectableItemBackground"
             android:contentDescription="@string/takePicture"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_aperture"

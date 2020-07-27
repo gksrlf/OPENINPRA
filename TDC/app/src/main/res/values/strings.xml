@@ -7,7 +7,13 @@
     <string name="takePicture">사진 찍기</string>
     <string name="permission_denied">권한이 승인되지 않았습니다.</string>
     <string name="album">앨범</string>
-    <string name="progressDialog">전송중입니다…</string>
+    <string name="progress_dialog">전송중입니다…</string>
+    <string name="slide_up">위로 드래그해서 저장소 열기</string>
+    <string name="slide_down">아래로 드래그해서 저장소 닫기</string>
+
+    <!-- Constance -->
+    <string name="s3_bucket">imagebucket20200724</string>
+    <string name="s3_bucket_resize">imagebucket20200724-resized</string>
 
     <!-- Preference Titles -->
     <string name="basics_header">기본</string>

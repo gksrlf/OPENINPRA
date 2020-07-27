@@ -2,6 +2,7 @@ package com.little_wizard.tdc.ui.camera;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -37,6 +38,7 @@ import android.util.Size;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -78,15 +80,15 @@ public class CameraActivity extends AppCompatActivity {
     ImageReader mImageReader;
     CaptureRequest.Builder mPreviewBuilder;
     CameraCaptureSession mSession;
-    int mDeviceRotation;
 
     private final int PERMISSIONS_REQUEST = 1001;
     private final int PICK_IMAGE = 1111;
 
+    TransferUtility transferUtility;
     @BindView(R.id.album)
     Button album;
-
-    TransferUtility transferUtility;
+    @BindView(R.id.capture)
+    ImageButton capture;
 
     private String TAG = getClass().getSimpleName();
 
@@ -136,39 +138,8 @@ public class CameraActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE && resultCode == Activity.RESULT_OK) {
-            if (data != null) {
-                String realPath = getRealPathFromURI(data.getData());
-                Log.d(TAG, realPath);
-                File file = new File(realPath); //TODO: 버전을 올리지 않고 파일이 정상적으로 업로드될 수 있도록 해야 함.
-                TransferObserver transferObserver = transferUtility.upload(
-                        "imagebucket20200724",
-                        file.getName(),
-                        file
-                );
-                transferObserver.setTransferListener(new TransferListener() {
-                    @Override
-                    public void onStateChanged(int id, TransferState state) {
-                        Log.d(TAG, "onStateChanged: " + id + ", " + state.toString());
-                        if (state == TransferState.COMPLETED) {
-                            Toast.makeText(CameraActivity.this, "전송 완료.", Toast.LENGTH_SHORT).show();
-                            finish();
-                        }
-                    }
-
-                    @Override
-                    public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-                        float v = ((float) bytesCurrent / (float) bytesTotal) * 100;
-                        int percent = (int) v;
-                        Log.d(TAG, "ID:" + id + " bytesCurrent: " + bytesCurrent + " bytesTotal: " + bytesTotal + " " + percent + "%");
-                    }
-
-                    @Override
-                    public void onError(int id, Exception e) {
-                        Log.e(TAG, Objects.requireNonNull(e.getMessage()));
-                        Toast.makeText(CameraActivity.this, "전송 실패.", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
+            assert data != null;
+            upload(getRealPathFromURI(data.getData()));
         }
     }
 
@@ -314,11 +285,6 @@ public class CameraActivity extends AppCompatActivity {
             captureRequestBuilder.addTarget(mImageReader.getSurface());
             captureRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
             captureRequestBuilder.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH);
-
-            mDeviceRotation = getResources().getConfiguration().orientation;
-            Log.d(TAG, mDeviceRotation + "");
-
-            captureRequestBuilder.set(CaptureRequest.JPEG_ORIENTATION, mDeviceRotation);
             CaptureRequest mCaptureRequest = captureRequestBuilder.build();
             mSession.capture(mCaptureRequest, mSessionCaptureCallback, mHandler);
         } catch (CameraAccessException e) {
@@ -363,12 +329,11 @@ public class CameraActivity extends AppCompatActivity {
         values.put(MediaStore.Images.Media.DISPLAY_NAME, title);
         values.put(MediaStore.Images.Media.DESCRIPTION, description);
         values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
-        // Add the date meta data to ensure the image is added at the front of the gallery
         values.put(MediaStore.Images.Media.DATE_ADDED, System.currentTimeMillis());
         values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
 
         Uri url = null;
-        String stringUrl = null;    /* value to be returned */
+        String stringUrl = null;
 
         try {
             url = cr.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
@@ -399,15 +364,6 @@ public class CameraActivity extends AppCompatActivity {
         return stringUrl;
     }
 
-    @OnClick(R.id.album)
-    public void onViewClicked() {
-        Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setType("image/*");
-        String[] mimeTypes = {"image/jpeg", "image/png"};
-        intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
-        startActivityForResult(intent, PICK_IMAGE);
-    }
-
     private String getRealPathFromURI(Uri contentURI) {
         String result;
         Cursor cursor = getContentResolver().query(contentURI, null, null, null, null);
@@ -422,47 +378,77 @@ public class CameraActivity extends AppCompatActivity {
         return result;
     }
 
+    private void upload(String path) {
+        ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage(getString(R.string.progressDialog));
+        progressDialog.setCancelable(false);
+        progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Horizontal);
+        progressDialog.show();
 
-    private class SaveImageTask extends AsyncTask<Bitmap, Void, Void> {
+        File file = new File(path);
+        TransferObserver transferObserver = transferUtility.upload(
+                "imagebucket20200724",
+                file.getName(),
+                file
+        );
+        transferObserver.setTransferListener(new TransferListener() {
+            @Override
+            public void onStateChanged(int id, TransferState state) {
+                Log.d(TAG, "onStateChanged: " + id + ", " + state.toString());
+                if (state == TransferState.COMPLETED) {
+                    Toast.makeText(CameraActivity.this, "전송 완료.", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+                if (state == TransferState.COMPLETED || state == TransferState.FAILED) {
+                    progressDialog.dismiss();
+                }
+            }
 
+            @Override
+            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+                float v = ((float) bytesCurrent / (float) bytesTotal) * 100;
+                int percent = (int) v;
+                Log.d(TAG, "ID:" + id + " bytesCurrent: " + bytesCurrent + " bytesTotal: " + bytesTotal + " " + percent + "%");
+            }
+
+            @Override
+            public void onError(int id, Exception e) {
+                Log.e(TAG, Objects.requireNonNull(e.getMessage()));
+                Toast.makeText(CameraActivity.this, "전송 실패.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    @OnClick(R.id.album)
+    public void onAlbumClicked() {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        String[] mimeTypes = {"image/jpeg", "image/png"};
+        intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+        startActivityForResult(intent, PICK_IMAGE);
+    }
+
+    @OnClick(R.id.capture)
+    public void onCaptureClicked() {
+        takePicture();
+    }
+
+    private class SaveImageTask extends AsyncTask<Bitmap, Void, String> {
         @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-
-            Toast.makeText(CameraActivity.this, "사진을 저장하였습니다.", Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
-        protected Void doInBackground(Bitmap... data) {
+        protected String doInBackground(Bitmap... data) {
             Bitmap bitmap = null;
             try {
-                bitmap = getRotatedBitmap(data[0], mDeviceRotation);
+                bitmap = getRotatedBitmap(data[0], 90);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            insertImage(getContentResolver(), bitmap, "" + System.currentTimeMillis(), "");
-
-            return null;
+            return insertImage(getContentResolver(), bitmap
+                    , "" + System.currentTimeMillis(), "");
         }
 
-    }
-
-    /*
-    private void setAspectRatioTextureView(int ResolutionWidth, int ResolutionHeight) {
-        if (ResolutionWidth > ResolutionHeight) {
-            int newWidth = dsiWidth;
-            int newHeight = ((dsiWidth * ResolutionWidth) / ResolutionHeight);
-            updateTextureViewSize(newWidth, newHeight);
-        } else {
-            int newWidth = dsiWidth;
-            int newHeight = ((dsiWidth * ResolutionHeight) / ResolutionWidth);
-            updateTextureViewSize(newWidth, newHeight);
+        @Override
+        protected void onPostExecute(String path) {
+            upload(getRealPathFromURI(Uri.parse(path)));
         }
     }
-
-    private void updateTextureViewSize(int viewWidth, int viewHeight) {
-        Log.d(TAG, "TextureView Width : " + viewWidth + " TextureView Height : " + viewHeight);
-        surfaceView.setLayoutParams(new ConstraintLayout.LayoutParams(viewWidth, viewHeight));
-    }
-     */
 }

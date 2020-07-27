@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">TDC</string>
+    <string name="title_activity_settings">설정</string>
+    <string name="title_activity_about">정보</string>
+    <string name="restart">재시작</string>
+    <string name="restart_request">변경사항 적용을 위해 앱을 다시 시작해주세요.</string>
+    <string name="takePicture">사진 찍기</string>
+    <string name="permission_denied">권한이 승인되지 않았습니다.</string>
+    <string name="album">앨범</string>
+
+    <!-- Preference Titles -->
+    <string name="basics_header">기본</string>
+
+    <!-- Security Preferences -->
+    <string name="dark_mode_title">다크 모드</string>
 </resources>

@@ -56,7 +56,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.little_wizard.tdc.R;
 import com.little_wizard.tdc.ui.main.MainActivity;
-import com.little_wizard.tdc.ui.util.permission.PermissionHelper;
+import com.little_wizard.tdc.util.permission.PermissionHelper;
 
 import java.io.File;
 import java.io.OutputStream;

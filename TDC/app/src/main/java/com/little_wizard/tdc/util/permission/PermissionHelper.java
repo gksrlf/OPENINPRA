@@ -1,4 +1,4 @@
-package com.little_wizard.tdc.ui.util.permission;
+package com.little_wizard.tdc.util.permission;
 
 import android.content.Context;
 import android.content.pm.PackageManager;

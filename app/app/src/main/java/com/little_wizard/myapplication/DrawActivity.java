@@ -37,7 +37,7 @@ public class DrawActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         File backgroundFile = new File(intent.getData().toString());
-        Bitmap bitmap = BitmapFactory.decodeFile(backgroundFile.getAbsolutePath());
+        Bitmap bitmap = BitmapFactory.decodeFile(backgroundFile.getAbsolutePath()); //TODO:: null 리턴하는거 해결해야함;
         m.setBackgrountBitmap(bitmap);
         setContentView(m);
     }
@@ -53,8 +53,11 @@ public class DrawActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item){
         switch(item.getItemId()){
             case R.id.draw_save:
+                String path;
+                String bitName = Long.toString(ZonedDateTime.now().toInstant().toEpochMilli());
                 Log.d(this.toString(), m.getBitmap().toString());
-                saveBitmap(this, Long.toString(ZonedDateTime.now().toInstant().toEpochMilli()), m.getBitmap());
+                saveBitmap(this, bitName, m.getBitmap());
+                path = getFilesDir() + "/" + bitName + ".png"; // TODO::서버에 전송할 때 사진이랑 비트맵 같이 전송해야함
                 finish();
                 return true;
             default:

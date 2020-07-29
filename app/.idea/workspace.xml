@@ -1,12 +1,70 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AndroidLayouts">
+    <shared>
+      <config />
+    </shared>
+  </component>
+  <component name="AndroidLogFilters">
+    <option name="TOOL_WINDOW_CUSTOM_FILTER" value="Draw" />
+    <option name="TOOL_WINDOW_LOG_LEVEL" value="debug" />
+    <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="Show only selected application" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="2604d13f-3ed0-4edf-b444-c58193e4f345" name="Default Changelist" comment="" />
+    <list default="true" id="914c1609-3898-494f-a290-7ddbd057c51c" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/../TDC/.idea/TDC.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../TDC/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../TDC/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/caches/build_file_checksums.ser" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/build_file_checksums.ser" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/263010310/My_Application.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/app.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/local.properties" beforeDir="false" afterPath="$PROJECT_DIR$/local.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/proguard-rules.pro" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/androidTest/java/com/little_wizard/myapplication/ExampleInstrumentedTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/AndroidManifest.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/little_wizard/myapplication/CameraActivity.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/little_wizard/myapplication/DrawActivity.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/little_wizard/myapplication/MainActivity.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/little_wizard/myapplication/PermissionHelper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/little_wizard/myapplication/view/MyView.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/drawable-v24/ic_launcher_foreground.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/drawable/btn_bg_black.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/drawable/ic_aperture.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/drawable/ic_baseline_save_alt_24.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/drawable/ic_launcher_background.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout/activity_camera.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout/activity_draw.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout/activity_main.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/menu/draw_menu.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/mipmap-hdpi/ic_launcher.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/mipmap-hdpi/ic_launcher_round.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/mipmap-mdpi/ic_launcher.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/mipmap-mdpi/ic_launcher_round.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/mipmap-xhdpi/ic_launcher.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/mipmap-xhdpi/ic_launcher_round.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/mipmap-xxhdpi/ic_launcher.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/mipmap-xxhdpi/ic_launcher_round.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/mipmap-xxxhdpi/ic_launcher.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/values/colors.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/values/strings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/values/styles.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/little_wizard/myapplication/ExampleUnitTest.java" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="Pixel_3a_API_29" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -19,7 +77,19 @@
       </state>
     </system>
   </component>
-  <component name="ProjectId" id="1fMxx7NHk1eL1FPkyy5PENEiuK0" />
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+        <option value="layoutResourceFile" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectId" id="1fM5QxWLXkjKikzscNXOwoz1JHh" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showExcludedFiles" value="true" />
@@ -29,6 +99,20 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
   </component>
+  <component name="RecentsManager">
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.little_wizard.myapplication" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\code\app\src\main\res\menu" />
+    </key>
+    <key name="android.template.-420331653">
+      <recent name="com.little_wizard.myapplication" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\code\app\src\main\res\drawable" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration default="true" type="AndroidJUnit" factoryName="Android JUnit">
       <option name="TEST_OBJECT" value="class" />
@@ -37,7 +121,7 @@
         <option name="Android.Gradle.BeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="app" type="AndroidRunConfigurationType" factoryName="Android App">
+    <configuration name="app" type="AndroidRunConfigurationType" factoryName="Android App" activateToolWindowBeforeRun="false">
       <module name="app" />
       <option name="DEPLOY" value="true" />
       <option name="DEPLOY_APK_FROM_BUNDLE" value="false" />
@@ -94,12 +178,107 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="2604d13f-3ed0-4edf-b444-c58193e4f345" name="Default Changelist" comment="" />
-      <created>1596042006799</created>
+      <changelist id="914c1609-3898-494f-a290-7ddbd057c51c" name="Default Changelist" comment="" />
+      <created>1596015108701</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1596042006799</updated>
+      <updated>1596015108701</updated>
     </task>
     <servers />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="-1380" y="275" key="AndroidCreateResourceFileDialog" timestamp="1596028804407">
+      <screen x="-1920" y="0" width="1920" height="1040" />
+    </state>
+    <state x="-1380" y="275" key="AndroidCreateResourceFileDialog/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1596028804407" />
+    <state x="-1180" y="275" key="FileChooserDialogImpl" timestamp="1596042004402">
+      <screen x="-1920" y="0" width="1920" height="1040" />
+    </state>
+    <state x="-1180" y="275" key="FileChooserDialogImpl/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1596042004402" />
+    <state width="1877" height="240" key="GridCell.Tab.0.bottom" timestamp="1596042006478">
+      <screen x="-1920" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="240" key="GridCell.Tab.0.bottom/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1596042006478" />
+    <state width="1877" height="240" key="GridCell.Tab.0.center" timestamp="1596042006478">
+      <screen x="-1920" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="240" key="GridCell.Tab.0.center/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1596042006478" />
+    <state width="1877" height="240" key="GridCell.Tab.0.left" timestamp="1596042006477">
+      <screen x="-1920" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="240" key="GridCell.Tab.0.left/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1596042006477" />
+    <state width="1877" height="240" key="GridCell.Tab.0.right" timestamp="1596042006478">
+      <screen x="-1920" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="240" key="GridCell.Tab.0.right/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1596042006478" />
+    <state width="1877" height="240" key="GridCell.Tab.1.bottom" timestamp="1596042006478">
+      <screen x="-1920" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="240" key="GridCell.Tab.1.bottom/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1596042006478" />
+    <state width="1877" height="240" key="GridCell.Tab.1.center" timestamp="1596042006478">
+      <screen x="-1920" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="240" key="GridCell.Tab.1.center/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1596042006478" />
+    <state width="1877" height="240" key="GridCell.Tab.1.left" timestamp="1596042006478">
+      <screen x="-1920" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="240" key="GridCell.Tab.1.left/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1596042006478" />
+    <state width="1877" height="240" key="GridCell.Tab.1.right" timestamp="1596042006478">
+      <screen x="-1920" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="240" key="GridCell.Tab.1.right/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1596042006478" />
+    <state width="968" height="528" key="XDebugger.FullValuePopup" timestamp="1596033338333">
+      <screen x="-1920" y="0" width="1920" height="1040" />
+    </state>
+    <state width="968" height="528" key="XDebugger.FullValuePopup/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1596033338333" />
+    <state x="-1237" y="72" width="1525" height="943" key="dock-window-1" timestamp="1596032023545">
+      <screen x="-1920" y="0" width="1920" height="1040" />
+    </state>
+    <state x="-1237" y="72" width="1525" height="943" key="dock-window-1/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1596032023545" />
+    <state x="-1297" y="225" width="672" height="678" key="search.everywhere.popup" timestamp="1596039547593">
+      <screen x="-1920" y="0" width="1920" height="1040" />
+    </state>
+    <state x="-1297" y="225" width="672" height="678" key="search.everywhere.popup/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1596039547593" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
+          <url>file://$PROJECT_DIR$/app/src/main/java/com/little_wizard/myapplication/MainActivity.java</url>
+          <line>51</line>
+          <option name="timeStamp" value="8" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
+          <url>file://$PROJECT_DIR$/app/src/main/java/com/little_wizard/myapplication/MainActivity.java</url>
+          <line>70</line>
+          <option name="timeStamp" value="9" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
+          <url>file://$PROJECT_DIR$/app/src/main/java/com/little_wizard/myapplication/MainActivity.java</url>
+          <line>74</line>
+          <option name="timeStamp" value="10" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
+          <url>file://$PROJECT_DIR$/app/src/main/java/com/little_wizard/myapplication/DrawActivity.java</url>
+          <line>37</line>
+          <option name="timeStamp" value="11" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
+          <url>file://$PROJECT_DIR$/app/src/main/java/com/little_wizard/myapplication/DrawActivity.java</url>
+          <line>38</line>
+          <option name="timeStamp" value="12" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
+          <url>file://$PROJECT_DIR$/app/src/main/java/com/little_wizard/myapplication/DrawActivity.java</url>
+          <line>39</line>
+          <option name="timeStamp" value="13" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
+          <url>file://$PROJECT_DIR$/app/src/main/java/com/little_wizard/myapplication/DrawActivity.java</url>
+          <line>35</line>
+          <option name="timeStamp" value="14" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

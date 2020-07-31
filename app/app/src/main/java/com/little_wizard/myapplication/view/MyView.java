@@ -3,12 +3,8 @@ package com.little_wizard.myapplication.view;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -17,8 +13,11 @@ import android.view.View;
 public class MyView extends View {
     private final int NONE = 0;
     private final int DRAG = 1;
-    private final int MULTI = 2;
+    private final int ZOOM = 2;
+    private final int DROW = 3;
+
     private int mode;
+    private boolean isDrawMode;
 
     private Path drawPath;
     private Paint drawPaint, canvasPaint;
@@ -27,27 +26,39 @@ public class MyView extends View {
     private Bitmap canvasBitmap;
     private ScaleGestureDetector scaleDetector;
     private float mScaleFactor = 1.0f;
-    private Matrix matrix;
 
-    private int mPosX;
-    private int mPosY;
+    private float width;
+    private float height;
+    private float mPosX;
+    private float mPosY;
+    private float mLastTouchX;
+    private float mLastTouchY;
 
-    public MyView(Context context){
+    private float offsetX;
+    private float offsetY;
 
+    private float posX1, posX2, posY1, posY2;
+    private float oldDist = 1f;
+    private float newDist = 1f;
+
+    private int displayHeight;
+    private int displayWidth;
+
+    public MyView(Context context, int displayHeight, int displayWidth){
         super(context);
         setupDrawing();
-        scaleDetector = new ScaleGestureDetector(getContext(), new ScaleGestureDetector.SimpleOnScaleGestureListener(){
+        scaleDetector = new ScaleGestureDetector(context, new ScaleGestureDetector.SimpleOnScaleGestureListener(){
            @Override
            public boolean onScale(ScaleGestureDetector detector){
+               //final float scale = detector.getScaleFactor();
                mScaleFactor *= detector.getScaleFactor();
-               mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor, 5.0f));
-
+               mScaleFactor = Math.max(1.0f, Math.min(mScaleFactor, 5.0f));
                invalidate();
                return true;
            }
         });
-
-        matrix = new Matrix();
+        this.displayHeight = displayHeight;
+        this.displayWidth = displayWidth;
     }
 
     private void setupDrawing(){
@@ -76,52 +87,116 @@ public class MyView extends View {
         canvas.drawBitmap(canvasBitmap, 0, 0, canvasPaint);
         canvas.drawPath(drawPath, drawPaint);
         canvas.restore();
-        //drawCanvas.scale()
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         scaleDetector.onTouchEvent(event);
+        super.onTouchEvent(event);
         float touchX = 1 / mScaleFactor * event.getX();
         float touchY = 1 / mScaleFactor * event.getY();
+
         int pointer = event.getPointerCount();
+        Log.d("pointer", String.valueOf(pointer));
+        Log.d("pointer x1, y1", String.valueOf(event.getX(0)) +", "+String.valueOf(event.getY(0)));
+        /*
 
-        Log.d("onTouchEvent", String.valueOf((mScaleFactor)));
-        Log.d("onTouchEvent touchX", String.valueOf(touchX));
-        Log.d("onTouchEvent touchY", String.valueOf(touchY));
-        Log.d("onTouchEvent focusX", String.valueOf(scaleDetector.getFocusX()));
-        Log.d("onTouchEvent currentSpanX", String.valueOf(scaleDetector.getCurrentSpanX()));
-
-        switch (event.getAction()) {
+        Log.d("onTouchEvent pointer", String.valueOf(pointer));
+        Log.d("onTouchEvent span : Previous", String.valueOf(scaleDetector.getPreviousSpan()));
+        Log.d("onTouchEvent span : Current", String.valueOf(scaleDetector.getCurrentSpan()));
+        Log.d("time", String.valueOf(scaleDetector.getTimeDelta()));*/
+    switch (event.getAction() & MotionEvent.ACTION_MASK) {
             //TODO: 평행 이동 구현해야함
             case MotionEvent.ACTION_DOWN:
-                if(pointer == 1) {
-                    drawPath.moveTo(touchX, touchY);
-                    mode = DRAG;
-                }else if(pointer == 2){
-                    mode = MULTI;
+                if(mode == NONE) {
+                    Log.d("onTouchEvent Event", "ACTION_DOWN");
+                    if(isDrawMode){
+                        //drawPath.moveTo(touchX, touchY);
+                        drawPath.moveTo(touchX - mPosX, touchY - mPosY);
+                        mode = DROW;
+                    }else{
+                        mLastTouchX = touchX;
+                        mLastTouchY = touchY;
+                        mode = DRAG;
+                    }
+                    posX1 = touchX;
+                    posY1 = touchY;
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
                 if(mode == DRAG) {
-                    drawPath.lineTo(touchX, touchY);
-                }else if(mode == MULTI){
+                    final float dx = touchX - mLastTouchX;
+                    final float dy = touchY - mLastTouchY;
 
+                    mPosX += dx;
+                    mPosY += dy;
+                    if(mPosX + width > displayWidth){
+                        mPosX = displayWidth - width;
+                        Log.d("onTouchEvent", "1");
+                    }
+                    if(mPosX < 0){
+                        mPosX = 0;
+                        Log.d("onTouchEvent", "2");
+                    }
+
+                    if(mPosY + height > displayHeight){
+                        mPosY = displayHeight - height;
+                        Log.d("onTouchEvent", "3");
+                    }
+                    if(mPosY < 0){
+                        mPosY = 0;
+                        Log.d("onTouchEvent", "4");
+                    }
+
+                    Log.d("mPosX mPosY", String.valueOf(mPosX) + ", " + String.valueOf(mPosY));
+                    Log.d("width height", String.valueOf(width) + ", " + String.valueOf(height));
+                    invalidate();
+                }else if(mode == DROW){
+                    Log.d("onTouchEvent Event", "ACTION_MOVE");
+                    //drawPath.lineTo(touchX, touchY);
+                    drawPath.lineTo(touchX - mPosX, touchY - mPosY);
+                }else{
+                    /*newDist = spacing(event);
+                    Log.d("zoom", "newDist=" + newDist);
+                    Log.d("zoom", "oldDist=" + oldDist);
+                    if (newDist - oldDist > 20) { // zoom in
+                        oldDist = newDist;
+                    } else if(oldDist - newDist > 20) { // zoom out
+                        oldDist = newDist;
+                    }*/
                 }
+                mLastTouchX = touchX;
+                mLastTouchY = touchY;
+                //TODO: 좌표 저장해서 리스트 만들기, (x,y)
                 break;
             case MotionEvent.ACTION_UP:
                 if(mode == DRAG) {
-                    drawPath.lineTo(touchX, touchY);
+
+                }else if(mode == DROW){
+                    //drawPath.lineTo(touchX, touchY);
+                    drawPath.lineTo(touchX - mPosX, touchY - mPosY);
                     drawCanvas.drawPath(drawPath, drawPaint);
                     drawPath.reset();
                 }
+            case MotionEvent.ACTION_POINTER_UP:
                 mode = NONE;
                 break;
+            /*case MotionEvent.ACTION_POINTER_DOWN:
+                mode = ZOOM;
+                newDist = spacing(event);
+                oldDist = spacing(event);
+                break;*/
             default:
                 return false;
         }
         invalidate();
         return true;
+    }
+
+    private float spacing(MotionEvent event) {
+        float x = event.getX(0) - event.getX(1);
+        float y = event.getY(0) - event.getY(1);
+        return (float)Math.sqrt(x * x + y * y);
     }
 
     public Bitmap getBitmap(){
@@ -131,6 +206,17 @@ public class MyView extends View {
     public void setBackgrountBitmap(Bitmap bitmap){
         canvasBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
         drawCanvas = new Canvas(canvasBitmap);
+        width = canvasBitmap.getWidth();
+        height = canvasBitmap.getHeight();
+        if(displayHeight / displayWidth > height / width){ //가로가꽉참
+            mPosY = (displayHeight - height) / 2;
+        }else{
+            mPosX = (displayWidth - width) / 2;
+        }
+    }
+
+    public void setItemMode(boolean mode){
+        isDrawMode = mode;
     }
 /*
     public class MovingUnit{

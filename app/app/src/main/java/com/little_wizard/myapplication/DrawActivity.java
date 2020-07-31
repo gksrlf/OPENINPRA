@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageDecoder;
+import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -22,6 +23,7 @@ import android.view.Display;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.Toolbar;
 
@@ -36,17 +38,30 @@ import java.io.IOException;
 import java.time.ZonedDateTime;
 
 public class DrawActivity extends AppCompatActivity {
-    MyView m;
+    private MyView m;
+    private boolean isDrawMode = false;
+    Display display;
+    private int viewHeight;
+    private int viewWidth;
+    MenuItem item;
+
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        m = new MyView(this);
+
+        display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        viewHeight = size.y;
+        viewWidth = size.x;
+
+        m = new MyView(this, viewHeight, viewWidth);
+        //ImageView imageView = findViewById(R.id.imageView);
 
         Intent intent = getIntent();
         Uri uri = intent.getData();
         Context context = getApplicationContext();
         try{
-
             ImageDecoder.Source source = ImageDecoder.createSource(context.getContentResolver(), uri);
             Bitmap bitmap = ImageDecoder.decodeBitmap(source);
             bitmap = resizeBitmapImage(bitmap);
@@ -61,12 +76,22 @@ public class DrawActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu){
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.draw_menu, menu);
+        item = menu.findItem(R.id.draw_mode);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         switch(item.getItemId()){
+            case R.id.draw_mode:
+                if(!isDrawMode){
+                    item.setIcon(R.drawable.ic_baseline_done_24);
+                }else{
+                    item.setIcon(R.drawable.ic_baseline_edit_24);
+                }
+                isDrawMode = !isDrawMode;
+                m.setItemMode(isDrawMode);
+                return true;
             case R.id.draw_save:
                 String path;
                 String bitName = Long.toString(ZonedDateTime.now().toInstant().toEpochMilli());
@@ -108,24 +133,26 @@ public class DrawActivity extends AppCompatActivity {
     }
 
     public Bitmap resizeBitmapImage(Bitmap source){
-        DisplayMetrics display = new DisplayMetrics();
-        this.getWindowManager().getDefaultDisplay().getMetrics(display);
 
         int maxResolution = 0;
 
-        int width = source.getWidth();
-        int height = source.getHeight();
-        int newWidth = width;
-        int newHeight = height;
-        float rate = 0.0f;
+        float width = source.getWidth();
+        float height = source.getHeight();
+        float newWidth = width;
+        float newHeight = height;
+        float rate = height / width;
 
-        if(width > display.widthPixels && height > display.heightPixels){
-
+        Log.d("rate1 rate2", String.valueOf(viewHeight / viewWidth) + ", " + String.valueOf(height / width));
+        if(viewHeight / viewWidth > height / width){
+            newWidth = viewWidth;
+            newHeight = (int) (viewWidth * rate);
+            Log.d("rate", "1");
         }else{
-
+            newHeight = viewHeight;
+            newWidth = (int) (viewHeight / rate);
         }
-        //TODO: 이미지 로드할 때 화면에 꽉차게 가져와야함
-        if(width > height)
+        Log.d("newwidth newheight", String.valueOf(newWidth) + ", " + String.valueOf(newHeight));
+      /*  if(width > height)
         {
             maxResolution = display.widthPixels;
             if(maxResolution < width)
@@ -145,7 +172,11 @@ public class DrawActivity extends AppCompatActivity {
                 newHeight = maxResolution;
             }
         }
+*/
+        return Bitmap.createScaledBitmap(source, (int)newWidth, (int)newHeight, true);
+    }
 
-        return Bitmap.createScaledBitmap(source, newWidth, newHeight, true);
+    public boolean isDrawMode() {
+        return isDrawMode;
     }
 }

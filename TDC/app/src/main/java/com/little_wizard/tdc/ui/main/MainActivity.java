@@ -2,6 +2,8 @@ package com.little_wizard.tdc.ui.main;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.icu.text.Edits;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -9,15 +11,23 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.preference.PreferenceManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferNetworkLossHandler;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
@@ -26,6 +36,7 @@ import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.little_wizard.tdc.R;
+import com.little_wizard.tdc.classes.RepoItem;
 import com.little_wizard.tdc.ui.camera.CameraActivity;
 import com.little_wizard.tdc.ui.settings.SettingsActivity;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
@@ -33,7 +44,11 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import org.apache.commons.io.FilenameUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -51,10 +66,15 @@ public class MainActivity extends AppCompatActivity {
     SlidingUpPanelLayout slidingPanel;
     @BindView(R.id.slideGuide)
     TextView slideGuide;
+    @BindView(R.id.repositoryRecycler)
+    RecyclerView repositoryRecycler;
+
+    RepositoryAdapter adapter;
 
     private String TAG = getClass().getSimpleName();
 
     public static AmazonS3 s3;
+    TransferUtility transferUtility;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +98,12 @@ public class MainActivity extends AppCompatActivity {
                 Regions.AP_NORTHEAST_2
         );
         s3 = new AmazonS3Client(credentialsProvider, Region.getRegion(Regions.AP_NORTHEAST_2));
+        transferUtility = TransferUtility.builder().s3Client(MainActivity.s3).context(this).build();
+        TransferNetworkLossHandler.getInstance(this);
+
+        repositoryRecycler.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new RepositoryAdapter(MainActivity.this);
+        repositoryRecycler.setAdapter(adapter);
 
         slidingPanel.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
             @Override
@@ -96,6 +122,8 @@ public class MainActivity extends AppCompatActivity {
                         break;
                 }
                 if (newState != SlidingUpPanelLayout.PanelState.EXPANDED) return;
+
+                List<RepoItem> itemList = new ArrayList<>();
                 new Thread(() -> {
                     AWSCredentials crd = new BasicAWSCredentials("AKIAUIINZG7SDUSSH4XX", "MrDjFVRQXRKb95nmx0K48+s1srLJEqtRpImeOctE");
                     AmazonS3 s3 = new AmazonS3Client(crd);
@@ -106,15 +134,22 @@ public class MainActivity extends AppCompatActivity {
                     List<String> fileList = new ArrayList<>();
                     do {
                         objects = s3.listObjects(listObject);
-                        for (S3ObjectSummary objectSummary : objects.getObjectSummaries()) {
-                            String baseName = FilenameUtils.getBaseName(objectSummary.getKey());
-                            if (!fileList.contains(baseName)) fileList.add(baseName);
+                        for (S3ObjectSummary summary : objects.getObjectSummaries()) {
+                            String key = summary.getKey();
+                            String baseName = FilenameUtils.getBaseName(key);
+                            String ext = FilenameUtils.getExtension(key);
+                            if (!fileList.contains(baseName) && ext.equals("jpg")) {
+                                fileList.add(baseName);
+                                itemList.add(new RepoItem(baseName
+                                        , Uri.parse("https://" + getString(R.string.s3_bucket_resize)
+                                        + ".s3.ap-northeast-2.amazonaws.com/" + baseName + ".jpg")));
+                            }
                         }
                         listObject.setMarker(objects.getNextMarker());
-                        Log.d(TAG, fileList.toString());
                     } while (objects.isTruncated());
+                    Log.d(TAG, fileList.toString());
                 }).start();
-                //TODO: recyclerView 만들고, 해당 아이템을 선택하면 파일들을 다운로드해서 뷰어에 띄우기.
+                adapter.setItemList(itemList);
             }
         });
     }
@@ -145,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(new Intent(this, CameraActivity.class));
     }
 
-    public List<String> getObjectListFromFolder(String bucketName, String folderKey) {
+    private List<String> getObjectListFromFolder(String bucketName, String folderKey) {
         ListObjectsRequest listObjectsRequest =
                 new ListObjectsRequest()
                         .withBucketName(bucketName)

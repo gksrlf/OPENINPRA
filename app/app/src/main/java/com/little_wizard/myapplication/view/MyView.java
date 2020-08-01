@@ -120,7 +120,7 @@ public class MyView extends View {
 
                         pointCount++;
                         if(pointCount % pick == 0){
-                            list.add(new Coordinates(touchX - mPosX, touchY - mPosY));
+                            list.add(new Coordinates((touchX - mPosX) / 1000, (touchY - mPosY) / 1000));
                             pointCount = 0;
                             Log.d("getPointer", String.valueOf(touchX - mPosX) + "," + String.valueOf(touchY - mPosY));
                         }
@@ -169,7 +169,7 @@ public class MyView extends View {
                     drawPath.lineTo(touchX - mPosX, touchY - mPosY);
                     pointCount++;
                     if(pointCount % pick == 0){
-                        list.add(new Coordinates(touchX - mPosX, touchY - mPosY));
+                        list.add(new Coordinates((touchX - mPosX) / 1000, (touchY - mPosY) / 1000));
                         pointCount = 0;
                         Log.d("getPointer", String.valueOf(touchX - mPosX) + "," + String.valueOf(touchY - mPosY));
                     }
@@ -194,7 +194,7 @@ public class MyView extends View {
                     //drawPath.lineTo(touchX, touchY);
                     pointCount++;
                     if(pointCount % pick == 0){
-                        list.add(new Coordinates(touchX - mPosX, touchY - mPosY));
+                        list.add(new Coordinates((touchX - mPosX) / 1000, (touchY - mPosY) / 1000));
                         pointCount = 0;
                         Log.d("getPointer", String.valueOf(touchX - mPosX) + "," + String.valueOf(touchY - mPosY));
                     }

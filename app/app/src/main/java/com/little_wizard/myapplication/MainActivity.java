@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -16,6 +17,16 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.amazonaws.auth.CognitoCachingCredentialsProvider;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferNetworkLossHandler;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.little_wizard.myapplication.util.Coordinates;
 
 import java.io.BufferedWriter;
@@ -26,6 +37,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Objects;
 
 import butterknife.BindView;
 
@@ -34,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int GET_COORDINATES = 2;
     private final int PERMISSIONS_REQUEST = 1001;
 
+    TransferUtility transferUtility;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,6 +55,8 @@ public class MainActivity extends AppCompatActivity {
 
         Button select_picture = findViewById(R.id.select_picture);
         select_picture.setOnClickListener(new pictureClickListener());
+
+        initClient();
     }
 
     private class pictureClickListener implements View.OnClickListener {
@@ -103,6 +119,7 @@ public class MainActivity extends AppCompatActivity {
                     ArrayList<Coordinates> list = bundle.getParcelableArrayList("coordinates");
                     saveFile(filename, list);
                     readFile(filename);
+                    upload(getFilesDir() + "/" + filename + ".txt");
                 }
                 break;
         }
@@ -161,5 +178,55 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void initClient(){
+        CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
+                getApplicationContext(),
+                "ap-northeast-2:13fe9921-fc1f-49ab-b998-c59c0a367efe", // 자격 증명 풀 ID
+                Regions.AP_NORTHEAST_2 // 리전
+        );
 
+        AmazonS3 s3 = new AmazonS3Client(credentialsProvider, Region.getRegion(Regions.AP_NORTHEAST_2));
+        transferUtility = TransferUtility.builder().s3Client(s3).context(this).build();
+        TransferNetworkLossHandler.getInstance(this);
+    }
+
+    private void upload(String path) {
+        ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage(getString(R.string.progressDialog));
+        progressDialog.setCancelable(false);
+        progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Horizontal);
+        progressDialog.show();
+
+        File file = new File(path);
+        TransferObserver transferObserver = transferUtility.upload(
+                "imagebucket20200724",
+                file.getName(),
+                file
+        );
+        transferObserver.setTransferListener(new TransferListener() {
+            @Override
+            public void onStateChanged(int id, TransferState state) {
+                Log.d(this.toString(), "onStateChanged: " + id + ", " + state.toString());
+                if (state == TransferState.COMPLETED) {
+                    Toast.makeText(MainActivity.this, "전송 완료.", Toast.LENGTH_SHORT).show();
+                }
+                if (state == TransferState.COMPLETED || state == TransferState.FAILED) {
+                    progressDialog.dismiss();
+                }
+            }
+
+            @Override
+            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+                float v = ((float) bytesCurrent / (float) bytesTotal) * 100;
+                int percent = (int) v;
+                Log.d(this.toString(), "ID:" + id + " bytesCurrent: " + bytesCurrent + " bytesTotal: " + bytesTotal + " " + percent + "%");
+            }
+
+            @Override
+            public void onError(int id, Exception e) {
+                Log.e(this.toString(), Objects.requireNonNull(e.getMessage()));
+                Toast.makeText(MainActivity.this, "전송 실패.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 }

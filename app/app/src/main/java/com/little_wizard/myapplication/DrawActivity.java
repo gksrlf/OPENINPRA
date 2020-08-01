@@ -1,41 +1,32 @@
 package com.little_wizard.myapplication;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.ImageDecoder;
 import android.graphics.Point;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.FileUtils;
-import android.provider.MediaStore;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.ImageView;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
+import com.little_wizard.myapplication.util.Coordinates;
 import com.little_wizard.myapplication.view.MyView;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Map;
 
 public class DrawActivity extends AppCompatActivity {
     private MyView m;
@@ -56,7 +47,6 @@ public class DrawActivity extends AppCompatActivity {
         viewWidth = size.x;
 
         m = new MyView(this, viewHeight, viewWidth);
-        //ImageView imageView = findViewById(R.id.imageView);
 
         Intent intent = getIntent();
         Uri uri = intent.getData();
@@ -92,12 +82,21 @@ public class DrawActivity extends AppCompatActivity {
                 isDrawMode = !isDrawMode;
                 m.setItemMode(isDrawMode);
                 return true;
+
             case R.id.draw_save:
                 String path;
                 String bitName = Long.toString(ZonedDateTime.now().toInstant().toEpochMilli());
                 Log.d(this.toString(), m.getBitmap().toString());
                 saveBitmap(this, bitName, m.getBitmap());
                 path = getFilesDir() + "/" + bitName + ".png"; // TODO::서버에 전송할 때 사진이랑 비트맵 같이 전송해야함
+
+                Intent returnIntent = new Intent(this, MainActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("filename", bitName);
+                bundle.putParcelableArrayList("coordinates", (ArrayList<Coordinates>)m.getList());
+                returnIntent.putExtras(bundle);
+                setResult(Activity.RESULT_OK, returnIntent);
+
                 finish();
                 return true;
             default:
@@ -138,17 +137,17 @@ public class DrawActivity extends AppCompatActivity {
 
         float width = source.getWidth();
         float height = source.getHeight();
-        float newWidth = width;
-        float newHeight = height;
+        float newWidth = viewWidth;
+        float newHeight = viewHeight;
         float rate = height / width;
 
         Log.d("rate1 rate2", String.valueOf(viewHeight / viewWidth) + ", " + String.valueOf(height / width));
         if(viewHeight / viewWidth > height / width){
-            newWidth = viewWidth;
+            //newWidth = viewWidth;
             newHeight = (int) (viewWidth * rate);
             Log.d("rate", "1");
         }else{
-            newHeight = viewHeight;
+            //newHeight = viewHeight;
             newWidth = (int) (viewHeight / rate);
         }
         Log.d("newwidth newheight", String.valueOf(newWidth) + ", " + String.valueOf(newHeight));

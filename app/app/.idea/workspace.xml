@@ -1,13 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2604d13f-3ed0-4edf-b444-c58193e4f345" name="Default Changelist" comment="" />
+    <list default="true" id="2604d13f-3ed0-4edf-b444-c58193e4f345" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/little_wizard/myapplication/util/Coordinates.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../TDC/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../TDC/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/little_wizard/myapplication/DrawActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/little_wizard/myapplication/DrawActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/little_wizard/myapplication/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/little_wizard/myapplication/MainActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/little_wizard/myapplication/PermissionHelper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/little_wizard/myapplication/PermissionHelper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/little_wizard/myapplication/view/MyView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/little_wizard/myapplication/view/MyView.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="Pixel_3a_API_29" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="172.30.1.51:5555" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -20,7 +28,11 @@
       </state>
     </system>
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
   <component name="ProjectId" id="1fMxx7NHk1eL1FPkyy5PENEiuK0" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showExcludedFiles" value="true" />

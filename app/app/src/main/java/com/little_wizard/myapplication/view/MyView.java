@@ -10,11 +10,23 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
+import com.little_wizard.myapplication.util.Coordinates;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class MyView extends View {
     private final int NONE = 0;
     private final int DRAG = 1;
     private final int ZOOM = 2;
     private final int DROW = 3;
+
+    private static int pointCount = 0;
+    private final int pick = 10;
+    List list;
+    Map<String, Float> m;
 
     private int mode;
     private boolean isDrawMode;
@@ -59,6 +71,8 @@ public class MyView extends View {
         });
         this.displayHeight = displayHeight;
         this.displayWidth = displayWidth;
+        list = new ArrayList<Coordinates>();
+        //m = new HashMap<>();
     }
 
     private void setupDrawing(){
@@ -67,7 +81,7 @@ public class MyView extends View {
         drawPaint = new Paint();
         drawPaint.setColor(paintColor);
         //drawPaint.setAntiAlias(true);
-        drawPaint.setStrokeWidth(25);
+        drawPaint.setStrokeWidth(20);
         drawPaint.setStyle(Paint.Style.STROKE);
         drawPaint.setStrokeJoin(Paint.Join.ROUND);
         drawPaint.setStrokeCap(Paint.Cap.ROUND);
@@ -91,28 +105,26 @@ public class MyView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        scaleDetector.onTouchEvent(event);
+        //scaleDetector.onTouchEvent(event);
         super.onTouchEvent(event);
         float touchX = 1 / mScaleFactor * event.getX();
         float touchY = 1 / mScaleFactor * event.getY();
 
-        int pointer = event.getPointerCount();
-        Log.d("pointer", String.valueOf(pointer));
-        Log.d("pointer x1, y1", String.valueOf(event.getX(0)) +", "+String.valueOf(event.getY(0)));
-        /*
-
-        Log.d("onTouchEvent pointer", String.valueOf(pointer));
-        Log.d("onTouchEvent span : Previous", String.valueOf(scaleDetector.getPreviousSpan()));
-        Log.d("onTouchEvent span : Current", String.valueOf(scaleDetector.getCurrentSpan()));
-        Log.d("time", String.valueOf(scaleDetector.getTimeDelta()));*/
     switch (event.getAction() & MotionEvent.ACTION_MASK) {
-            //TODO: 평행 이동 구현해야함
             case MotionEvent.ACTION_DOWN:
                 if(mode == NONE) {
                     Log.d("onTouchEvent Event", "ACTION_DOWN");
                     if(isDrawMode){
                         //drawPath.moveTo(touchX, touchY);
                         drawPath.moveTo(touchX - mPosX, touchY - mPosY);
+
+                        pointCount++;
+                        if(pointCount % pick == 0){
+                            list.add(new Coordinates(touchX - mPosX, touchY - mPosY));
+                            pointCount = 0;
+                            Log.d("getPointer", String.valueOf(touchX - mPosX) + "," + String.valueOf(touchY - mPosY));
+                        }
+
                         mode = DROW;
                     }else{
                         mLastTouchX = touchX;
@@ -155,6 +167,12 @@ public class MyView extends View {
                     Log.d("onTouchEvent Event", "ACTION_MOVE");
                     //drawPath.lineTo(touchX, touchY);
                     drawPath.lineTo(touchX - mPosX, touchY - mPosY);
+                    pointCount++;
+                    if(pointCount % pick == 0){
+                        list.add(new Coordinates(touchX - mPosX, touchY - mPosY));
+                        pointCount = 0;
+                        Log.d("getPointer", String.valueOf(touchX - mPosX) + "," + String.valueOf(touchY - mPosY));
+                    }
                 }else{
                     /*newDist = spacing(event);
                     Log.d("zoom", "newDist=" + newDist);
@@ -174,6 +192,13 @@ public class MyView extends View {
 
                 }else if(mode == DROW){
                     //drawPath.lineTo(touchX, touchY);
+                    pointCount++;
+                    if(pointCount % pick == 0){
+                        list.add(new Coordinates(touchX - mPosX, touchY - mPosY));
+                        pointCount = 0;
+                        Log.d("getPointer", String.valueOf(touchX - mPosX) + "," + String.valueOf(touchY - mPosY));
+                    }
+
                     drawPath.lineTo(touchX - mPosX, touchY - mPosY);
                     drawCanvas.drawPath(drawPath, drawPaint);
                     drawPath.reset();
@@ -217,6 +242,11 @@ public class MyView extends View {
 
     public void setItemMode(boolean mode){
         isDrawMode = mode;
+    }
+
+    public List getList(){
+        Log.d("getListFunc", list.toString());
+        return list;
     }
 /*
     public class MovingUnit{

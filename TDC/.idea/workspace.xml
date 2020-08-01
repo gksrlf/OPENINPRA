@@ -2,7 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8b292c14-2f5d-409a-83b4-89ae9fd4d7d3" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/../app/app/src/main/java/com/little_wizard/myapplication/util/Coordinates.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../app/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/app/src/main/java/com/little_wizard/myapplication/DrawActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/../app/app/src/main/java/com/little_wizard/myapplication/DrawActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/app/src/main/java/com/little_wizard/myapplication/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/../app/app/src/main/java/com/little_wizard/myapplication/MainActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/app/src/main/java/com/little_wizard/myapplication/PermissionHelper.java" beforeDir="false" afterPath="$PROJECT_DIR$/../app/app/src/main/java/com/little_wizard/myapplication/PermissionHelper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/app/src/main/java/com/little_wizard/myapplication/view/MyView.java" beforeDir="false" afterPath="$PROJECT_DIR$/../app/app/src/main/java/com/little_wizard/myapplication/view/MyView.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,7 +34,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../app" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../app/app" />
   </component>
   <component name="SvnConfiguration">
     <configuration />
@@ -44,10 +50,10 @@
     <servers />
   </component>
   <component name="WindowStateProjectService">
-    <state x="-1297" y="292" key="FileChooserDialogImpl" timestamp="1596042411428">
+    <state x="-1297" y="292" key="FileChooserDialogImpl" timestamp="1596286780204">
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state x="-1297" y="292" key="FileChooserDialogImpl/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1596042411428" />
+    <state x="-1297" y="292" key="FileChooserDialogImpl/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1596286780204" />
     <state x="-1385" y="361" key="com.intellij.ide.util.TipDialog" timestamp="1596042403982">
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>

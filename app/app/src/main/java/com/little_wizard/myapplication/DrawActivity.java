@@ -73,6 +73,9 @@ public class DrawActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         switch(item.getItemId()){
+            case R.id.draw_undo:
+                m.undo();
+                return true;
             case R.id.draw_mode:
                 if(!isDrawMode){
                     item.setIcon(R.drawable.ic_baseline_done_24);
@@ -98,6 +101,9 @@ public class DrawActivity extends AppCompatActivity {
                 setResult(Activity.RESULT_OK, returnIntent);
 
                 finish();
+                return true;
+            case R.id.draw_clear:
+                m.clear();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

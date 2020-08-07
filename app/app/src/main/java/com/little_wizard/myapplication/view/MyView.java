@@ -327,7 +327,6 @@ public class MyView extends View {
     }
 
     public List getList() {
-        //Log.d("getListFunc", list.toString());
         return drawQueue.getResult();
     }
 
@@ -344,6 +343,7 @@ public class MyView extends View {
             activityMenu.findItem(R.id.draw_undo).setEnabled(false);
         }
     }
+
     public void clear(){
         drawQueue.clear();
         setBackgrountBitmap(originalBitmap);

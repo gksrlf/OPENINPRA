@@ -62,6 +62,7 @@ public class DrawQueue {
     public ArrayList<Coordinates> getResult(){
         ArrayList<Coordinates> result = new ArrayList<>();
         for(Element e : queue){
+            if(e.list == null) continue;
             for(Coordinates c : (ArrayList<Coordinates>)e.list){
                 result.add(new Coordinates(c.getX() / 1000, c.getY() / 1000));
             }

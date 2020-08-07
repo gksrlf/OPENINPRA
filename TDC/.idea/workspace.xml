@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="8b292c14-2f5d-409a-83b4-89ae9fd4d7d3" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/../app/app/src/main/java/com/little_wizard/myapplication/util/Coordinates.java" afterDir="false" />
+    <list default="true" id="1280432e-51e9-4d00-b76b-c57315dbf3d1" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/.idea/caches/build_file_checksums.ser" beforeDir="false" afterPath="$PROJECT_DIR$/../app/.idea/caches/build_file_checksums.ser" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../app/.idea/modules.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../app/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../app/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../app/app/src/main/java/com/little_wizard/myapplication/DrawActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/../app/app/src/main/java/com/little_wizard/myapplication/DrawActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../app/app/src/main/java/com/little_wizard/myapplication/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/../app/app/src/main/java/com/little_wizard/myapplication/MainActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../app/app/src/main/java/com/little_wizard/myapplication/PermissionHelper.java" beforeDir="false" afterPath="$PROJECT_DIR$/../app/app/src/main/java/com/little_wizard/myapplication/PermissionHelper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../app/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/app/src/main/java/com/little_wizard/myapplication/util/DrawQueue.java" beforeDir="false" afterPath="$PROJECT_DIR$/../app/app/src/main/java/com/little_wizard/myapplication/util/DrawQueue.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../app/app/src/main/java/com/little_wizard/myapplication/view/MyView.java" beforeDir="false" afterPath="$PROJECT_DIR$/../app/app/src/main/java/com/little_wizard/myapplication/view/MyView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/local.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../app/local.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -18,7 +19,12 @@
   <component name="ExternalProjectsManager">
     <system id="GRADLE">
       <state>
-        <projects_view />
+        <projects_view>
+          <tree_state>
+            <expand />
+            <select />
+          </tree_state>
+        </projects_view>
       </state>
     </system>
   </component>

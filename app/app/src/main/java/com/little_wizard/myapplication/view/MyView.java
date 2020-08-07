@@ -1,5 +1,6 @@
 package com.little_wizard.myapplication.view;
 
+import android.app.usage.UsageEvents;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -7,8 +8,12 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+
+import com.little_wizard.myapplication.R;
 import com.little_wizard.myapplication.util.Coordinates;
 import com.little_wizard.myapplication.util.DrawQueue;
 
@@ -56,13 +61,16 @@ public class MyView extends View {
 
     private int displayHeight;
     private int displayWidth;
+    private float startX, startY;
+
+    Menu activityMenu;
+    private boolean confirmation;
 
     public MyView(Context context, int displayHeight, int displayWidth) {
         super(context);
         setupDrawing();
         this.displayHeight = displayHeight;
         this.displayWidth = displayWidth;
-        //list = new ArrayList<Coordinates>();
         drawQueue = new DrawQueue();
     }
 
@@ -117,12 +125,15 @@ public class MyView extends View {
             case MotionEvent.ACTION_DOWN:
                 if (mode == NONE) {
                     Log.d("onTouchEvent Event", "ACTION_DOWN");
-                    if (isDrawMode) {
+                    if(!isInPicture(event)) break;
+                    if (isDrawMode && confirmation == false) {
                         Coordinates lastPoint = drawQueue.getLastPoint();
                         if(lastPoint != null){
                             drawPath.moveTo(lastPoint.getX(), lastPoint.getY());
                             viewPath.moveTo(lastPoint.getX() * magification + mPosX, lastPoint.getY() * magification + mPosY);
                         }else{
+                            startX = absX;
+                            startY = absY;
                             drawPath.moveTo(absX, absY);
                             viewPath.moveTo(event.getX(), event.getY());
                         }
@@ -149,14 +160,16 @@ public class MyView extends View {
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (mode == DRAG) {
-                    mPosX = posX2 - offsetX;
-                    mPosY = posY2 - offsetY;
-                    posX2 = (int) event.getX();
-                    posY2 = (int) event.getY();
-                    if (Math.abs(posX2 - posX1) > 20 || Math.abs(posY2 - posY1) > 20) {
-                        posX1 = posX2;
-                        posY1 = posY2;
-                        Log.d("drag", "mode=DRAG");
+                    if(isInPicture(event)){
+                        mPosX = posX2 - offsetX;
+                        mPosY = posY2 - offsetY;
+                        posX2 = (int) event.getX();
+                        posY2 = (int) event.getY();
+                        if (Math.abs(posX2 - posX1) > 20 || Math.abs(posY2 - posY1) > 20) {
+                            posX1 = posX2;
+                            posY1 = posY2;
+                            Log.d("drag", "mode=DRAG");
+                        }
                     }
                     /*
                     float pmPosX = mPosX;
@@ -197,16 +210,25 @@ public class MyView extends View {
                         mPosY = pmPosY;
                     }*/
 
-                } else if (mode == DROW) {
-                    Log.d("onTouchEvent Event", "ACTION_MOVE");
-                    //drawPath.lineTo(touchX, touchY);
-                    viewPath.lineTo(event.getX(), event.getY());
-                    pointCount++;
-                    if (pointCount % pick == 0) {
-                        drawPath.lineTo(absX, absY);
+                } else if (mode == DROW && confirmation == false) {
+                    if(isInPicture(event)){
+                        viewPath.lineTo(event.getX(), event.getY());
+                        pointCount++;
+                        if (pointCount % pick == 0) {
+                            drawPath.lineTo(absX, absY);
+                            list.add(new Coordinates(absX, absY));
+                            pointCount = 0;
+                            Log.d("getPointer", String.valueOf(absX) + "," + String.valueOf(absY));
+                        }
+                    }else{ //draw상태에서 사진 범위 넘어갔을 때
+                        mode = NONE;
                         list.add(new Coordinates(absX, absY));
-                        pointCount = 0;
-                        Log.d("getPointer", String.valueOf(absX) + "," + String.valueOf(absY));
+                        drawPath.lineTo(absX, absY);
+                        viewPath.lineTo(event.getX(), event.getY());
+                        drawCanvas.drawPath(drawPath, drawPaint);
+                        drawPath.reset();
+                        viewPath.reset();
+                        drawQueue.push(previousBitmap, list);
                     }
                 } else {
                     magification = width / originalWidth;
@@ -242,19 +264,9 @@ public class MyView extends View {
                         }
                     }
                 }
-                //TODO: 좌표 저장해서 리스트 만들기, (x,y)
                 break;
             case MotionEvent.ACTION_UP:
-                if (mode == DRAG) {
-
-                } else if (mode == DROW) {
-                    /*pointCount++;
-                    if (pointCount % pick == 0) {
-                        list.add(new Coordinates(absX / 1000, absY / 1000));
-                        pointCount = 0;
-                        Log.d("getPointer", String.valueOf(absX) + "," + String.valueOf(absY));
-                    }*/
-
+                if (mode == DROW && confirmation == false) {
                     list.add(new Coordinates(absX, absY));
                     drawPath.lineTo(absX, absY);
                     viewPath.lineTo(event.getX(), event.getY());
@@ -325,6 +337,10 @@ public class MyView extends View {
         drawCanvas.drawBitmap(previousBitmap, 0, 0, null);
         drawCanvas.restore();
         invalidate();
+        setConfirmation(false);
+        if(drawQueue.size() <= 1){
+            activityMenu.getItem(R.id.draw_undo).setEnabled(false);
+        }
     }
     public void clear(){
         drawQueue.clear();
@@ -332,7 +348,45 @@ public class MyView extends View {
         invalidate();
     }
 
-    public int getQueueSize(){
-        return drawQueue.size();
+    protected boolean isInPicture(MotionEvent e){
+        return (mPosX <= e.getX() && e.getX() <= mPosX + width && mPosY <= e.getY() && e.getY() <= mPosY + height)?true:false;
+    }
+
+    public void setMenu(Menu menu){
+        activityMenu = menu;
+    }
+
+    protected void setStatusMenuItem(int itemId, Boolean status){
+        activityMenu.getItem(itemId).setEnabled(status);
+        switch(itemId){
+            case R.id.draw_undo:
+                break;
+            case R.id.draw_save:
+                break;
+        }
+    }
+    public void setConfirmation(Boolean status){
+        confirmation = status;
+        if(status == true){
+            Bitmap previousBitmap = canvasBitmap.copy(Bitmap.Config.ARGB_8888, true);
+            ArrayList<Coordinates> lastPoint = new ArrayList<>();
+            lastPoint.add(new Coordinates(startX, startY));
+
+            activityMenu.findItem(R.id.draw_confirmation).setEnabled(false);
+            activityMenu.findItem(R.id.draw_confirmation).setVisible(false);
+            activityMenu.findItem(R.id.draw_save).setEnabled(true);
+            activityMenu.findItem(R.id.draw_save).setVisible(true);
+
+            drawPath.moveTo(startX, startY);
+            drawCanvas.drawPath(drawPath, drawPaint);
+            drawQueue.push(previousBitmap, lastPoint);
+            drawPath.reset();
+            invalidate();
+        }else{
+            activityMenu.findItem(R.id.draw_confirmation).setEnabled(true);
+            activityMenu.findItem(R.id.draw_confirmation).setVisible(true);
+            activityMenu.findItem(R.id.draw_save).setEnabled(false);
+            activityMenu.findItem(R.id.draw_save).setVisible(false);
+        }
     }
 }

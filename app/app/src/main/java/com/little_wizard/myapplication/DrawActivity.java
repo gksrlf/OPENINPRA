@@ -34,7 +34,6 @@ public class DrawActivity extends AppCompatActivity {
     Display display;
     private int viewHeight;
     private int viewWidth;
-    MenuItem item;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -66,7 +65,9 @@ public class DrawActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu){
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.draw_menu, menu);
-        item = menu.findItem(R.id.draw_mode);
+        menu.findItem(R.id.draw_save).setEnabled(false);
+        menu.findItem(R.id.draw_save).setVisible(false);
+        m.setMenu(menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -76,9 +77,10 @@ public class DrawActivity extends AppCompatActivity {
             case R.id.draw_undo:
                 m.undo();
                 return true;
+
             case R.id.draw_mode:
                 if(!isDrawMode){
-                    item.setIcon(R.drawable.ic_baseline_done_24);
+                    item.setIcon(R.drawable.ic_baseline_pan_tool_24);
                 }else{
                     item.setIcon(R.drawable.ic_baseline_edit_24);
                 }
@@ -86,6 +88,9 @@ public class DrawActivity extends AppCompatActivity {
                 m.setItemMode(isDrawMode);
                 return true;
 
+            case R.id.draw_confirmation:
+                m.setConfirmation(true);
+                return true;
             case R.id.draw_save:
                 String path;
                 String bitName = Long.toString(ZonedDateTime.now().toInstant().toEpochMilli());
@@ -102,6 +107,7 @@ public class DrawActivity extends AppCompatActivity {
 
                 finish();
                 return true;
+
             case R.id.draw_clear:
                 m.clear();
                 return true;

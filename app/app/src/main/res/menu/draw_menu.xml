@@ -14,10 +14,15 @@
         android:title="모드 변경"
         app:showAsAction="always"/>
     <item
+        android:id="@+id/draw_confirmation"
+        android:icon="@drawable/ic_baseline_done_24"
+        android:title="확정"
+        app:showAsAction="always"/>
+    <item
         android:id="@+id/draw_save"
         android:icon="@drawable/ic_baseline_save_alt_24"
         android:title="@string/bitmap_save"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="always"/>
     <item
         android:id="@+id/draw_clear"
         android:icon="@drawable/ic_baseline_clear_24"

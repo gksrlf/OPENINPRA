@@ -72,6 +72,7 @@ public class MyView extends View {
         this.displayHeight = displayHeight;
         this.displayWidth = displayWidth;
         drawQueue = new DrawQueue();
+        confirmation = false;
     }
 
     private void setupDrawing() {
@@ -120,6 +121,7 @@ public class MyView extends View {
         Log.d("onTouchEvent absolute", String.format("%f, %f", absX, absY));
         Bitmap previousBitmap = canvasBitmap.copy(Bitmap.Config.ARGB_8888, true);
         ArrayList<Coordinates> list = new ArrayList<>();
+        Log.d("confirmation", String.format("%b", confirmation));
 
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
@@ -168,7 +170,7 @@ public class MyView extends View {
                         if (Math.abs(posX2 - posX1) > 20 || Math.abs(posY2 - posY1) > 20) {
                             posX1 = posX2;
                             posY1 = posY2;
-                            Log.d("drag", "mode=DRAG");
+                            //Log.d("drag", "mode=DRAG");
                         }
                     }
                     /*
@@ -325,7 +327,7 @@ public class MyView extends View {
     }
 
     public List getList() {
-        Log.d("getListFunc", list.toString());
+        //Log.d("getListFunc", list.toString());
         return drawQueue.getResult();
     }
 
@@ -339,7 +341,7 @@ public class MyView extends View {
         invalidate();
         setConfirmation(false);
         if(drawQueue.size() <= 1){
-            activityMenu.getItem(R.id.draw_undo).setEnabled(false);
+            activityMenu.findItem(R.id.draw_undo).setEnabled(false);
         }
     }
     public void clear(){
@@ -369,17 +371,19 @@ public class MyView extends View {
         confirmation = status;
         if(status == true){
             Bitmap previousBitmap = canvasBitmap.copy(Bitmap.Config.ARGB_8888, true);
-            ArrayList<Coordinates> lastPoint = new ArrayList<>();
-            lastPoint.add(new Coordinates(startX, startY));
+            ArrayList<Coordinates> point = new ArrayList<>();
+            point.add(new Coordinates(startX, startY));
+            Coordinates lastPoint = drawQueue.getLastPoint();
 
             activityMenu.findItem(R.id.draw_confirmation).setEnabled(false);
             activityMenu.findItem(R.id.draw_confirmation).setVisible(false);
             activityMenu.findItem(R.id.draw_save).setEnabled(true);
             activityMenu.findItem(R.id.draw_save).setVisible(true);
 
-            drawPath.moveTo(startX, startY);
+            drawPath.moveTo(lastPoint.getX(), lastPoint.getY());
+            drawPath.lineTo(startX, startY);
             drawCanvas.drawPath(drawPath, drawPaint);
-            drawQueue.push(previousBitmap, lastPoint);
+            drawQueue.push(previousBitmap, point);
             drawPath.reset();
             invalidate();
         }else{

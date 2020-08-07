@@ -34,7 +34,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../app/app" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
   </component>
   <component name="SvnConfiguration">
     <configuration />
@@ -54,9 +54,10 @@
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
     <state x="-1297" y="292" key="FileChooserDialogImpl/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1596286780204" />
-    <state x="-1385" y="361" key="com.intellij.ide.util.TipDialog" timestamp="1596042403982">
-      <screen x="-1920" y="0" width="1920" height="1040" />
+    <state x="535" y="361" key="com.intellij.ide.util.TipDialog" timestamp="1596791357075">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="-1385" y="361" key="com.intellij.ide.util.TipDialog/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1596042403982" />
+    <state x="535" y="361" key="com.intellij.ide.util.TipDialog/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1596791357075" />
   </component>
 </project>

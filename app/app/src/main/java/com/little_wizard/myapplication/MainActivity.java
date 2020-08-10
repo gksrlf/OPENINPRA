@@ -5,7 +5,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -44,6 +46,9 @@ import butterknife.BindView;
 public class MainActivity extends AppCompatActivity {
     private static final int PICK_FROM_ALBUM = 1;
     private static final int GET_COORDINATES = 2;
+    private static final int PHOTO_TYPE_SYMMETRY = 3;
+    private static final int PHOTO_TYPE_ASYMMETRY = 4;
+
     private final int PERMISSIONS_REQUEST = 1001;
 
     TransferUtility transferUtility;
@@ -100,10 +105,33 @@ public class MainActivity extends AppCompatActivity {
 
                         File setFile = new File(cursor.getString(column_index));
 
-                        Intent intent = new Intent(this, DrawActivity.class);
-                        intent.setAction(Intent.ACTION_SEND);
-                        intent.setData(Uri.fromFile(setFile));
-                        startActivityForResult(intent, GET_COORDINATES);
+                        final String[] menu = {"Symmetry", "Asymmetry"};
+                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+                        alertDialogBuilder.setTitle("Photo type");
+                        alertDialogBuilder.setItems(menu, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                Intent intent;
+                                switch(i){
+                                    case 0:
+                                        intent = new Intent(getApplicationContext(), EditActivity.class);
+                                        intent.setAction(Intent.ACTION_SEND);
+                                        intent.setData(Uri.fromFile(setFile));
+                                        startActivityForResult(intent, PHOTO_TYPE_SYMMETRY);
+                                        break;
+                                    case 1:
+                                        intent = new Intent(getApplicationContext(), DrawActivity.class);
+                                        intent.setAction(Intent.ACTION_SEND);
+                                        intent.setData(Uri.fromFile(setFile));
+                                        startActivityForResult(intent, PHOTO_TYPE_ASYMMETRY);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                        });
+                        AlertDialog alertDialog = alertDialogBuilder.create();
+                        alertDialog.show();
                     } finally {
                         if (cursor != null) {
                             cursor.close();

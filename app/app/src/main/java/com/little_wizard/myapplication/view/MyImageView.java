@@ -172,8 +172,11 @@ public class MyImageView extends androidx.appcompat.widget.AppCompatImageView {
     }
 
     public Bitmap getResult(){
-        Bitmap bitmap = bitmapDrawable.getBitmap();
-        Bitmap result = Bitmap.createBitmap(this.bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, false);
-        return result;
+        //buildDrawingCache();
+        //Bitmap result = getDrawingCache();
+        Bitmap bitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        draw(canvas);
+        return bitmap;
     }
 }

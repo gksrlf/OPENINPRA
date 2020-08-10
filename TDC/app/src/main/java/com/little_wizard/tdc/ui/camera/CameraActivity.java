@@ -369,7 +369,7 @@ public class CameraActivity extends AppCompatActivity {
 
     private void upload(String path) {
         ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage(getString(R.string.progress_dialog));
+        progressDialog.setMessage(getString(R.string.uploading));
         progressDialog.setCancelable(false);
         progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Horizontal);
         progressDialog.show();

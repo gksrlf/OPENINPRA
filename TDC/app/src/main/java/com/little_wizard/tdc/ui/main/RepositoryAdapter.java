@@ -24,8 +24,7 @@ public class RepositoryAdapter extends RecyclerView.Adapter<RepositoryAdapter.Vi
 
     private List<RepoItem> itemList = new ArrayList<>();
 
-    private ViewHolder.ItemClickListener mClickListener;
-    private ItemLongClickListener mLongClickListener;
+    private ItemClickListener mClickListener;
 
     RepositoryAdapter(Context context) {
         this.mContext = context;
@@ -71,28 +70,21 @@ public class RepositoryAdapter extends RecyclerView.Adapter<RepositoryAdapter.Vi
         @Override
         public void onClick(View view) {
             if (mClickListener != null) {
-                mClickListener.onItemClick(view, categoryList.get(getAdapterPosition()));
+                mClickListener.onItemClick(view, itemList.get(getAdapterPosition()));
             }
         }
 
         @Override
         public boolean onLongClick(View view) {
-            if (mClickListener != null) {
-                mClickListener.onItemClick(view, categoryList.get(getAdapterPosition()));
-            }
             return false;
         }
+    }
 
-        void setClickListener(ItemClickListener itemClickListener) {
-            this.mClickListener = itemClickListener;
-        }
+    void setClickListener(ItemClickListener listener) {
+        this.mClickListener = listener;
+    }
 
-        public interface ItemClickListener {
-            void onItemClick(View view, int position);
-        }
-
-        public interface ItemLongClickListener {
-            void onItemLongClick(View view, int position);
-        }
+    public interface ItemClickListener {
+        void onItemClick(View view, RepoItem item);
     }
 }

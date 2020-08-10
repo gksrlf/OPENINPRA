@@ -276,9 +276,8 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
     private void launchModelRendererActivity(String uri) {
         Log.i("Menu", "Launching renderer for '" + uri + "'");
         Intent intent = new Intent(getApplicationContext(), ModelActivity.class);
-        intent.putExtra("uri", uri);
-        intent.putExtra("immersiveMode", "true");
-
+        intent.putExtra("URI", uri);
+        intent.putExtra("MODIFY", false);
         startActivity(intent);
     }
 }

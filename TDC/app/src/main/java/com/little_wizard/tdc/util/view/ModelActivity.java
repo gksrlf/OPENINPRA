@@ -1,47 +1,56 @@
 package com.little_wizard.tdc.util.view;
 
-import android.annotation.TargetApi;
-import android.app.ActionBar;
-import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 
 import com.little_wizard.tdc.R;
+import com.little_wizard.tdc.ui.main.MainActivity;
 import com.little_wizard.tdc.util.scene_loader.SceneLoader;
 
 import org.andresoviedo.util.android.ContentUtils;
 
 import java.io.IOException;
 
-//import org.andresoviedo.dddmodel2.R;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * This activity represents the container for our 3D viewer.
  *
  * @author andresoviedo
  */
-public class ModelActivity extends Activity {
+public class ModelActivity extends AppCompatActivity {
 
     private static final int REQUEST_CODE_LOAD_TEXTURE = 1000;
     private static final int FULLSCREEN_DELAY = 10000;
     @BindView(R.id.layout)
     ConstraintLayout layout;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
+    @BindView(R.id.modifyTools)
+    LinearLayout modifyTools;
+    @BindView(R.id.zoom_in)
+    ImageButton zoomIn;
+    @BindView(R.id.zoom_out)
+    ImageButton zoomOut;
+    @BindView(R.id.rotate)
+    ImageButton rotate;
 
     /**
      * Type of model if file name has no extension (provided though content provider)
@@ -66,28 +75,29 @@ public class ModelActivity extends Activity {
 
     private Handler handler;
 
+    boolean modify = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if (MainActivity.darkMode) setTheme(R.style.Theme_AppCompat_NoActionBar);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_model);
         ButterKnife.bind(this);
 
-        // Try to get input parameters
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
         Bundle b = getIntent().getExtras();
         if (b != null) {
-            if (b.getString("uri") != null) {
-                this.paramUri = Uri.parse(b.getString("uri"));
+            if (b.getString("URI") != null) {
+                this.paramUri = Uri.parse(b.getString("URI"));
             }
-            this.paramType = b.getString("type") != null ? Integer.parseInt(b.getString("type")) : -1;
-            this.immersiveMode = "true".equalsIgnoreCase(b.getString("immersiveMode"));
-            try {
-                String[] backgroundColors = b.getString("backgroundColor").split(" ");
-                backgroundColor[0] = Float.parseFloat(backgroundColors[0]);
-                backgroundColor[1] = Float.parseFloat(backgroundColors[1]);
-                backgroundColor[2] = Float.parseFloat(backgroundColors[2]);
-                backgroundColor[3] = Float.parseFloat(backgroundColors[3]);
-            } catch (Exception ex) {
-                // Assuming default background color
+            if (b.getBoolean("MODIFY")) {
+                modify = true;
+                modifyTools.setVisibility(View.VISIBLE);
             }
         }
         Log.i("Renderer", "Params: uri '" + paramUri + "'");
@@ -109,169 +119,48 @@ public class ModelActivity extends Activity {
             gLView.setId(View.generateViewId());
             layout.addView(gLView);
 
-            Button button = new Button(this);
-            button.setText("버튼");
-            button.setId(View.generateViewId());
-            layout.addView(button);
+            ConstraintSet set = new ConstraintSet();
+            set.clone(layout);
+            set.constrainWidth(gLView.getId(), ConstraintSet.MATCH_CONSTRAINT);
+            set.constrainHeight(gLView.getId(), ConstraintSet.MATCH_CONSTRAINT);
+            set.connect(gLView.getId(), ConstraintSet.TOP, toolbar.getId(), ConstraintSet.BOTTOM);
+            set.connect(gLView.getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM);
+            set.connect(gLView.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START);
+            set.connect(gLView.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
+            set.applyTo(layout);
         } catch (Exception e) {
             Toast.makeText(this, "Error loading OpenGL view:\n" + e.getMessage(), Toast.LENGTH_LONG).show();
         }
-
-        // Show the Up button in the action bar.
-        setupActionBar();
-
-        // TODO: Alert user when there is no multitouch support (2 fingers). He won't be able to rotate or zoom
         ContentUtils.printTouchCapabilities(getPackageManager());
-
-        setupOnSystemVisibilityChangeListener();
-    }
-
-    /**
-     * Set up the {@link ActionBar}, if the API is available.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    private void setupActionBar() {
-        // if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-        // getActionBar().setDisplayHomeAsUpEnabled(true);
-        // }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.model, menu);
+        getMenuInflater().inflate(modify ? R.menu.menu_save : R.menu.menu_modify, menu);
         return true;
-    }
-
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    private void setupOnSystemVisibilityChangeListener() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-            return;
-        }
-        getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(visibility -> {
-            // Note that system bars will only be "visible" if none of the
-            // LOW_PROFILE, HIDE_NAVIGATION, or FULLSCREEN flags are set.
-            if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
-                // The system bars are visible. Make any desired
-                hideSystemUIDelayed();
-            }
-        });
-    }
-
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) {
-            hideSystemUIDelayed();
-        }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.model_toggle_wireframe:
-                scene.toggleWireframe();
-                break;
-            case R.id.model_toggle_boundingbox:
-                scene.toggleBoundingBox();
-                break;
-            case R.id.model_toggle_textures:
-                scene.toggleTextures();
-                break;
-            case R.id.model_toggle_animation:
-                scene.toggleAnimation();
-                break;
-            case R.id.model_toggle_collision:
-                scene.toggleCollision();
-                break;
-            case R.id.model_toggle_lights:
-                scene.toggleLighting();
-                break;
-            case R.id.model_toggle_stereoscopic:
-                scene.toggleStereoscopic();
-                break;
-            case R.id.model_toggle_blending:
-                scene.toggleBlending();
-                break;
-            case R.id.model_toggle_immersive:
-                toggleImmersive();
-                break;
-            case R.id.model_load_texture:
-                Intent target = ContentUtils.createGetContentIntent("image/*");
-                Intent intent = Intent.createChooser(target, "Select a file");
-                try {
-                    startActivityForResult(intent, REQUEST_CODE_LOAD_TEXTURE);
-                } catch (ActivityNotFoundException e) {
-                    // The reason for the existence of aFileChooser
-                }
-                break;
-        }
+            case android.R.id.home: {
+                finish();
+                return true;
+            }
+            case R.id.action_modify: {
+                Intent intent = getIntent();
+                intent.putExtra("MODIFY", true);
+                finish();
+                startActivity(intent);
+                overridePendingTransition(0, 0);
+                return true;
+            }
 
-        hideSystemUIDelayed();
+            case R.id.action_save: {
+                finish();
+            }
+        }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void toggleImmersive() {
-        this.immersiveMode = !this.immersiveMode;
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-            return;
-        }
-        if (this.immersiveMode) {
-            hideSystemUI();
-        } else {
-            showSystemUI();
-        }
-        Toast.makeText(this, "Fullscreen " + this.immersiveMode, Toast.LENGTH_SHORT).show();
-    }
-
-    private void hideSystemUIDelayed() {
-        if (!this.immersiveMode) {
-            return;
-        }
-        handler.removeCallbacksAndMessages(null);
-        handler.postDelayed(this::hideSystemUI, FULLSCREEN_DELAY);
-
-    }
-
-    private void hideSystemUI() {
-        if (!this.immersiveMode) {
-            return;
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            hideSystemUIKitKat();
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            hideSystemUIJellyBean();
-        }
-    }
-
-    // This snippet hides the system bars.
-    @TargetApi(Build.VERSION_CODES.KITKAT)
-    private void hideSystemUIKitKat() {
-        // Set the IMMERSIVE flag.
-        // Set the content to appear under the system bars so that the content
-        // doesn't resize when the system bars hide and show.
-        final View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
-                | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
-                | View.SYSTEM_UI_FLAG_IMMERSIVE);
-    }
-
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    private void hideSystemUIJellyBean() {
-        final View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LOW_PROFILE);
-    }
-
-    // This snippet shows the system bars. It does this by removing all the flags
-    // except for the ones that make the content appear under the system bars.
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    private void showSystemUI() {
-        handler.removeCallbacksAndMessages(null);
-        final View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
     }
 
     public Uri getParamUri() {
@@ -296,6 +185,7 @@ public class ModelActivity extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (resultCode != RESULT_OK) {
             return;
         }
@@ -317,5 +207,20 @@ public class ModelActivity extends Activity {
                     }
                 }
         }
+    }
+
+    @OnClick(R.id.zoom_in)
+    public void onZoomInClicked() {
+        //TODO: 확대 기능 구현.
+    }
+
+    @OnClick(R.id.zoom_out)
+    public void onZoomOutClicked() {
+        //TODO: 축소 기능 구현.
+    }
+
+    @OnClick(R.id.rotate)
+    public void onRotateClicked() {
+        //TODO: 회전 기능 구현.
     }
 }

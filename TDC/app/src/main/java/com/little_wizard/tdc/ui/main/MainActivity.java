@@ -26,14 +26,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferNetworkLossHandler;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
@@ -44,6 +38,7 @@ import com.little_wizard.tdc.classes.RepoItem;
 import com.little_wizard.tdc.ui.camera.CameraActivity;
 import com.little_wizard.tdc.ui.settings.SettingsActivity;
 import com.little_wizard.tdc.util.NetworkStatus;
+import com.little_wizard.tdc.util.S3Transfer;
 import com.little_wizard.tdc.util.view.ModelActivity;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
@@ -62,12 +57,10 @@ import butterknife.OnClick;
 import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 
-public class MainActivity extends AppCompatActivity implements RepositoryAdapter.ItemClickListener {
+public class MainActivity extends AppCompatActivity implements RepositoryAdapter.ItemClickListener, S3Transfer.TransferCallback {
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -91,10 +84,8 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
 
     private String TAG = getClass().getSimpleName();
 
-    public static AmazonS3 s3;
-    TransferUtility transferUtility;
-
     NetworkStatus status;
+    S3Transfer transfer;
 
     String[] extensions = {"mtl", "jpg", "obj"};
 
@@ -186,12 +177,8 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
                         return;
                     }
                     progressDialog.show();
-                    TransferObserver transferObserver = transferUtility.download(
-                            getString(R.string.s3_bucket_resize),
-                            file.getName(),
-                            file
-                    );
-                    transferObserver.setTransferListener(new TransferListener() {
+                    transfer.download(R.string.s3_bucket_resize, file);
+                    transfer.getTransferObserver().setTransferListener(new TransferListener() {
                         @Override
                         public void onStateChanged(int id, TransferState state) {
                             Log.d(TAG, state.toString());
@@ -235,14 +222,7 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
     }
 
     void init() {
-        CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
-                getApplicationContext(),
-                "ap-northeast-2:13fe9921-fc1f-49ab-b998-c59c0a367efe",
-                Regions.AP_NORTHEAST_2
-        );
-        s3 = new AmazonS3Client(credentialsProvider, Region.getRegion(Regions.AP_NORTHEAST_2));
-        transferUtility = TransferUtility.builder().s3Client(MainActivity.s3).context(mContext).build();
-        TransferNetworkLossHandler.getInstance(mContext);
+        transfer = new S3Transfer(this);
 
         repositoryRecycler.setLayoutManager(new LinearLayoutManager(mContext));
         repositoryAdapter = new RepositoryAdapter(mContext);
@@ -273,7 +253,6 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
 
                 if (!status.isConnected()) {
                     networkLayout.setVisibility(View.VISIBLE);
-                    networkLayout.bringToFront();
                     return;
                 } else networkLayout.setVisibility(View.GONE);
 
@@ -339,9 +318,7 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
     }
 
     private String fileToMD5(File file) {
-        InputStream inputStream = null;
-        try {
-            inputStream = new FileInputStream(file);
+        try (InputStream inputStream = new FileInputStream(file)) {
             byte[] buffer = new byte[1024];
             MessageDigest digest = MessageDigest.getInstance("MD5");
             int numRead = 0;
@@ -354,22 +331,15 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
             return convertHashToString(md5Bytes);
         } catch (Exception e) {
             return null;
-        } finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (Exception e) {
-                }
-            }
         }
     }
 
     private String convertHashToString(byte[] md5Bytes) {
-        String returnVal = "";
-        for (int i = 0; i < md5Bytes.length; i++) {
-            returnVal += Integer.toString((md5Bytes[i] & 0xff) + 0x100, 16).substring(1);
+        StringBuilder returnVal = new StringBuilder();
+        for (byte md5Byte : md5Bytes) {
+            returnVal.append(Integer.toString((md5Byte & 0xff) + 0x100, 16).substring(1));
         }
-        return returnVal;
+        return returnVal.toString();
     }
 
     private void launchModelRendererActivity(String uri) {
@@ -378,5 +348,15 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
         intent.putExtra("URI", uri);
         intent.putExtra("MODIFY", false);
         startActivity(intent);
+    }
+
+    @Override
+    public void onStateChanged(TransferState state) {
+
+    }
+
+    @Override
+    public void onError(int id, Exception e) {
+
     }
 }

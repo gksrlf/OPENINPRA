@@ -43,27 +43,23 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferNetworkLossHandler;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.little_wizard.tdc.R;
 import com.little_wizard.tdc.ui.main.MainActivity;
 import com.little_wizard.tdc.util.NetworkStatus;
+import com.little_wizard.tdc.util.S3Transfer;
 import com.little_wizard.tdc.util.permission.PermissionHelper;
 
 import java.io.File;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class CameraActivity extends AppCompatActivity {
+public class CameraActivity extends AppCompatActivity implements S3Transfer.TransferCallback {
 
     @BindView(R.id.surfaceView)
     SurfaceView surfaceView;
@@ -79,13 +75,13 @@ public class CameraActivity extends AppCompatActivity {
     private final int PERMISSIONS_REQUEST = 1001;
     private final int PICK_IMAGE = 1111;
 
-    TransferUtility transferUtility;
     @BindView(R.id.album)
     Button album;
     @BindView(R.id.capture)
     ImageButton capture;
 
     NetworkStatus status;
+    S3Transfer transfer;
 
     private String TAG = getClass().getSimpleName();
 
@@ -101,8 +97,8 @@ public class CameraActivity extends AppCompatActivity {
 
         status = new NetworkStatus(this);
 
-        transferUtility = TransferUtility.builder().s3Client(MainActivity.s3).context(this).build();
-        TransferNetworkLossHandler.getInstance(this);
+        transfer = new S3Transfer(this);
+        transfer.setCallback(this);
 
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         initSurfaceView();
@@ -122,6 +118,7 @@ public class CameraActivity extends AppCompatActivity {
                 initCameraAndPreview();
             } else {
                 Toast.makeText(this, getString(R.string.permission_denied), Toast.LENGTH_LONG).show();
+                finish();
             }
         }
     }
@@ -377,44 +374,7 @@ public class CameraActivity extends AppCompatActivity {
             Toast.makeText(this, getString(R.string.network_not_connected), Toast.LENGTH_LONG).show();
             return;
         }
-        ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage(getString(R.string.uploading));
-        progressDialog.setCancelable(false);
-        progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Horizontal);
-        progressDialog.show();
-
-        File file = new File(path);
-        TransferObserver transferObserver = transferUtility.upload(
-                getString(R.string.s3_bucket),
-                file.getName(),
-                file
-        );
-        transferObserver.setTransferListener(new TransferListener() {
-            @Override
-            public void onStateChanged(int id, TransferState state) {
-                Log.d(TAG, "onStateChanged: " + id + ", " + state.toString());
-                if (state == TransferState.COMPLETED) {
-                    Toast.makeText(CameraActivity.this, "전송 완료.", Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-                if (state == TransferState.COMPLETED || state == TransferState.FAILED) {
-                    progressDialog.dismiss();
-                }
-            }
-
-            @Override
-            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-                float v = ((float) bytesCurrent / (float) bytesTotal) * 100;
-                int percent = (int) v;
-                Log.d(TAG, "ID:" + id + " bytesCurrent: " + bytesCurrent + " bytesTotal: " + bytesTotal + " " + percent + "%");
-            }
-
-            @Override
-            public void onError(int id, Exception e) {
-                Log.e(TAG, Objects.requireNonNull(e.getMessage()));
-                Toast.makeText(CameraActivity.this, "전송 실패.", Toast.LENGTH_SHORT).show();
-            }
-        });
+        transfer.upload(R.string.s3_bucket, new File(path));
     }
 
     @OnClick(R.id.album)
@@ -429,5 +389,29 @@ public class CameraActivity extends AppCompatActivity {
     @OnClick(R.id.capture)
     public void onCaptureClicked() {
         takePicture();
+    }
+
+    @Override
+    public void onStateChanged(TransferState state) {
+        ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage(getString(R.string.uploading));
+        progressDialog.setCancelable(false);
+        progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Horizontal);
+
+        if (state == TransferState.IN_PROGRESS) {
+            progressDialog.show();
+        } else if (state == TransferState.COMPLETED || state == TransferState.FAILED) {
+            progressDialog.dismiss();
+        }
+        if (state == TransferState.COMPLETED) {
+            Toast.makeText(CameraActivity.this, "전송 완료.", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+    }
+
+    @Override
+    public void onError(int id, Exception e) {
+        e.printStackTrace();
+        Toast.makeText(CameraActivity.this, "전송 실패.", Toast.LENGTH_SHORT).show();
     }
 }

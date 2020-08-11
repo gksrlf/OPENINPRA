@@ -1,11 +1,13 @@
 package com.little_wizard.tdc.ui.main;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Process;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -60,7 +62,7 @@ import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 
-public class MainActivity extends AppCompatActivity implements RepositoryAdapter.ItemClickListener, S3Transfer.TransferCallback {
+public class MainActivity extends AppCompatActivity implements RepositoryAdapter.ItemClickListener {
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -72,12 +74,12 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
     ImageView slideGuide;
     @BindView(R.id.repositoryRecycler)
     RecyclerView repositoryRecycler;
-
-    RepositoryAdapter repositoryAdapter;
-    @BindView(R.id.networkLayout)
-    LinearLayout networkLayout;
     @BindView(R.id.progressBar)
     ProgressBar progressBar;
+    @BindView(R.id.networkLayout)
+    LinearLayout networkLayout;
+    @BindView(R.id.emptyLayout)
+    LinearLayout emptyLayout;
 
     Context mContext;
     public static boolean darkMode;
@@ -86,6 +88,8 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
 
     NetworkStatus status;
     S3Transfer transfer;
+    String localPath;
+    RepositoryAdapter repositoryAdapter;
 
     String[] extensions = {"mtl", "jpg", "obj"};
 
@@ -94,23 +98,18 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
     long backKeyPressedTime = 0;
     long TIME_INTERVAL = 2000;
 
+    AWSCredentials crd = new BasicAWSCredentials("AKIAUIINZG7SDUSSH4XX", "MrDjFVRQXRKb95nmx0K48+s1srLJEqtRpImeOctE");
+    AmazonS3 s3 = new AmazonS3Client(crd);
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         darkMode = prefs.getBoolean("darkMode", false);
         if (darkMode) setTheme(R.style.Theme_AppCompat_NoActionBar);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        camera.setBackgroundResource(darkMode ? R.drawable.btn_bg_white : R.drawable.btn_bg_black);
-
-        setSupportActionBar(toolbar);
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) actionBar.setDisplayShowTitleEnabled(false);
-
-        mContext = this;
-
-        status = new NetworkStatus(mContext);
 
         init();
     }
@@ -126,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
             } else {
                 moveTaskToBack(true);
                 finishAndRemoveTask();
-                android.os.Process.killProcess(android.os.Process.myPid());
+                Process.killProcess(Process.myPid());
             }
         }
     }
@@ -169,8 +168,7 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
         for (String ext : extensions) {
             if (successCount[0] == -1) break;
             Completable.create(sub -> {
-                File file = new File(getExternalCacheDir().getAbsolutePath()
-                        + "/" + item.name + "." + ext);
+                File file = new File(localPath + item.name + "." + ext);
                 if (!file.exists()) {
                     if (!status.isConnected()) {
                         Toast.makeText(mContext, getString(R.string.network_not_connected), Toast.LENGTH_LONG).show();
@@ -206,8 +204,7 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
                 public void onComplete() {
                     successCount[0]++;
                     if (successCount[0] == extensions.length) {
-                        launchModelRendererActivity("file://" + getExternalCacheDir()
-                                .getAbsolutePath() + "/" + item.name + ".obj");
+                        launchModelRendererActivity("file://" + localPath + item.name + ".obj");
                     }
                 }
 
@@ -220,7 +217,51 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
         }
     }
 
+    @Override
+    public void onItemLongClick(View view, RepoItem item) {
+        ProgressDialog progressDialog = new ProgressDialog(mContext);
+        progressDialog.setMessage(getString(R.string.deleting));
+        progressDialog.setCancelable(false);
+        progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Horizontal);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.delete_warning_title);
+        builder.setMessage(R.string.delete_warning_msg);
+        builder.setPositiveButton(R.string.yes, (dialogInterface, i) -> {
+            progressDialog.show();
+            new Thread(() -> {
+                s3.deleteObject(getString(R.string.s3_bucket), item.name + ".jpg");
+                for (String ext : extensions) {
+                    String key = item.name + "." + ext;
+                    File file = new File(localPath + key);
+                    if (file.exists() && !file.delete())
+                        Log.d(TAG, key + " Delete failed.");
+                    s3.deleteObject(getString(R.string.s3_bucket_resize), key);
+                }
+                runOnUiThread(() -> {
+                    progressDialog.dismiss();
+                    refreshAdapter();
+                });
+            }).start();
+        });
+        builder.setNegativeButton(R.string.no, (dialogInterface, i) -> {
+        });
+        builder.show();
+    }
+
     void init() {
+        camera.setBackgroundResource(darkMode ? R.drawable.btn_bg_white : R.drawable.btn_bg_black);
+
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) actionBar.setDisplayShowTitleEnabled(false);
+
+        mContext = this;
+
+        status = new NetworkStatus(mContext);
+
+        localPath = getExternalCacheDir().getAbsolutePath() + "/";
+
         transfer = new S3Transfer(this);
 
         repositoryRecycler.setLayoutManager(new LinearLayoutManager(mContext));
@@ -248,70 +289,7 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
                 }
                 if (newState != SlidingUpPanelLayout.PanelState.EXPANDED) return;
 
-                repositoryAdapter.clear();
-
-                if (!status.isConnected()) {
-                    networkLayout.setVisibility(View.VISIBLE);
-                    return;
-                } else networkLayout.setVisibility(View.GONE);
-
-                Observable<RepoItem> observable = Observable.create(
-                        emitter -> {
-                            progressBar.setVisibility(View.VISIBLE);
-                            new Thread(() -> {
-                                AWSCredentials crd = new BasicAWSCredentials("AKIAUIINZG7SDUSSH4XX", "MrDjFVRQXRKb95nmx0K48+s1srLJEqtRpImeOctE");
-                                AmazonS3 s3 = new AmazonS3Client(crd);
-                                ListObjectsRequest listObject = new ListObjectsRequest();
-                                listObject.setBucketName(getString(R.string.s3_bucket_resize));
-                                listObject.setPrefix("");
-                                ObjectListing objects = s3.listObjects(listObject);
-                                List<String> fileList = new ArrayList<>();
-                                do {
-                                    objects = s3.listObjects(listObject);
-                                    for (S3ObjectSummary summary : objects.getObjectSummaries()) {
-                                        String key = summary.getKey();
-                                        String baseName = FilenameUtils.getBaseName(key);
-                                        String ext = FilenameUtils.getExtension(key);
-                                        if (!fileList.contains(baseName) && ext.equals("jpg")) {
-                                            fileList.add(baseName);
-                                            emitter.onNext(new RepoItem(baseName
-                                                    , Uri.parse("https://" + getString(R.string.s3_bucket_resize)
-                                                    + ".s3.ap-northeast-2.amazonaws.com/" + baseName + ".jpg")));
-                                        }
-                                    }
-                                    listObject.setMarker(objects.getNextMarker());
-                                } while (objects.isTruncated());
-                                emitter.onComplete();
-                            }).start();
-                        }
-                );
-
-                List<RepoItem> itemList = new ArrayList<>();
-                Observer<RepoItem> observer = new Observer<RepoItem>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onNext(RepoItem item) {
-                        itemList.add(item);
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        runOnUiThread(() -> {
-                            repositoryAdapter.setItemList(itemList);
-                            progressBar.setVisibility(View.GONE);
-                        });
-                    }
-                };
-                observable.subscribe(observer);
+                refreshAdapter();
             }
         });
     }
@@ -333,6 +311,73 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
         }
     }
 
+    private void refreshAdapter() {
+        repositoryAdapter.clear();
+        emptyLayout.setVisibility(View.GONE);
+
+        if (!status.isConnected()) {
+            networkLayout.setVisibility(View.VISIBLE);
+            return;
+        } else networkLayout.setVisibility(View.GONE);
+
+        Observable<RepoItem> observable = Observable.create(
+                emitter -> {
+                    progressBar.setVisibility(View.VISIBLE);
+                    new Thread(() -> {
+                        ListObjectsRequest listObject = new ListObjectsRequest();
+                        listObject.setBucketName(getString(R.string.s3_bucket_resize));
+                        listObject.setPrefix("");
+                        ObjectListing objects = s3.listObjects(listObject);
+                        List<String> fileList = new ArrayList<>();
+                        do {
+                            objects = s3.listObjects(listObject);
+                            for (S3ObjectSummary summary : objects.getObjectSummaries()) {
+                                String key = summary.getKey();
+                                String baseName = FilenameUtils.getBaseName(key);
+                                String ext = FilenameUtils.getExtension(key);
+                                if (!fileList.contains(baseName) && ext.equals("jpg")) {
+                                    fileList.add(baseName);
+                                    emitter.onNext(new RepoItem(baseName
+                                            , Uri.parse("https://" + getString(R.string.s3_bucket_resize)
+                                            + ".s3.ap-northeast-2.amazonaws.com/" + baseName + ".jpg")));
+                                }
+                            }
+                            listObject.setMarker(objects.getNextMarker());
+                        } while (objects.isTruncated());
+                        emitter.onComplete();
+                    }).start();
+                }
+        );
+
+        List<RepoItem> itemList = new ArrayList<>();
+        Observer<RepoItem> observer = new Observer<RepoItem>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(RepoItem item) {
+                itemList.add(item);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+                runOnUiThread(() -> {
+                    if (itemList.isEmpty()) emptyLayout.setVisibility(View.VISIBLE);
+                    progressBar.setVisibility(View.GONE);
+                    repositoryAdapter.setItemList(itemList);
+                });
+            }
+        };
+        observable.subscribe(observer);
+    }
+
     private String convertHashToString(byte[] md5Bytes) {
         StringBuilder returnVal = new StringBuilder();
         for (byte md5Byte : md5Bytes) {
@@ -347,15 +392,5 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
         intent.putExtra("URI", uri);
         intent.putExtra("MODIFY", false);
         startActivity(intent);
-    }
-
-    @Override
-    public void onStateChanged(TransferState state) {
-
-    }
-
-    @Override
-    public void onError(int id, Exception e) {
-
     }
 }

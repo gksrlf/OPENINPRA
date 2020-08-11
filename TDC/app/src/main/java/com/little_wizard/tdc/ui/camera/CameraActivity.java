@@ -2,9 +2,11 @@ package com.little_wizard.tdc.ui.camera;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -37,6 +39,7 @@ import android.util.Size;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -49,6 +52,8 @@ import com.little_wizard.tdc.ui.main.MainActivity;
 import com.little_wizard.tdc.util.NetworkStatus;
 import com.little_wizard.tdc.util.S3Transfer;
 import com.little_wizard.tdc.util.permission.PermissionHelper;
+
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.OutputStream;
@@ -374,7 +379,20 @@ public class CameraActivity extends AppCompatActivity implements S3Transfer.Tran
             Toast.makeText(this, getString(R.string.network_not_connected), Toast.LENGTH_LONG).show();
             return;
         }
-        transfer.upload(R.string.s3_bucket, new File(path));
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        EditText editText = new EditText(this);
+        builder.setView(editText);
+        builder.setMessage(R.string.name_setting);
+        builder.setCancelable(false);
+        builder.setPositiveButton(R.string.save, (dialogInterface, i) -> {
+            File file = new File(path);
+            String text = editText.getText().toString() + ".jpg";
+            transfer.upload(R.string.s3_bucket, FilenameUtils.getBaseName(text)
+                    .isEmpty() ? file.getName() : text, file);
+        });
+        builder.setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
+        });
+        builder.show();
     }
 
     @OnClick(R.id.album)

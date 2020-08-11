@@ -44,10 +44,10 @@ public class S3Transfer {
         this.callback = callback;
     }
 
-    public TransferObserver upload(int bucket, File file) {
+    public TransferObserver upload(int bucket, String name, File file) {
         TransferObserver transferObserver = transferUtility.upload(
                 context.getString(bucket),
-                file.getName(),
+                name,
                 file
         );
         if (callback != null) {

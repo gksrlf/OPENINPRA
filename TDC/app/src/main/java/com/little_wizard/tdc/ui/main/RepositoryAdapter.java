@@ -1,6 +1,8 @@
 package com.little_wizard.tdc.ui.main;
 
 import android.content.Context;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -81,6 +83,11 @@ public class RepositoryAdapter extends RecyclerView.Adapter<RepositoryAdapter.Vi
 
         @Override
         public boolean onLongClick(View view) {
+            if (mClickListener != null) {
+                Vibrator vibe = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
+                vibe.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE));
+                mClickListener.onItemLongClick(view, itemList.get(getAdapterPosition()));
+            }
             return false;
         }
     }
@@ -91,5 +98,7 @@ public class RepositoryAdapter extends RecyclerView.Adapter<RepositoryAdapter.Vi
 
     public interface ItemClickListener {
         void onItemClick(View view, RepoItem item);
+
+        void onItemLongClick(View view, RepoItem item);
     }
 }

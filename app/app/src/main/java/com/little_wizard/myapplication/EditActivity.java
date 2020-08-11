@@ -64,6 +64,13 @@ public class EditActivity extends AppCompatActivity {
         switch(item.getItemId()){
             case R.id.edit_done:
                 Bitmap result = imageView.getResult();
+                if(result != null){
+                    Intent intent = new Intent(this, MainActivity.class);
+                    intent.putExtra("image", result);
+                    intent.putExtra("line", imageView.getLinePosX());
+                    setResult(Activity.RESULT_OK, intent);
+                    finish();
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

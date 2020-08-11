@@ -11,6 +11,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -80,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
+        Bundle bundle;
         switch(requestCode){
             case PICK_FROM_ALBUM:
                 if(resultCode == Activity.RESULT_OK){
@@ -123,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
                                         intent = new Intent(getApplicationContext(), DrawActivity.class);
                                         intent.setAction(Intent.ACTION_SEND);
                                         intent.setData(Uri.fromFile(setFile));
-                                        startActivityForResult(intent, PHOTO_TYPE_ASYMMETRY);
+                                        startActivityForResult(intent, GET_COORDINATES);
                                         break;
                                     default:
                                         break;
@@ -139,9 +140,22 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 break;
+            case PHOTO_TYPE_SYMMETRY:
+                if(resultCode == Activity.RESULT_OK){
+                    Bitmap bitmap = data.getParcelableExtra("image");
+                    float pos = data.getFloatExtra("line", Float.MIN_VALUE);
+
+                    Intent intent = new Intent(getApplicationContext(), DrawActivity.class);
+                    intent.setAction(Intent.ACTION_SEND);
+                    intent.setData(Uri.fromFile(setFile));
+                    startActivityForResult(intent, GET_COORDINATES);
+                    //TODO: 대칭인사진일 때 : bitmap 전송              비대칭인사진일 때 : URI전송 구별
+                    break;
+                }
+                break;
             case GET_COORDINATES:
                 if(resultCode == Activity.RESULT_OK){
-                    Bundle bundle = data.getExtras();
+                    bundle = data.getExtras();
                     Log.d(this.toString(), bundle.getParcelableArrayList("coordinates").toString());
                     String filename = bundle.getString("filename");
                     ArrayList<Coordinates> list = bundle.getParcelableArrayList("coordinates");

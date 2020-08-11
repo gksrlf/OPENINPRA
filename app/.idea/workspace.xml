@@ -6,8 +6,8 @@
     </shared>
   </component>
   <component name="AndroidLogFilters">
-    <option name="TOOL_WINDOW_CUSTOM_FILTER" value="magnification" />
-    <option name="TOOL_WINDOW_LOG_LEVEL" value="debug" />
+    <option name="TOOL_WINDOW_CUSTOM_FILTER" value="realDegree" />
+    <option name="TOOL_WINDOW_LOG_LEVEL" value="verbose" />
     <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="Show only selected application" />
   </component>
   <component name="ChangeListManager">
@@ -45,6 +45,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/little_wizard/myapplication/view/MyImageView.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/little_wizard/myapplication/view/MyImageView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/line.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/line.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/local.properties" beforeDir="false" afterPath="$PROJECT_DIR$/local.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -52,7 +53,7 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="172.30.1.51:5037" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="R3CM70EPSYY" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -113,7 +114,7 @@
       <recent name="D:\code\app\src\main\res\drawable" />
     </key>
   </component>
-  <component name="RunManager" selected="Android App.app-app">
+  <component name="RunManager" selected="Android App.GitHub-OPENINPRA-app-app">
     <configuration default="true" type="AndroidJUnit" factoryName="Android JUnit">
       <option name="TEST_OBJECT" value="class" />
       <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
@@ -428,6 +429,10 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="815" y="285" key="AndroidProcessChooserDialog/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1597043751523" />
+    <state width="447" height="466" key="DebuggerActiveHint" timestamp="1597139667689">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="447" height="466" key="DebuggerActiveHint/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1597139667689" />
     <state x="740" y="275" key="FileChooserDialogImpl" timestamp="1596791354262">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
@@ -435,88 +440,88 @@
     <state x="440" y="267" key="FileChooserDialogImpl/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1596286392009" />
     <state x="740" y="275" key="FileChooserDialogImpl/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1596791354262" />
     <state x="440" y="267" key="FileChooserDialogImpl/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1596105741806" />
-    <state width="1877" height="234" key="GridCell.Tab.0.bottom" timestamp="1597081053562">
-      <screen x="-1920" y="0" width="1920" height="1040" />
+    <state width="938" height="237" key="GridCell.Tab.0.bottom" timestamp="1597147815885">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state width="1877" height="234" key="GridCell.Tab.0.bottom/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597081053562" />
     <state width="1564" height="234" key="GridCell.Tab.0.bottom/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1597074194919" />
-    <state width="1877" height="372" key="GridCell.Tab.0.bottom/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1597062803532" />
+    <state width="938" height="237" key="GridCell.Tab.0.bottom/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1597147815885" />
     <state width="1877" height="281" key="GridCell.Tab.0.bottom/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1596522658548" />
-    <state width="1877" height="234" key="GridCell.Tab.0.center" timestamp="1597081053562">
-      <screen x="-1920" y="0" width="1920" height="1040" />
+    <state width="938" height="237" key="GridCell.Tab.0.center" timestamp="1597147815885">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state width="1877" height="234" key="GridCell.Tab.0.center/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597081053562" />
     <state width="1564" height="234" key="GridCell.Tab.0.center/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1597074194919" />
-    <state width="1877" height="372" key="GridCell.Tab.0.center/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1597062803532" />
+    <state width="938" height="237" key="GridCell.Tab.0.center/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1597147815885" />
     <state width="1877" height="281" key="GridCell.Tab.0.center/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1596522658547" />
-    <state width="1877" height="234" key="GridCell.Tab.0.left" timestamp="1597081053562">
-      <screen x="-1920" y="0" width="1920" height="1040" />
+    <state width="938" height="237" key="GridCell.Tab.0.left" timestamp="1597147815884">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state width="1877" height="234" key="GridCell.Tab.0.left/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597081053562" />
     <state width="1564" height="234" key="GridCell.Tab.0.left/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1597074194919" />
-    <state width="1877" height="372" key="GridCell.Tab.0.left/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1597062803532" />
+    <state width="938" height="237" key="GridCell.Tab.0.left/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1597147815884" />
     <state width="1877" height="281" key="GridCell.Tab.0.left/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1596522658547" />
-    <state width="1877" height="234" key="GridCell.Tab.0.right" timestamp="1597081053562">
-      <screen x="-1920" y="0" width="1920" height="1040" />
+    <state width="938" height="237" key="GridCell.Tab.0.right" timestamp="1597147815885">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state width="1877" height="234" key="GridCell.Tab.0.right/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597081053562" />
     <state width="1564" height="234" key="GridCell.Tab.0.right/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1597074194919" />
-    <state width="1877" height="372" key="GridCell.Tab.0.right/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1597062803532" />
+    <state width="938" height="237" key="GridCell.Tab.0.right/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1597147815885" />
     <state width="1877" height="281" key="GridCell.Tab.0.right/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1596522658548" />
-    <state width="1877" height="234" key="GridCell.Tab.1.bottom" timestamp="1597081053562">
-      <screen x="-1920" y="0" width="1920" height="1040" />
+    <state width="938" height="372" key="GridCell.Tab.1.bottom" timestamp="1597145727164">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state width="1877" height="234" key="GridCell.Tab.1.bottom/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597081053562" />
     <state width="1564" height="234" key="GridCell.Tab.1.bottom/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1597074194919" />
-    <state width="1877" height="372" key="GridCell.Tab.1.bottom/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1597062834310" />
+    <state width="938" height="372" key="GridCell.Tab.1.bottom/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1597145727164" />
     <state width="1877" height="346" key="GridCell.Tab.1.bottom/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1596103168386" />
-    <state width="1877" height="234" key="GridCell.Tab.1.center" timestamp="1597081053562">
-      <screen x="-1920" y="0" width="1920" height="1040" />
+    <state width="938" height="372" key="GridCell.Tab.1.center" timestamp="1597145727164">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state width="1877" height="234" key="GridCell.Tab.1.center/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597081053562" />
     <state width="1564" height="234" key="GridCell.Tab.1.center/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1597074194919" />
-    <state width="1877" height="372" key="GridCell.Tab.1.center/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1597062834309" />
+    <state width="938" height="372" key="GridCell.Tab.1.center/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1597145727164" />
     <state width="1877" height="346" key="GridCell.Tab.1.center/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1596103168386" />
-    <state width="1877" height="234" key="GridCell.Tab.1.left" timestamp="1597081053562">
-      <screen x="-1920" y="0" width="1920" height="1040" />
+    <state width="938" height="372" key="GridCell.Tab.1.left" timestamp="1597145727164">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state width="1877" height="234" key="GridCell.Tab.1.left/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597081053562" />
     <state width="1564" height="234" key="GridCell.Tab.1.left/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1597074194919" />
-    <state width="1877" height="372" key="GridCell.Tab.1.left/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1597062834309" />
+    <state width="938" height="372" key="GridCell.Tab.1.left/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1597145727164" />
     <state width="1877" height="346" key="GridCell.Tab.1.left/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1596103168385" />
-    <state width="1877" height="234" key="GridCell.Tab.1.right" timestamp="1597081053562">
-      <screen x="-1920" y="0" width="1920" height="1040" />
+    <state width="938" height="372" key="GridCell.Tab.1.right" timestamp="1597145727164">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state width="1877" height="234" key="GridCell.Tab.1.right/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597081053562" />
     <state width="1564" height="234" key="GridCell.Tab.1.right/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1597074194919" />
-    <state width="1877" height="372" key="GridCell.Tab.1.right/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1597062834309" />
+    <state width="938" height="372" key="GridCell.Tab.1.right/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1597145727164" />
     <state width="1877" height="346" key="GridCell.Tab.1.right/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1596103168386" />
     <state x="461" y="162" key="SettingsEditor" timestamp="1596786431627">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="461" y="162" key="SettingsEditor/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1596123283061" />
     <state x="461" y="162" key="SettingsEditor/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1596786431627" />
-    <state width="812" height="514" key="XDebugger.FullValuePopup" timestamp="1597074225487">
+    <state width="968" height="528" key="XDebugger.FullValuePopup" timestamp="1597143999627">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state width="968" height="528" key="XDebugger.FullValuePopup/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1596033338333" />
     <state width="812" height="514" key="XDebugger.FullValuePopup/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1597074225487" />
-    <state width="968" height="528" key="XDebugger.FullValuePopup/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1597062863128" />
+    <state width="968" height="528" key="XDebugger.FullValuePopup/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1597143999627" />
     <state x="-1828" y="92" width="1736" height="856" key="com.android.tools.idea.avdmanager.AvdListDialog" timestamp="1597075826822">
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
     <state x="-1828" y="92" width="1736" height="856" key="com.android.tools.idea.avdmanager.AvdListDialog/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597075826822" />
-    <state x="652" y="344" key="com.intellij.ide.util.TipDialog" timestamp="1596704102126">
+    <state x="652" y="344" key="com.intellij.ide.util.TipDialog" timestamp="1597120672119">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="652" y="344" key="com.intellij.ide.util.TipDialog/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1596704102126" />
-    <state x="652" y="344" key="com.intellij.ide.util.TipDialog/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1596621273779" />
+    <state x="652" y="344" key="com.intellij.ide.util.TipDialog/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1597120672119" />
     <state x="2572" y="344" key="com.intellij.ide.util.TipDialog/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1596609948913" />
-    <state x="155" y="138" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1597058174910">
+    <state x="155" y="138" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1597143468339">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="155" y="138" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1596284968786" />
-    <state x="155" y="138" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1597058174910" />
+    <state x="155" y="138" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1597143468339" />
     <state x="764" y="437" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1596211712407">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
@@ -569,24 +574,13 @@
           <line>66</line>
           <option name="timeStamp" value="132" />
         </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/com/little_wizard/myapplication/view/MyImageView.java</url>
-          <line>175</line>
-          <option name="timeStamp" value="138" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/com/little_wizard/myapplication/view/MyImageView.java</url>
-          <line>178</line>
-          <option name="timeStamp" value="139" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/com/little_wizard/myapplication/view/MyImageView.java</url>
-          <line>179</line>
-          <option name="timeStamp" value="140" />
-        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
     <watches-manager>
+      <configuration name="GitHub-OPENINPRA-app-app">
+        <watch expression="background" />
+        <watch expression="realRadians" />
+      </configuration>
       <configuration name="OPENINPRA-app-app">
         <watch expression="queue.toArray()[1]" />
       </configuration>

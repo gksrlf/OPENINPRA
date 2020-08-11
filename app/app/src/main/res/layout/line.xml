@@ -4,8 +4,20 @@
     android:layout_height="match_parent"
     android:gravity="center">
     <View
-        android:id="@+id/line"
-        android:layout_width="2dp"
+        android:id="@+id/view1"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="#ff0000"/>
+        android:layout_weight="50"/>
+    <View
+        android:id="@+id/line"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="#ff0000"
+        android:layout_weight="1"/>
+    <View
+        android:id="@+id/view2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="#50ff0000"
+        android:layout_weight="50"/>
 </LinearLayout>

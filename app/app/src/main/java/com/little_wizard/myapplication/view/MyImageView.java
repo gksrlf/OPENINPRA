@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.RectF;
@@ -13,6 +14,7 @@ import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
+import android.widget.Toast;
 
 public class MyImageView extends androidx.appcompat.widget.AppCompatImageView {
     static final int NONE = 0;
@@ -34,6 +36,8 @@ public class MyImageView extends androidx.appcompat.widget.AppCompatImageView {
     double oldRadian = 0, nowRadian = 0;
     double oldDegree = 0, nowDegree = 0;
     float magnification = 1f;
+    float centerLine = 0;
+    float linePosX;
 
     private static final float MIN_ZOOM = 0.7f;
     private static final float MAX_ZOOM = 3.0f;
@@ -45,6 +49,7 @@ public class MyImageView extends androidx.appcompat.widget.AppCompatImageView {
     public void setBitmap(Bitmap bitmap, Display display) {
         Point size = new Point();
         display.getSize(size);
+        centerLine = size.x / 2;
         matrix = new Matrix();
         savedMatrix = new Matrix();
         matrixArray = new float[9];
@@ -223,19 +228,7 @@ public class MyImageView extends androidx.appcompat.widget.AppCompatImageView {
         float points[][] = {{0, 0}, {bitmap.getWidth(), 0},
                 {0, bitmap.getHeight()}, {bitmap.getWidth(), bitmap.getHeight()}};
         float rotaionPoints[][] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}};
-        /*matrix.getValues(matrixArray);
 
-        // calculate real scale
-        float scaleX = matrixArray[Matrix.MSCALE_X];
-        float skewY = matrixArray[Matrix.MSKEW_Y];
-        float realScale = (float) Math.sqrt(scaleX * scaleX + skewY * skewY);
-
-        // calculate the degree of rotation
-        float skewX = matrixArray[Matrix.MSKEW_X];
-        float realAngle = -Math.round(Math.atan2(skewX, scaleX) * (180 / Math.PI));
-        float realRadians = -(float)Math.atan2(skewX, scaleX);
-        Log.i("magnification", String.format("realScale : %f, realAngle : %f", realScale, realAngle));
-*/
         float radians = getRealRadians();
         float degree = getRealDegree();
 
@@ -256,7 +249,8 @@ public class MyImageView extends androidx.appcompat.widget.AppCompatImageView {
             minY = minY > rotaionPoints[i][1] ? rotaionPoints[i][1] : minY;
         }
 
-        /*if(minX < 0){
+        // 회전 후 좌표값 보정
+        if(minX < 0){
             for(int i=0;i<4;i++){
                 rotaionPoints[i][0] += Math.abs(minX);
             }
@@ -269,12 +263,12 @@ public class MyImageView extends androidx.appcompat.widget.AppCompatImageView {
             }
             maxY += Math.abs(minY);
             minY = 0;
-        }*/
+        }
 
+        // 이미지 회전 유지하는 비트맵 생성
         float h = maxY - minY;
         float w = maxX - minX;
 
-        // 이미지 회전 유지한 채로 새로운 비트맵 생성
         Matrix m = new Matrix();
         m.postRotate(degree, bitmap.getWidth() / 2, bitmap.getHeight() / 2);
         m.postTranslate((w - bitmap.getWidth()) / 2, (h - bitmap.getHeight()) / 2);
@@ -283,10 +277,34 @@ public class MyImageView extends androidx.appcompat.widget.AppCompatImageView {
         Bitmap background = Bitmap.createBitmap((int)w, (int)h, Bitmap.Config.ARGB_8888);
         background.eraseColor(Color.WHITE);
 
+        // 기준 축 생성
+        float scale = getRealScale();
+        if(matrixArray[Matrix.MTRANS_X] < centerLine){
+            linePosX = rotaionPoints[0][0] + (centerLine - matrixArray[Matrix.MTRANS_X]) / scale;
+        }else{
+            linePosX = rotaionPoints[0][0] - ((matrixArray[Matrix.MTRANS_X] - centerLine) / scale);
+        }
+
+        if(linePosX < 0 || maxX < linePosX) {
+            Toast.makeText(getContext(), "다시 설정하세요.", Toast.LENGTH_LONG).show();
+            return null;
+        }
+
         Canvas canvas = new Canvas(background);
         canvas.drawBitmap(background, 0, 0, null);
         canvas.drawBitmap(bitmap, m, null);
+
+        Paint paint = new Paint();
+        paint.setColor(0xFFFF0000);
+        paint.setStrokeWidth(4);
+        canvas.drawLine(linePosX, 0, linePosX, h, paint);
+
+        paint.setColor(0x50ff0000);
+        paint.setStrokeWidth(0);
+        canvas.drawRect(linePosX, 0, w, h, paint);
+
         return background;
     }
 
+    public float getLinePosX(){return linePosX;}
 }

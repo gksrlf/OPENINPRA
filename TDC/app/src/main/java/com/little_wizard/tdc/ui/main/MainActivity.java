@@ -177,8 +177,7 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
                         return;
                     }
                     progressDialog.show();
-                    transfer.download(R.string.s3_bucket_resize, file);
-                    transfer.getTransferObserver().setTransferListener(new TransferListener() {
+                    transfer.download(R.string.s3_bucket_resize, file).setTransferListener(new TransferListener() {
                         @Override
                         public void onStateChanged(int id, TransferState state) {
                             Log.d(TAG, state.toString());

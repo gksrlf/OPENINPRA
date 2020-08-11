@@ -19,21 +19,12 @@ public class S3Transfer {
     private TransferCallback callback;
 
     private TransferUtility transferUtility;
-    private TransferObserver transferObserver;
 
     public interface TransferCallback {
         void onStateChanged(TransferState state);
 
         void onError(int id, Exception e);
     }
-
-    /*
-    클래스 사용법
-    1)   S3Transfer 생성자 등록. ex) S3Transfer transfer = new S3Transfer(this);
-    2)   Callback 또는 TransferObserver 등록.
-    Callback 등록 예시)         transfer.setCallback(this);
-    TransferObserver 등록 예시) transfer.getTransferObserver().setTransferListener(new TransferListener() {...});
-     */
 
     public S3Transfer(Context context) {
         this.context = context;
@@ -53,12 +44,34 @@ public class S3Transfer {
         this.callback = callback;
     }
 
-    public TransferObserver getTransferObserver() {
+    public TransferObserver upload(int bucket, File file) {
+        TransferObserver transferObserver = transferUtility.upload(
+                context.getString(bucket),
+                file.getName(),
+                file
+        );
+        if (callback != null) {
+            transferObserver.setTransferListener(new TransferListener() {
+                @Override
+                public void onStateChanged(int id, TransferState state) {
+                    callback.onStateChanged(state);
+                }
+
+                @Override
+                public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+                }
+
+                @Override
+                public void onError(int id, Exception e) {
+                    callback.onError(id, e);
+                }
+            });
+        }
         return transferObserver;
     }
 
-    public void upload(int bucket, File file) {
-        transferObserver = transferUtility.upload(
+    public TransferObserver download(int bucket, File file) {
+        TransferObserver transferObserver = transferUtility.download(
                 context.getString(bucket),
                 file.getName(),
                 file
@@ -80,30 +93,6 @@ public class S3Transfer {
                 }
             });
         }
-    }
-
-    public void download(int bucket, File file) {
-        transferObserver = transferUtility.download(
-                context.getString(bucket),
-                file.getName(),
-                file
-        );
-        if (callback != null) {
-            transferObserver.setTransferListener(new TransferListener() {
-                @Override
-                public void onStateChanged(int id, TransferState state) {
-                    callback.onStateChanged(state);
-                }
-
-                @Override
-                public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-                }
-
-                @Override
-                public void onError(int id, Exception e) {
-                    callback.onError(id, e);
-                }
-            });
-        }
+        return transferObserver;
     }
 }

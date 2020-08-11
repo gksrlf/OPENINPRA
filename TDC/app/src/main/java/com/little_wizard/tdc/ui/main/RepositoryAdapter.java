@@ -54,6 +54,11 @@ public class RepositoryAdapter extends RecyclerView.Adapter<RepositoryAdapter.Vi
         notifyDataSetChanged();
     }
 
+    public void clear() {
+        itemList.clear();
+        notifyDataSetChanged();
+    }
+
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
         ImageView imageView;

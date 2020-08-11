@@ -50,6 +50,7 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.little_wizard.tdc.R;
 import com.little_wizard.tdc.ui.main.MainActivity;
+import com.little_wizard.tdc.util.NetworkStatus;
 import com.little_wizard.tdc.util.permission.PermissionHelper;
 
 import java.io.File;
@@ -84,6 +85,8 @@ public class CameraActivity extends AppCompatActivity {
     @BindView(R.id.capture)
     ImageButton capture;
 
+    NetworkStatus status;
+
     private String TAG = getClass().getSimpleName();
 
     @Override
@@ -95,6 +98,8 @@ public class CameraActivity extends AppCompatActivity {
 
         album.setBackgroundResource(MainActivity.darkMode
                 ? R.drawable.btn_bg_white : R.drawable.btn_bg_black);
+
+        status = new NetworkStatus(this);
 
         transferUtility = TransferUtility.builder().s3Client(MainActivity.s3).context(this).build();
         TransferNetworkLossHandler.getInstance(this);
@@ -368,6 +373,10 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     private void upload(String path) {
+        if (!status.isConnected()) {
+            Toast.makeText(this, getString(R.string.network_not_connected), Toast.LENGTH_LONG).show();
+            return;
+        }
         ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setMessage(getString(R.string.uploading));
         progressDialog.setCancelable(false);

@@ -45,12 +45,12 @@ public class ModelActivity extends AppCompatActivity {
     Toolbar toolbar;
     @BindView(R.id.modifyTools)
     LinearLayout modifyTools;
-    @BindView(R.id.zoom_in)
+    @BindView(R.id.zoomIn)
     ImageButton zoomIn;
-    @BindView(R.id.zoom_out)
+    @BindView(R.id.zoomOut)
     ImageButton zoomOut;
-    @BindView(R.id.rotate)
-    ImageButton rotate;
+    @BindView(R.id.panTool)
+    ImageButton panTool;
 
     /**
      * Type of model if file name has no extension (provided though content provider)
@@ -209,18 +209,18 @@ public class ModelActivity extends AppCompatActivity {
         }
     }
 
-    @OnClick(R.id.zoom_in)
+    @OnClick(R.id.zoomIn)
     public void onZoomInClicked() {
         //TODO: 확대 기능 구현.
     }
 
-    @OnClick(R.id.zoom_out)
+    @OnClick(R.id.zoomOut)
     public void onZoomOutClicked() {
         //TODO: 축소 기능 구현.
     }
 
-    @OnClick(R.id.rotate)
-    public void onRotateClicked() {
-        //TODO: 회전 기능 구현.
+    @OnClick(R.id.panTool)
+    public void onPanToolClicked() {
+        //TODO: 이동 기능 구현.
     }
 }

@@ -99,11 +99,9 @@ public class SettingsActivity extends AppCompatActivity {
     public class restartListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            PackageManager packageManager = getPackageManager();
-            Intent intent = packageManager.getLaunchIntentForPackage(getPackageName());
-            ComponentName componentName = intent.getComponent();
-            Intent mainIntent = Intent.makeRestartActivityTask(componentName);
-            startActivity(mainIntent);
+            finishAffinity();
+            Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
+            startActivity(intent);
             System.exit(0);
         }
     }

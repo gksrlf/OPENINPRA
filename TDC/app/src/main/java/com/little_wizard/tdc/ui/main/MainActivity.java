@@ -1,6 +1,7 @@
 package com.little_wizard.tdc.ui.main;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -10,11 +11,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -38,12 +43,16 @@ import com.little_wizard.tdc.R;
 import com.little_wizard.tdc.classes.RepoItem;
 import com.little_wizard.tdc.ui.camera.CameraActivity;
 import com.little_wizard.tdc.ui.settings.SettingsActivity;
+import com.little_wizard.tdc.util.NetworkStatus;
 import com.little_wizard.tdc.util.view.ModelActivity;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,31 +61,47 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 
 public class MainActivity extends AppCompatActivity implements RepositoryAdapter.ItemClickListener {
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
-
-    public static boolean darkMode;
-    @BindView(R.id.picture)
-    Button picture;
+    @BindView(R.id.camera)
+    Button camera;
     @BindView(R.id.slidingPanel)
     SlidingUpPanelLayout slidingPanel;
     @BindView(R.id.slideGuide)
-    TextView slideGuide;
+    ImageView slideGuide;
     @BindView(R.id.repositoryRecycler)
     RecyclerView repositoryRecycler;
 
     RepositoryAdapter repositoryAdapter;
+    @BindView(R.id.networkLayout)
+    LinearLayout networkLayout;
+    @BindView(R.id.progressBar)
+    ProgressBar progressBar;
+
+    Context mContext;
+    public static boolean darkMode;
 
     private String TAG = getClass().getSimpleName();
 
     public static AmazonS3 s3;
     TransferUtility transferUtility;
 
+    NetworkStatus status;
+
     String[] extensions = {"mtl", "jpg", "obj"};
+
+    boolean expanded = false;
+
+    long backKeyPressedTime = 0;
+    long TIME_INTERVAL = 2000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,12 +111,33 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        picture.setBackgroundResource(darkMode ? R.drawable.btn_bg_white : R.drawable.btn_bg_black);
+        camera.setBackgroundResource(darkMode ? R.drawable.btn_bg_white : R.drawable.btn_bg_black);
 
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) actionBar.setDisplayShowTitleEnabled(false);
+
+        mContext = this;
+
+        status = new NetworkStatus(mContext);
+
         init();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (expanded) {
+            slidingPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+        } else {
+            if (System.currentTimeMillis() > backKeyPressedTime + TIME_INTERVAL) {
+                backKeyPressedTime = System.currentTimeMillis();
+                Toast.makeText(mContext, getString(R.string.exit_confirm), Toast.LENGTH_SHORT).show();
+            } else {
+                moveTaskToBack(true);
+                finishAndRemoveTask();
+                android.os.Process.killProcess(android.os.Process.myPid());
+            }
+        }
     }
 
     @Override
@@ -105,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
         Intent intent;
         switch (item.getItemId()) {
             case R.id.action_settings:
-                intent = new Intent(this, SettingsActivity.class);
+                intent = new Intent(mContext, SettingsActivity.class);
                 break;
             default:
                 return super.onOptionsItemSelected(item);
@@ -115,32 +161,14 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
         return true;
     }
 
-    @OnClick(R.id.picture)
+    @OnClick(R.id.camera)
     public void onViewClicked() {
-        startActivity(new Intent(this, CameraActivity.class));
-    }
-
-    private List<String> getObjectListFromFolder(String bucketName, String folderKey) {
-        ListObjectsRequest listObjectsRequest =
-                new ListObjectsRequest()
-                        .withBucketName(bucketName)
-                        .withPrefix(folderKey + "/");
-        List<String> keys = new ArrayList<>();
-        ObjectListing objects = s3.listObjects(listObjectsRequest);
-        for (; ; ) {
-            List<S3ObjectSummary> summaries = objects.getObjectSummaries();
-            if (summaries.size() < 1) {
-                break;
-            }
-            summaries.forEach(s -> keys.add(s.getKey()));
-            objects = s3.listNextBatchOfObjects(objects);
-        }
-        return keys;
+        startActivity(new Intent(mContext, CameraActivity.class));
     }
 
     @Override
     public void onItemClick(View view, RepoItem item) {
-        ProgressDialog progressDialog = new ProgressDialog(this);
+        ProgressDialog progressDialog = new ProgressDialog(mContext);
         progressDialog.setMessage(getString(R.string.downloading));
         progressDialog.setCancelable(false);
         progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Horizontal);
@@ -150,10 +178,13 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
         for (String ext : extensions) {
             if (successCount[0] == -1) break;
             Completable.create(sub -> {
-                String name = item.name + "." + ext;
                 File file = new File(getExternalCacheDir().getAbsolutePath()
-                        + "/" + name);
+                        + "/" + item.name + "." + ext);
                 if (!file.exists()) {
+                    if (!status.isConnected()) {
+                        Toast.makeText(mContext, getString(R.string.network_not_connected), Toast.LENGTH_LONG).show();
+                        return;
+                    }
                     progressDialog.show();
                     TransferObserver transferObserver = transferUtility.download(
                             getString(R.string.s3_bucket_resize),
@@ -210,11 +241,11 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
                 Regions.AP_NORTHEAST_2
         );
         s3 = new AmazonS3Client(credentialsProvider, Region.getRegion(Regions.AP_NORTHEAST_2));
-        transferUtility = TransferUtility.builder().s3Client(MainActivity.s3).context(this).build();
-        TransferNetworkLossHandler.getInstance(this);
+        transferUtility = TransferUtility.builder().s3Client(MainActivity.s3).context(mContext).build();
+        TransferNetworkLossHandler.getInstance(mContext);
 
-        repositoryRecycler.setLayoutManager(new LinearLayoutManager(this));
-        repositoryAdapter = new RepositoryAdapter(MainActivity.this);
+        repositoryRecycler.setLayoutManager(new LinearLayoutManager(mContext));
+        repositoryAdapter = new RepositoryAdapter(mContext);
         repositoryRecycler.setAdapter(repositoryAdapter);
         repositoryAdapter.setClickListener(this);
 
@@ -228,49 +259,117 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
             public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
                 switch (newState) {
                     case EXPANDED:
-                        slideGuide.setText(getString(R.string.slide_down));
+                        slideGuide.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_arrow_down));
+                        expanded = true;
                         break;
                     case COLLAPSED:
-                        slideGuide.setText(getString(R.string.slide_up));
+                        slideGuide.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_arrow_up));
+                        expanded = false;
                         break;
                 }
                 if (newState != SlidingUpPanelLayout.PanelState.EXPANDED) return;
 
-                List<RepoItem> itemList = new ArrayList<>();
-                Thread thread = new Thread(() -> {
-                    AWSCredentials crd = new BasicAWSCredentials("AKIAUIINZG7SDUSSH4XX", "MrDjFVRQXRKb95nmx0K48+s1srLJEqtRpImeOctE");
-                    AmazonS3 s3 = new AmazonS3Client(crd);
-                    ListObjectsRequest listObject = new ListObjectsRequest();
-                    listObject.setBucketName(getString(R.string.s3_bucket_resize));
-                    listObject.setPrefix("");
-                    ObjectListing objects = s3.listObjects(listObject);
-                    List<String> fileList = new ArrayList<>();
-                    do {
-                        objects = s3.listObjects(listObject);
-                        for (S3ObjectSummary summary : objects.getObjectSummaries()) {
-                            String key = summary.getKey();
-                            String baseName = FilenameUtils.getBaseName(key);
-                            String ext = FilenameUtils.getExtension(key);
-                            if (!fileList.contains(baseName) && ext.equals("jpg")) {
-                                fileList.add(baseName);
-                                itemList.add(new RepoItem(baseName
-                                        , Uri.parse("https://" + getString(R.string.s3_bucket_resize)
-                                        + ".s3.ap-northeast-2.amazonaws.com/" + baseName + ".jpg")));
-                            }
+                repositoryAdapter.clear();
+
+                if (!status.isConnected()) {
+                    networkLayout.setVisibility(View.VISIBLE);
+                    networkLayout.bringToFront();
+                    return;
+                } else networkLayout.setVisibility(View.GONE);
+
+                Observable<RepoItem> observable = Observable.create(
+                        emitter -> {
+                            progressBar.setVisibility(View.VISIBLE);
+                            new Thread(() -> {
+                                AWSCredentials crd = new BasicAWSCredentials("AKIAUIINZG7SDUSSH4XX", "MrDjFVRQXRKb95nmx0K48+s1srLJEqtRpImeOctE");
+                                AmazonS3 s3 = new AmazonS3Client(crd);
+                                ListObjectsRequest listObject = new ListObjectsRequest();
+                                listObject.setBucketName(getString(R.string.s3_bucket_resize));
+                                listObject.setPrefix("");
+                                ObjectListing objects = s3.listObjects(listObject);
+                                List<String> fileList = new ArrayList<>();
+                                do {
+                                    objects = s3.listObjects(listObject);
+                                    for (S3ObjectSummary summary : objects.getObjectSummaries()) {
+                                        String key = summary.getKey();
+                                        String baseName = FilenameUtils.getBaseName(key);
+                                        String ext = FilenameUtils.getExtension(key);
+                                        if (!fileList.contains(baseName) && ext.equals("jpg")) {
+                                            fileList.add(baseName);
+                                            emitter.onNext(new RepoItem(baseName
+                                                    , Uri.parse("https://" + getString(R.string.s3_bucket_resize)
+                                                    + ".s3.ap-northeast-2.amazonaws.com/" + baseName + ".jpg")));
+                                        }
+                                    }
+                                    listObject.setMarker(objects.getNextMarker());
+                                } while (objects.isTruncated());
+                                emitter.onComplete();
+                            }).start();
                         }
-                        listObject.setMarker(objects.getNextMarker());
-                    } while (objects.isTruncated());
-                    Log.d(TAG, fileList.toString());
-                });
-                thread.start();
-                try {
-                    thread.join();
-                    repositoryAdapter.setItemList(itemList);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                );
+
+                List<RepoItem> itemList = new ArrayList<>();
+                Observer<RepoItem> observer = new Observer<RepoItem>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(RepoItem item) {
+                        itemList.add(item);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        runOnUiThread(() -> {
+                            repositoryAdapter.setItemList(itemList);
+                            progressBar.setVisibility(View.GONE);
+                        });
+                    }
+                };
+                observable.subscribe(observer);
             }
         });
+    }
+
+    private String fileToMD5(File file) {
+        InputStream inputStream = null;
+        try {
+            inputStream = new FileInputStream(file);
+            byte[] buffer = new byte[1024];
+            MessageDigest digest = MessageDigest.getInstance("MD5");
+            int numRead = 0;
+            while (numRead != -1) {
+                numRead = inputStream.read(buffer);
+                if (numRead > 0)
+                    digest.update(buffer, 0, numRead);
+            }
+            byte[] md5Bytes = digest.digest();
+            return convertHashToString(md5Bytes);
+        } catch (Exception e) {
+            return null;
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (Exception e) {
+                }
+            }
+        }
+    }
+
+    private String convertHashToString(byte[] md5Bytes) {
+        String returnVal = "";
+        for (int i = 0; i < md5Bytes.length; i++) {
+            returnVal += Integer.toString((md5Bytes[i] & 0xff) + 0x100, 16).substring(1);
+        }
+        return returnVal;
     }
 
     private void launchModelRendererActivity(String uri) {

@@ -29,25 +29,25 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageButton
-            android:id="@+id/zoom_in"
+            android:id="@+id/zoomIn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:src="@drawable/ic_zoom_in" />
 
         <ImageButton
-            android:id="@+id/zoom_out"
+            android:id="@+id/zoomOut"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:src="@drawable/ic_zoom_out" />
 
         <ImageButton
-            android:id="@+id/rotate"
+            android:id="@+id/panTool"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:src="@drawable/ic_modify" />
+            android:src="@drawable/ic_pan_tool" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

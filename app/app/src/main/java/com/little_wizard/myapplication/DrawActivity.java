@@ -30,6 +30,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.little_wizard.myapplication.util.Coordinates;
+import com.little_wizard.myapplication.util.S3Transfer;
 import com.little_wizard.myapplication.view.MyView;
 
 import java.io.BufferedWriter;
@@ -45,7 +46,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Objects;
 
-public class DrawActivity extends AppCompatActivity {
+public class DrawActivity extends AppCompatActivity implements S3Transfer.TransferCallback {
     public static final int ASYMMETRY = 1;
     public static final int SYMMETRY = 2;
 
@@ -57,7 +58,7 @@ public class DrawActivity extends AppCompatActivity {
     private float line;
     Bitmap bitmap;
 
-    TransferUtility transferUtility;
+    S3Transfer transfer;
 
     ProgressDialog progressDialog;
 
@@ -65,13 +66,14 @@ public class DrawActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
 
-        initClient();
-
         display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
         viewHeight = size.y;
         viewWidth = size.x;
+
+        transfer = new S3Transfer(this);
+        transfer.setCallback(this);
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage(getString(R.string.progressDialog));
@@ -258,50 +260,30 @@ public class DrawActivity extends AppCompatActivity {
         }
     }
 
-    private void initClient() {
-        CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
-                getApplicationContext(),
-                "ap-northeast-2:13fe9921-fc1f-49ab-b998-c59c0a367efe", // 자격 증명 풀 ID
-                Regions.AP_NORTHEAST_2 // 리전
-        );
-
-        AmazonS3 s3 = new AmazonS3Client(credentialsProvider, Region.getRegion(Regions.AP_NORTHEAST_2));
-        transferUtility = TransferUtility.builder().s3Client(s3).context(this).build();
-        TransferNetworkLossHandler.getInstance(this);
-    }
-
     private void upload(String path) {
         File file = new File(path);
-        TransferObserver transferObserver = transferUtility.upload(
-                "imagebucket20200724",
-                file.getName(),
-                file
-        );
-        transferObserver.setTransferListener(new TransferListener() {
-            @Override
-            public void onStateChanged(int id, TransferState state) {
-                Log.d(this.toString(), "onStateChanged: " + id + ", " + state.toString());
-                if (state == TransferState.IN_PROGRESS) progressDialog.show();
-                if (state == TransferState.COMPLETED) {
-                    Toast.makeText(getApplicationContext(), "전송 완료.", Toast.LENGTH_SHORT).show();
-                }
-                if (state == TransferState.COMPLETED || state == TransferState.FAILED) {
-                    progressDialog.dismiss();
-                }
-            }
+        transfer.upload(R.string.s3_bucket, file.getName(), file);
+    }
 
-            @Override
-            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-                float v = ((float) bytesCurrent / (float) bytesTotal) * 100;
-                int percent = (int) v;
-                Log.d(this.toString(), "ID:" + id + " bytesCurrent: " + bytesCurrent + " bytesTotal: " + bytesTotal + " " + percent + "%");
-            }
+    @Override
+    public void onStateChanged(TransferState state) {
+        switch (state) {
+            case IN_PROGRESS:
+                progressDialog.show();
+                break;
+            case COMPLETED:
+            case FAILED:
+                String text = getString(state == TransferState.COMPLETED ?
+                        R.string.transfer_completed : R.string.transfer_failed);
+                Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+                progressDialog.dismiss();
+                finish();
+                break;
+        }
+    }
 
-            @Override
-            public void onError(int id, Exception e) {
-                Log.e(this.toString(), Objects.requireNonNull(e.getMessage()));
-                Toast.makeText(getApplicationContext(), "전송 실패.", Toast.LENGTH_SHORT).show();
-            }
-        });
+    @Override
+    public void onError(int id, Exception e) {
+        e.printStackTrace();
     }
 }

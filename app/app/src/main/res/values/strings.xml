@@ -9,6 +9,10 @@
     <string name="permission_denied">권한이 승인되지 않았습니다.</string>
     <string name="album">앨범</string>
     <string name="progressDialog">전송중입니다…</string>
+    <string name="transfer_completed">전송 완료.</string>
+    <string name="transfer_failed">전송 실패.</string>
+
+    <string name="s3_bucket">imagebucket20200724</string>
 
     <!-- Preference Titles -->
     <string name="basics_header">기본</string>

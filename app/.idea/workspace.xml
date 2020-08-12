@@ -13,8 +13,7 @@
     <list default="true" id="914c1609-3898-494f-a290-7ddbd057c51c" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/little_wizard/myapplication/DrawActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/little_wizard/myapplication/DrawActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/little_wizard/myapplication/util/DrawQueue.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/little_wizard/myapplication/util/DrawQueue.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/little_wizard/myapplication/view/MyView.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/little_wizard/myapplication/view/MyView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,9 +41,9 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Class" />
         <option value="layoutResourceFile" />
         <option value="resourceFile" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -496,12 +495,12 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="764" y="437" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1596211712407" />
-    <state x="0" y="0" width="1718" height="626" maximized="true" key="dock-window-1" timestamp="1597235648461">
+    <state x="0" y="0" width="1718" height="626" maximized="true" key="dock-window-1" timestamp="1597239821204">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="221" y="-15" width="1525" height="943" key="dock-window-1/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1596300936400" />
     <state x="1017" y="0" width="910" height="1047" key="dock-window-1/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1596278490525" />
-    <state x="0" y="0" width="1718" height="626" maximized="true" key="dock-window-1/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1597235648461" />
+    <state x="0" y="0" width="1718" height="626" maximized="true" key="dock-window-1/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1597239821204" />
     <state x="2063" y="-13" width="1069" height="717" maximized="true" key="dock-window-2" timestamp="1597047017435">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
@@ -511,6 +510,10 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="653" y="116" width="613" height="807" key="find.popup/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1596701706889" />
+    <state x="616" y="240" key="run.anything.popup" timestamp="1597240104430">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="616" y="240" key="run.anything.popup/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1597240104430" />
     <state x="623" y="225" width="672" height="678" key="search.everywhere.popup" timestamp="1597170958610">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>

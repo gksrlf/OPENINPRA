@@ -51,6 +51,7 @@ public class S3Transfer {
                 file
         );
         if (callback != null) {
+
             transferObserver.setTransferListener(new TransferListener() {
                 @Override
                 public void onStateChanged(int id, TransferState state) {

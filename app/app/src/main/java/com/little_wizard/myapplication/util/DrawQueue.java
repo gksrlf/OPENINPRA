@@ -32,8 +32,7 @@ public class DrawQueue {
     public DrawQueue(){
         queue = new ArrayDeque<>(maxSize);
         points = new ArrayList<>();
-        minX = minY = Integer.MAX_VALUE;
-        maxX = maxY = Integer.MIN_VALUE;
+        clear();
     }
 
     public void push(Bitmap bitmap, List list){
@@ -57,6 +56,8 @@ public class DrawQueue {
     public void clear(){
         queue.clear();
         points.clear();
+        minX = minY = Integer.MAX_VALUE;
+        maxX = maxY = Integer.MIN_VALUE;
     }
 
     public int size(){

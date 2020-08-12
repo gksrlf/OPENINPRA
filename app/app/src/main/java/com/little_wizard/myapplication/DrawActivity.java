@@ -140,8 +140,8 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
                 return true;
 
             case R.id.draw_add:
-                Bitmap bitmap = m.getCroppedImage().copy(Bitmap.Config.ARGB_8888, true);
                 List list = m.getList();
+                Bitmap bitmap = m.getCroppedImage().copy(Bitmap.Config.ARGB_8888, true);
                 if(list != null){
                     List newList = new ArrayList<Coordinates>();
                     newList.addAll(list);
@@ -154,6 +154,7 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
             case R.id.draw_confirmation:
                 m.setConfirmation(true);
                 return true;
+
             case R.id.draw_save:
                 //TODO: ObjectButter ArrayList들 recyclerView에 표시
                 Log.d(this.toString(), m.getBitmap().toString());

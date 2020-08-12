@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,6 +25,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class RepositoryAdapter extends RecyclerView.Adapter<RepositoryAdapter.ViewHolder> {
 
@@ -48,8 +50,19 @@ public class RepositoryAdapter extends RecyclerView.Adapter<RepositoryAdapter.Vi
     @Override
     public void onBindViewHolder(ViewHolder holder, int pos) {
         String key = (String) itemMap.keySet().toArray()[pos];
+        RepoItem item = null;
+        for (RepoItem tmp : Objects.requireNonNull(itemMap.get(key))) {
+            if (FilenameUtils.getExtension(tmp.name).equals("jpg")) {
+                item = tmp;
+                break;
+            }
+        }
+        if (item == null) {
+            Toast.makeText(mContext, R.string.obj_not_exists, Toast.LENGTH_SHORT).show();
+            return;
+        }
         String path = "https://" + mContext.getString(R.string.s3_bucket_resize)
-                + ".s3.ap-northeast-2.amazonaws.com/" + itemMap.get(key).get(0).name;
+                + ".s3.ap-northeast-2.amazonaws.com/" + item.name;
         Glide.with(mContext).load(path).centerCrop().into(holder.imageView);
         holder.name.setText(key);
     }

@@ -44,6 +44,7 @@ import com.little_wizard.tdc.util.S3Transfer;
 import com.little_wizard.tdc.util.view.ModelActivity;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
+import org.andresoviedo.util.android.ContentUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
@@ -51,6 +52,8 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -203,7 +206,20 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
                 public void onComplete() {
                     successCount[0]++;
                     if (successCount[0] == list.size()) {
-                        launchModelRendererActivity("file://" + localPath + item.name);
+                        RepoItem item = null;
+                        for (RepoItem tmp : list) {
+                            if (FilenameUtils.getExtension(tmp.name).equals("obj")) {
+                                item = tmp;
+                                break;
+                            }
+                        }
+                        if (item == null) {
+                            Toast.makeText(MainActivity.this, R.string.obj_not_exists, Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        File file = new File(localPath + item.name);
+                        ContentUtils.setCurrentDir(file.getParentFile());
+                        launchModelRendererActivity("file://" + file.getAbsolutePath());
                     }
                 }
 

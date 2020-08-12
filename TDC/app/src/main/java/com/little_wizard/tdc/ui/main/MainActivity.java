@@ -52,6 +52,7 @@ import java.io.InputStream;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -91,8 +92,6 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
     String localPath;
     RepositoryAdapter repositoryAdapter;
 
-    String[] extensions = {"mtl", "jpg", "obj"};
-
     boolean expanded = false;
 
     long backKeyPressedTime = 0;
@@ -121,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
         } else {
             if (System.currentTimeMillis() > backKeyPressedTime + TIME_INTERVAL) {
                 backKeyPressedTime = System.currentTimeMillis();
-                Toast.makeText(mContext, getString(R.string.exit_confirm), Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, R.string.exit_confirm, Toast.LENGTH_SHORT).show();
             } else {
                 moveTaskToBack(true);
                 finishAndRemoveTask();
@@ -157,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
     }
 
     @Override
-    public void onItemClick(View view, RepoItem item) {
+    public void onItemClick(View view, List<RepoItem> list) {
         ProgressDialog progressDialog = new ProgressDialog(mContext);
         progressDialog.setMessage(getString(R.string.downloading));
         progressDialog.setCancelable(false);
@@ -165,13 +164,13 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
 
         final int[] successCount = {0};
 
-        for (String ext : extensions) {
+        for (RepoItem item : list) {
             if (successCount[0] == -1) break;
             Completable.create(sub -> {
-                File file = new File(localPath + item.name + "." + ext);
-                if (!file.exists()) {
+                File file = new File(localPath + item.name);
+                if (!file.exists() && !Objects.equals(fileToMD5(file), item.md5)) {
                     if (!status.isConnected()) {
-                        Toast.makeText(mContext, getString(R.string.network_not_connected), Toast.LENGTH_LONG).show();
+                        Toast.makeText(mContext, R.string.network_not_connected, Toast.LENGTH_LONG).show();
                         return;
                     }
                     progressDialog.show();
@@ -203,8 +202,8 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
                 @Override
                 public void onComplete() {
                     successCount[0]++;
-                    if (successCount[0] == extensions.length) {
-                        launchModelRendererActivity("file://" + localPath + item.name + ".obj");
+                    if (successCount[0] == list.size()) {
+                        launchModelRendererActivity("file://" + localPath + item.name);
                     }
                 }
 
@@ -218,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
     }
 
     @Override
-    public void onItemLongClick(View view, RepoItem item) {
+    public void onItemLongClick(View view, List<RepoItem> list) {
         ProgressDialog progressDialog = new ProgressDialog(mContext);
         progressDialog.setMessage(getString(R.string.deleting));
         progressDialog.setCancelable(false);
@@ -228,20 +227,25 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
         builder.setTitle(R.string.delete_warning_title);
         builder.setMessage(R.string.delete_warning_msg);
         builder.setPositiveButton(R.string.yes, (dialogInterface, i) -> {
+            if (!status.isConnected()) {
+                Toast.makeText(mContext, R.string.network_not_connected, Toast.LENGTH_SHORT).show();
+                return;
+            }
             progressDialog.show();
             new Thread(() -> {
-                s3.deleteObject(getString(R.string.s3_bucket), item.name + ".jpg");
-                for (String ext : extensions) {
-                    String key = item.name + "." + ext;
-                    File file = new File(localPath + key);
+                for (RepoItem item : list) {
+                    if (FilenameUtils.getExtension(item.name).equals("jpg")) {
+                        s3.deleteObject(getString(R.string.s3_bucket), item.name);
+                    }
+                    File file = new File(localPath + item.name);
                     if (file.exists() && !file.delete())
-                        Log.d(TAG, key + " Delete failed.");
-                    s3.deleteObject(getString(R.string.s3_bucket_resize), key);
+                        Log.d(TAG, item.name + " Delete failed.");
+                    s3.deleteObject(getString(R.string.s3_bucket_resize), item.name);
+                    runOnUiThread(() -> {
+                        progressDialog.dismiss();
+                        refreshAdapter();
+                    });
                 }
-                runOnUiThread(() -> {
-                    progressDialog.dismiss();
-                    refreshAdapter();
-                });
             }).start();
         });
         builder.setNegativeButton(R.string.no, (dialogInterface, i) -> {
@@ -294,23 +298,6 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
         });
     }
 
-    private String fileToMD5(File file) {
-        try (InputStream inputStream = new FileInputStream(file)) {
-            byte[] buffer = new byte[1024];
-            MessageDigest digest = MessageDigest.getInstance("MD5");
-            int numRead = 0;
-            while (numRead != -1) {
-                numRead = inputStream.read(buffer);
-                if (numRead > 0)
-                    digest.update(buffer, 0, numRead);
-            }
-            byte[] md5Bytes = digest.digest();
-            return convertHashToString(md5Bytes);
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
     private void refreshAdapter() {
         repositoryAdapter.clear();
         emptyLayout.setVisibility(View.GONE);
@@ -328,19 +315,12 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
                         listObject.setBucketName(getString(R.string.s3_bucket_resize));
                         listObject.setPrefix("");
                         ObjectListing objects = s3.listObjects(listObject);
-                        List<String> fileList = new ArrayList<>();
                         do {
                             objects = s3.listObjects(listObject);
                             for (S3ObjectSummary summary : objects.getObjectSummaries()) {
                                 String key = summary.getKey();
-                                String baseName = FilenameUtils.getBaseName(key);
-                                String ext = FilenameUtils.getExtension(key);
-                                if (!fileList.contains(baseName) && ext.equals("jpg")) {
-                                    fileList.add(baseName);
-                                    emitter.onNext(new RepoItem(baseName
-                                            , Uri.parse("https://" + getString(R.string.s3_bucket_resize)
-                                            + ".s3.ap-northeast-2.amazonaws.com/" + baseName + ".jpg")));
-                                }
+                                String md5 = summary.getETag();
+                                emitter.onNext(new RepoItem(key, md5));
                             }
                             listObject.setMarker(objects.getNextMarker());
                         } while (objects.isTruncated());
@@ -376,6 +356,23 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
             }
         };
         observable.subscribe(observer);
+    }
+
+    private String fileToMD5(File file) {
+        try (InputStream inputStream = new FileInputStream(file)) {
+            byte[] buffer = new byte[1024];
+            MessageDigest digest = MessageDigest.getInstance("MD5");
+            int numRead = 0;
+            while (numRead != -1) {
+                numRead = inputStream.read(buffer);
+                if (numRead > 0)
+                    digest.update(buffer, 0, numRead);
+            }
+            byte[] md5Bytes = digest.digest();
+            return convertHashToString(md5Bytes);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private String convertHashToString(byte[] md5Bytes) {

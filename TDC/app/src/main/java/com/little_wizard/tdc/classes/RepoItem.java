@@ -1,15 +1,11 @@
 package com.little_wizard.tdc.classes;
 
-import android.net.Uri;
-
-import java.io.Serializable;
-
-public class RepoItem implements Serializable {
+public class RepoItem {
     public String name;
-    public Uri jpgPath;
+    public String md5;
 
-    public RepoItem(String name, Uri jpgPath) {
+    public RepoItem(String name, String md5) {
         this.name = name;
-        this.jpgPath = jpgPath;
+        this.md5 = md5;
     }
 }

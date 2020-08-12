@@ -88,6 +88,8 @@ public class CameraActivity extends AppCompatActivity implements S3Transfer.Tran
     NetworkStatus status;
     S3Transfer transfer;
 
+    ProgressDialog progressDialog;
+
     private String TAG = getClass().getSimpleName();
 
     @Override
@@ -99,6 +101,11 @@ public class CameraActivity extends AppCompatActivity implements S3Transfer.Tran
 
         album.setBackgroundResource(MainActivity.darkMode
                 ? R.drawable.btn_bg_white : R.drawable.btn_bg_black);
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage(getString(R.string.uploading));
+        progressDialog.setCancelable(false);
+        progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Horizontal);
 
         status = new NetworkStatus(this);
 
@@ -122,7 +129,7 @@ public class CameraActivity extends AppCompatActivity implements S3Transfer.Tran
             if (success) {
                 initCameraAndPreview();
             } else {
-                Toast.makeText(this, getString(R.string.permission_denied), Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.permission_denied, Toast.LENGTH_LONG).show();
                 finish();
             }
         }
@@ -376,7 +383,7 @@ public class CameraActivity extends AppCompatActivity implements S3Transfer.Tran
 
     private void upload(String path) {
         if (!status.isConnected()) {
-            Toast.makeText(this, getString(R.string.network_not_connected), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.network_not_connected, Toast.LENGTH_LONG).show();
             return;
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -411,25 +418,23 @@ public class CameraActivity extends AppCompatActivity implements S3Transfer.Tran
 
     @Override
     public void onStateChanged(TransferState state) {
-        ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage(getString(R.string.uploading));
-        progressDialog.setCancelable(false);
-        progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Horizontal);
-
-        if (state == TransferState.IN_PROGRESS) {
-            progressDialog.show();
-        } else if (state == TransferState.COMPLETED || state == TransferState.FAILED) {
-            progressDialog.dismiss();
-        }
-        if (state == TransferState.COMPLETED) {
-            Toast.makeText(CameraActivity.this, "전송 완료.", Toast.LENGTH_SHORT).show();
-            finish();
+        switch (state) {
+            case IN_PROGRESS:
+                progressDialog.show();
+                break;
+            case COMPLETED:
+            case FAILED:
+                String text = getString(state == TransferState.COMPLETED ?
+                        R.string.transfer_completed : R.string.transfer_failed);
+                Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+                progressDialog.dismiss();
+                finish();
+                break;
         }
     }
 
     @Override
     public void onError(int id, Exception e) {
         e.printStackTrace();
-        Toast.makeText(CameraActivity.this, "전송 실패.", Toast.LENGTH_SHORT).show();
     }
 }

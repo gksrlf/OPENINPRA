@@ -1,6 +1,7 @@
 package com.little_wizard.tdc.ui.main;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.view.LayoutInflater;
@@ -16,15 +17,20 @@ import com.bumptech.glide.Glide;
 import com.little_wizard.tdc.R;
 import com.little_wizard.tdc.classes.RepoItem;
 
+import org.apache.commons.io.FilenameUtils;
+
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class RepositoryAdapter extends RecyclerView.Adapter<RepositoryAdapter.ViewHolder> {
 
     private LayoutInflater mInflater;
     private Context mContext;
 
-    private List<RepoItem> itemList = new ArrayList<>();
+    private Map<String, List<RepoItem>> itemMap = new HashMap<>();
 
     private ItemClickListener mClickListener;
 
@@ -41,24 +47,40 @@ public class RepositoryAdapter extends RecyclerView.Adapter<RepositoryAdapter.Vi
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int pos) {
-        RepoItem item = itemList.get(pos);
-        Glide.with(mContext).load(item.jpgPath).centerCrop().into(holder.imageView);
-        holder.name.setText(item.name);
+        String key = (String) itemMap.keySet().toArray()[pos];
+        String path = "https://" + mContext.getString(R.string.s3_bucket_resize)
+                + ".s3.ap-northeast-2.amazonaws.com/" + itemMap.get(key).get(0).name;
+        Glide.with(mContext).load(path).centerCrop().into(holder.imageView);
+        holder.name.setText(key);
     }
 
     @Override
     public int getItemCount() {
-        return itemList.size();
+        return itemMap.size();
     }
 
     public void setItemList(List<RepoItem> itemList) {
-        this.itemList = itemList;
+        for (RepoItem item : itemList) {
+            String baseName = FilenameUtils.getBaseName(item.name);
+            List<RepoItem> list = itemMapIndexOf(itemMap, baseName);
+            list.add(item);
+            itemMap.put(baseName, list);
+        }
         notifyDataSetChanged();
     }
 
     public void clear() {
-        itemList.clear();
+        itemMap.clear();
         notifyDataSetChanged();
+    }
+
+    private List<RepoItem> itemMapIndexOf(Map<String, List<RepoItem>> map, String target) {
+        for (String key : map.keySet()) {
+            if (key.equals(target)) {
+                return map.get(key);
+            }
+        }
+        return new ArrayList<>();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
@@ -77,7 +99,8 @@ public class RepositoryAdapter extends RecyclerView.Adapter<RepositoryAdapter.Vi
         @Override
         public void onClick(View view) {
             if (mClickListener != null) {
-                mClickListener.onItemClick(view, itemList.get(getAdapterPosition()));
+                String key = (String) itemMap.keySet().toArray()[getAdapterPosition()];
+                mClickListener.onItemClick(view, itemMap.get(key));
             }
         }
 
@@ -86,7 +109,8 @@ public class RepositoryAdapter extends RecyclerView.Adapter<RepositoryAdapter.Vi
             if (mClickListener != null) {
                 Vibrator vibe = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
                 vibe.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE));
-                mClickListener.onItemLongClick(view, itemList.get(getAdapterPosition()));
+                String key = (String) itemMap.keySet().toArray()[getAdapterPosition()];
+                mClickListener.onItemLongClick(view, itemMap.get(key));
             }
             return false;
         }
@@ -97,8 +121,8 @@ public class RepositoryAdapter extends RecyclerView.Adapter<RepositoryAdapter.Vi
     }
 
     public interface ItemClickListener {
-        void onItemClick(View view, RepoItem item);
+        void onItemClick(View view, List<RepoItem> list);
 
-        void onItemLongClick(View view, RepoItem item);
+        void onItemLongClick(View view, List<RepoItem> list);
     }
 }

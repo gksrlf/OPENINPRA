@@ -1,13 +1,14 @@
 package com.little_wizard.myapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.ImageDecoder;
 import android.graphics.Point;
 import android.net.Uri;
@@ -19,23 +20,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.amazonaws.auth.CognitoCachingCredentialsProvider;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferNetworkLossHandler;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
 import com.little_wizard.myapplication.util.Coordinates;
 import com.little_wizard.myapplication.util.ObjectBuffer;
 import com.little_wizard.myapplication.util.S3Transfer;
 import com.little_wizard.myapplication.view.MyView;
 
 import java.io.BufferedWriter;
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -45,9 +36,6 @@ import java.io.OutputStreamWriter;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class DrawActivity extends AppCompatActivity implements S3Transfer.TransferCallback {
     public static final int ASYMMETRY = 1;
@@ -158,16 +146,15 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
             case R.id.draw_save:
                 //TODO: ObjectButter ArrayList들 recyclerView에 표시
                 Log.d(this.toString(), m.getBitmap().toString());
-                //saveBitmap(this, bitName, m.getBitmap());
-                //String path = getFilesDir() + "/" + bitName + ".png"; // TODO::서버에 전송할 때 사진이랑 비트맵 같이 전송해야함
-
-                //ArrayList<Coordinates> list = (ArrayList<Coordinates>)m.getList();
-                //saveFile(bitName + ".txt", list);
-                //saveFile(bitName + ".png", bitmap);
-                //readFile(bitName);
-                //upload(getExternalCacheDir() + "/" + bitName + ".txt");
-                //upload(getExternalCacheDir() + "/" + bitName + ".png");
-                finish();
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                RecyclerView recycler = new RecyclerView(this);
+                recycler.setLayoutManager(new LinearLayoutManager(this));
+                DrawAdapter adapter = new DrawAdapter(this);
+                recycler.setAdapter(adapter);
+                adapter.setElementList(objectBuffer.getBuffer());
+                builder.setView(recycler);
+                builder.setCancelable(false);
+                builder.show();
                 return true;
 
             case R.id.draw_clear:

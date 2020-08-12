@@ -86,11 +86,6 @@ public class MainActivity extends AppCompatActivity {
                     Cursor cursor = null;
 
                     try {
-
-                        /*
-                         *  Uri 스키마를
-                         *  content:/// 에서 file:/// 로  변경한다.
-                         */
                         String[] proj = {MediaStore.Images.Media.DATA};
 
                         assert photoUri != null;

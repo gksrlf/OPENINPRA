@@ -133,11 +133,11 @@ public class MyView extends View {
 
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
-
                 if (mode == NONE) {
                     Log.d("onTouchEvent Event", "ACTION_DOWN");
                     if (!isDraggable(event)) break;
-                    if (isDrawMode && confirmation == false) { //TODO: 대칭일때 첫번째 점 처리
+                    if (isDrawMode && !confirmation) { //TODO: 대칭일때 첫번째 점 처리
+                        if(!isInPicture(event)) break;
                         if (lastPoint != null) {
                             drawPath.moveTo(lastPoint.getX(), lastPoint.getY());
                             viewPath.moveTo(lastPoint.getX() * magification + mPosX, lastPoint.getY() * magification + mPosY);
@@ -176,7 +176,7 @@ public class MyView extends View {
                             posY1 = posY2;
                         }
                     }
-                } else if (mode == DROW && confirmation == false) {
+                } else if (mode == DROW && !confirmation) {
                     if (isInPicture(event)) {
                         viewPath.lineTo(event.getX(), event.getY());
                         pointCount++;
@@ -234,7 +234,7 @@ public class MyView extends View {
                 }
                 break;
             case MotionEvent.ACTION_UP:
-                if (mode == DROW && confirmation == false) {
+                if (mode == DROW && !confirmation) {
                     list.add(new Coordinates(absX, absY));
                     drawPath.lineTo(absX, absY);
                     viewPath.lineTo(event.getX(), event.getY());
@@ -243,11 +243,11 @@ public class MyView extends View {
                     viewPath.reset();
                     drawQueue.push(previousBitmap, list);
                     list.clear();
-                }
-                if(drawQueue.isClear()){
-                    setClearMenu();
-                }else{
-                    setUnClearMenu();
+                    if(drawQueue.isClear()){
+                        setClearMenu();
+                    }else{
+                        setUnClearMenu();
+                    }
                 }
             case MotionEvent.ACTION_POINTER_UP:
                 mode = NONE;

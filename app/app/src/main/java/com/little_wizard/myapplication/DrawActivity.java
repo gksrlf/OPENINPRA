@@ -30,6 +30,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.little_wizard.myapplication.util.Coordinates;
+import com.little_wizard.myapplication.util.ObjectBuffer;
 import com.little_wizard.myapplication.util.S3Transfer;
 import com.little_wizard.myapplication.view.MyView;
 
@@ -43,8 +44,10 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class DrawActivity extends AppCompatActivity implements S3Transfer.TransferCallback {
     public static final int ASYMMETRY = 1;
@@ -58,6 +61,10 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
     private float line;
     Bitmap bitmap;
 
+    private ObjectBuffer objectBuffer;
+    String filepath;
+    String filename;
+
     S3Transfer transfer;
 
     ProgressDialog progressDialog;
@@ -65,6 +72,9 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+        filepath = getExternalCacheDir() + "/";
+        filename = Long.toString(ZonedDateTime.now().toInstant().toEpochMilli());
+        objectBuffer = new ObjectBuffer(filepath, filename);
 
         display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
@@ -83,6 +93,7 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
         Intent intent = getIntent();
         Context context = getApplicationContext();
         Uri uri = intent.getData();
+
         if(intent.getStringExtra("mode").equals("asymmetry")){//비대칭일 때 갤러리 사진 Uri 가져옴
             m = new MyView(this, viewHeight, viewWidth, ASYMMETRY);
         }else{ // 대칭일 때 byte array 가져옴, 축 설정
@@ -105,9 +116,9 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
     public boolean onCreateOptionsMenu(Menu menu){
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.draw_menu, menu);
-        menu.findItem(R.id.draw_save).setEnabled(false);
-        menu.findItem(R.id.draw_save).setVisible(false);
         m.setMenu(menu);
+        m.setUnClearMenu();
+        menu.findItem(R.id.draw_confirmation).setEnabled(false);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -128,22 +139,33 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
                 m.setItemMode(isDrawMode);
                 return true;
 
+            case R.id.draw_add:
+                Bitmap bitmap = m.getCroppedImage().copy(Bitmap.Config.ARGB_8888, true);
+                List list = m.getList();
+                if(list != null){
+                    List newList = new ArrayList<Coordinates>();
+                    newList.addAll(list);
+                    objectBuffer.push(bitmap, newList);
+                    m.clear();
+                    Toast.makeText(this, "추가 완료", Toast.LENGTH_SHORT).show();
+                }
+                return true;
+
             case R.id.draw_confirmation:
                 m.setConfirmation(true);
                 return true;
             case R.id.draw_save:
-                String path;
-                String bitName = Long.toString(ZonedDateTime.now().toInstant().toEpochMilli());
+                //TODO: ObjectButter ArrayList들 recyclerView에 표시
                 Log.d(this.toString(), m.getBitmap().toString());
                 //saveBitmap(this, bitName, m.getBitmap());
-                path = getFilesDir() + "/" + bitName + ".png"; // TODO::서버에 전송할 때 사진이랑 비트맵 같이 전송해야함
+                //String path = getFilesDir() + "/" + bitName + ".png"; // TODO::서버에 전송할 때 사진이랑 비트맵 같이 전송해야함
 
-                ArrayList<Coordinates> list = (ArrayList<Coordinates>)m.getList();
-                saveFile(bitName + ".txt", list);
-                saveFile(bitName + ".png", bitmap);
+                //ArrayList<Coordinates> list = (ArrayList<Coordinates>)m.getList();
+                //saveFile(bitName + ".txt", list);
+                //saveFile(bitName + ".png", bitmap);
                 //readFile(bitName);
-                upload(getExternalCacheDir() + "/" + bitName + ".txt");
-                upload(getExternalCacheDir() + "/" + bitName + ".png");
+                //upload(getExternalCacheDir() + "/" + bitName + ".txt");
+                //upload(getExternalCacheDir() + "/" + bitName + ".png");
                 finish();
                 return true;
 

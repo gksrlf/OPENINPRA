@@ -36,14 +36,14 @@ public class DrawQueue {
         maxX = maxY = Integer.MIN_VALUE;
     }
 
-    public void push(Bitmap e, List list){
+    public void push(Bitmap bitmap, List list){
         ArrayList<Coordinates> newList = null;
         if(list != null){
             newList = new ArrayList<>();
             newList.addAll(list);
         }
         if(queue.size() == maxSize) queue.removeFirst();
-        queue.add(new Element(e.copy(Bitmap.Config.ARGB_8888, true), newList));
+        queue.add(new Element(bitmap.copy(Bitmap.Config.ARGB_8888, true), newList));
         points.add(newList);
     }
 
@@ -76,6 +76,11 @@ public class DrawQueue {
         return null;
     }
 
+    public boolean isClear(){
+        if(points == null || points.get(points.size() - 1) == null) return true;
+        else return false;
+    }
+
     public ArrayList<Coordinates> getResult(){
         ArrayList<Coordinates> result = new ArrayList<>();
         for(ArrayList<Coordinates> L : points){
@@ -104,7 +109,7 @@ public class DrawQueue {
         return maxY - minY;
     }
 
-    public int getWitdh(){
+    public int getWidth(){
         return maxX - minX;
     }
 }

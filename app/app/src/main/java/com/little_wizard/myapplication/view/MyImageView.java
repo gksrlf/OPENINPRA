@@ -295,9 +295,9 @@ public class MyImageView extends androidx.appcompat.widget.AppCompatImageView {
         canvas.drawBitmap(bitmap, m, null);
 
         Paint paint = new Paint();
-        paint.setColor(0xFFFF0000);
+        /*paint.setColor(0xFFFF0000);
         paint.setStrokeWidth(4);
-        canvas.drawLine(linePosX, 0, linePosX, h, paint);
+        canvas.drawLine(linePosX, 0, linePosX, h, paint);*/
 
         paint.setColor(0x50ff0000);
         paint.setStrokeWidth(0);

@@ -30,7 +30,7 @@ public class MyView extends View {
     public static final int SYMMETRY = 2;
 
     private static int pointCount = 0;
-    private final int pick = 5;
+    private final int pick = 3;
 
     private DrawQueue drawQueue;
 
@@ -42,7 +42,6 @@ public class MyView extends View {
     private int paintColor = 0xFFFF0000;
     private Canvas drawCanvas;
     private Bitmap canvasBitmap, originalBitmap;
-    //private List list;
     private int paintWidth = 20;
 
     private float width;
@@ -130,6 +129,7 @@ public class MyView extends View {
         Bitmap previousBitmap = canvasBitmap.copy(Bitmap.Config.ARGB_8888, true);
         //ArrayList<Coordinates> list = new ArrayList<>();
         Log.d("confirmation", String.format("%b", confirmation));
+        Coordinates lastPoint = drawQueue.getLastPoint();
 
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
@@ -138,7 +138,6 @@ public class MyView extends View {
                     Log.d("onTouchEvent Event", "ACTION_DOWN");
                     if (!isDraggable(event)) break;
                     if (isDrawMode && confirmation == false) { //TODO: 대칭일때 첫번째 점 처리
-                        Coordinates lastPoint = drawQueue.getLastPoint();
                         if (lastPoint != null) {
                             drawPath.moveTo(lastPoint.getX(), lastPoint.getY());
                             viewPath.moveTo(lastPoint.getX() * magification + mPosX, lastPoint.getY() * magification + mPosY);
@@ -245,6 +244,11 @@ public class MyView extends View {
                     drawQueue.push(previousBitmap, list);
                     list.clear();
                 }
+                if(drawQueue.isClear()){
+                    setClearMenu();
+                }else{
+                    setUnClearMenu();
+                }
             case MotionEvent.ACTION_POINTER_UP:
                 mode = NONE;
                 break;
@@ -257,7 +261,6 @@ public class MyView extends View {
                 return false;
         }
         invalidate();
-        Log.i("TAG", String.valueOf(line));
         return true;
     }
 
@@ -308,14 +311,15 @@ public class MyView extends View {
         drawCanvas.restore();
         invalidate();
         setConfirmation(false);
-        //if(drawQueue.size() <= 1){
-        //   activityMenu.findItem(R.id.draw_undo).setEnabled(false);
-        //}
+        if(drawQueue.isClear()){
+            activityMenu.findItem(R.id.draw_confirmation).setEnabled(false);
+        }
     }
 
     public void clear() {
         drawQueue.clear();
         setConfirmation(false);
+        activityMenu.findItem(R.id.draw_confirmation).setEnabled(false);
         setBackgroundBitmap(originalBitmap);
         invalidate();
     }
@@ -341,14 +345,9 @@ public class MyView extends View {
         if (status == true) {
             Bitmap previousBitmap = canvasBitmap.copy(Bitmap.Config.ARGB_8888, true);
             ArrayList<Coordinates> point = new ArrayList<>();
-
-            activityMenu.findItem(R.id.draw_confirmation).setEnabled(false);
-            activityMenu.findItem(R.id.draw_confirmation).setVisible(false);
-            activityMenu.findItem(R.id.draw_save).setEnabled(true);
-            activityMenu.findItem(R.id.draw_save).setVisible(true);
-
+            setClearMenu();
             Coordinates lastPoint = drawQueue.getLastPoint();
-            //TODO: 대칭일때 마지막 점 처리
+            //TODO: 대칭일때 마지막 점 처리 (완료)
             drawPath.moveTo(lastPoint.getX(), lastPoint.getY());
             if (photo_mode == ASYMMETRY) {
                 point.add(new Coordinates(startX, startY));
@@ -363,11 +362,26 @@ public class MyView extends View {
             drawPath.reset();
             invalidate();
         } else {
-            activityMenu.findItem(R.id.draw_confirmation).setEnabled(true);
-            activityMenu.findItem(R.id.draw_confirmation).setVisible(true);
-            activityMenu.findItem(R.id.draw_save).setEnabled(false);
-            activityMenu.findItem(R.id.draw_save).setVisible(false);
+            setUnClearMenu();
         }
+    }
+
+    public void setClearMenu(){
+        activityMenu.findItem(R.id.draw_confirmation).setEnabled(false);
+        activityMenu.findItem(R.id.draw_confirmation).setVisible(false);
+        activityMenu.findItem(R.id.draw_add).setEnabled(true);
+        activityMenu.findItem(R.id.draw_add).setVisible(true);
+        activityMenu.findItem(R.id.draw_save).setEnabled(true);
+        activityMenu.findItem(R.id.draw_save).setVisible(true);
+    }
+
+    public void setUnClearMenu(){
+        activityMenu.findItem(R.id.draw_confirmation).setEnabled(true);
+        activityMenu.findItem(R.id.draw_confirmation).setVisible(true);
+        activityMenu.findItem(R.id.draw_add).setEnabled(false);
+        activityMenu.findItem(R.id.draw_add).setVisible(false);
+        activityMenu.findItem(R.id.draw_save).setEnabled(false);
+        activityMenu.findItem(R.id.draw_save).setVisible(false);
     }
 
     public void setLine(float line) {
@@ -387,6 +401,10 @@ public class MyView extends View {
     }
 
     public int getW(){
-        return drawQueue.getWitdh();
+        return drawQueue.getWidth();
+    }
+
+    public Bitmap getCroppedImage(){
+        return Bitmap.createBitmap(originalBitmap, drawQueue.getStartX(), drawQueue.getStartY(), drawQueue.getWidth(), drawQueue.getHeight());
     }
 }

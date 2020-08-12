@@ -59,6 +59,8 @@ public class DrawActivity extends AppCompatActivity {
 
     TransferUtility transferUtility;
 
+    ProgressDialog progressDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -70,6 +72,11 @@ public class DrawActivity extends AppCompatActivity {
         display.getSize(size);
         viewHeight = size.y;
         viewWidth = size.x;
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage(getString(R.string.progressDialog));
+        progressDialog.setCancelable(false);
+        progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Horizontal);
 
         Intent intent = getIntent();
         Context context = getApplicationContext();
@@ -126,14 +133,15 @@ public class DrawActivity extends AppCompatActivity {
                 String path;
                 String bitName = Long.toString(ZonedDateTime.now().toInstant().toEpochMilli());
                 Log.d(this.toString(), m.getBitmap().toString());
-                saveBitmap(this, bitName, m.getBitmap());
+                //saveBitmap(this, bitName, m.getBitmap());
                 path = getFilesDir() + "/" + bitName + ".png"; // TODO::서버에 전송할 때 사진이랑 비트맵 같이 전송해야함
 
                 ArrayList<Coordinates> list = (ArrayList<Coordinates>)m.getList();
-                saveFile(bitName, list);
-                //saveFile(bitName, image)
+                saveFile(bitName + ".txt", list);
+                saveFile(bitName + ".png", bitmap);
                 //readFile(bitName);
                 upload(getExternalCacheDir() + "/" + bitName + ".txt");
+                upload(getExternalCacheDir() + "/" + bitName + ".png");
                 finish();
                 return true;
 
@@ -144,7 +152,7 @@ public class DrawActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
-
+    /*
     public static void saveBitmap(Context context, String bitName, Bitmap mBitmap) {//  ww  w.j  a va 2s.c  o  m
 
         File f = new File(context.getFilesDir() + "/" + bitName + ".png");
@@ -171,7 +179,7 @@ public class DrawActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-
+*/
     public Bitmap resizeBitmapImage(Bitmap source){
         float width = source.getWidth();
         float height = source.getHeight();
@@ -202,7 +210,7 @@ public class DrawActivity extends AppCompatActivity {
                 dir.mkdir();
             }
             //파일 output stream 생성
-            FileOutputStream fos = new FileOutputStream(getExternalCacheDir() + "/" + filename + ".txt", true);
+            FileOutputStream fos = new FileOutputStream(getExternalCacheDir() + "/" + filename, true);
             //파일쓰기
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fos));
 
@@ -226,7 +234,7 @@ public class DrawActivity extends AppCompatActivity {
             //디렉토리 폴더가 없으면 생성함
 
             FileOutputStream out = new FileOutputStream(f);
-            result.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            result.compress(Bitmap.CompressFormat.PNG, 100, out);
             out.close();
         } catch (Exception e){
 
@@ -263,12 +271,6 @@ public class DrawActivity extends AppCompatActivity {
     }
 
     private void upload(String path) {
-        ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage(getString(R.string.progressDialog));
-        progressDialog.setCancelable(false);
-        progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Horizontal);
-        progressDialog.show();
-
         File file = new File(path);
         TransferObserver transferObserver = transferUtility.upload(
                 "imagebucket20200724",
@@ -279,6 +281,7 @@ public class DrawActivity extends AppCompatActivity {
             @Override
             public void onStateChanged(int id, TransferState state) {
                 Log.d(this.toString(), "onStateChanged: " + id + ", " + state.toString());
+                if (state == TransferState.IN_PROGRESS) progressDialog.show();
                 if (state == TransferState.COMPLETED) {
                     Toast.makeText(getApplicationContext(), "전송 완료.", Toast.LENGTH_SHORT).show();
                 }

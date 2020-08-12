@@ -1,6 +1,9 @@
 package com.little_wizard.myapplication.util;
 
 import android.graphics.Bitmap;
+import android.util.Log;
+
+import java.lang.reflect.Array;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +14,12 @@ public class DrawQueue {
         private ArrayList<Coordinates> list;
         public Element(Bitmap bitmap, List list){
             this.bitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
-            this.list = (ArrayList<Coordinates>) list;
+            this.list = new ArrayList<>();
+            if(list == null){
+                this.list = null;
+            }else{
+                this.list.addAll(list);
+            }
         }
     }
 
@@ -29,9 +37,14 @@ public class DrawQueue {
     }
 
     public void push(Bitmap e, List list){
+        ArrayList<Coordinates> newList = null;
+        if(list != null){
+            newList = new ArrayList<>();
+            newList.addAll(list);
+        }
         if(queue.size() == maxSize) queue.removeFirst();
-        queue.add(new Element(e.copy(Bitmap.Config.ARGB_8888, true), list));
-        points.add((ArrayList<Coordinates>)list);
+        queue.add(new Element(e.copy(Bitmap.Config.ARGB_8888, true), newList));
+        points.add(newList);
     }
 
     public void undo(){
@@ -65,9 +78,9 @@ public class DrawQueue {
 
     public ArrayList<Coordinates> getResult(){
         ArrayList<Coordinates> result = new ArrayList<>();
-        for(Element e : queue){
-            if(e.list == null) continue;
-            for(Coordinates c : (ArrayList<Coordinates>)e.list){
+        for(ArrayList<Coordinates> L : points){
+            if(L == null) continue;
+            for(Coordinates c : L){
                 minX = minX > (int)c.getX() ? (int)c.getX() : minX;
                 minY = minY > (int)c.getY() ? (int)c.getY() : minY;
                 maxX = maxX < (int)c.getX() ? (int)c.getX() : maxX;
@@ -75,6 +88,7 @@ public class DrawQueue {
                 result.add(new Coordinates(c.getX() / 1000, c.getY() / 1000));
             }
         }
+        Log.i("result size", String.valueOf(result.size()));
         return result;
     }
 

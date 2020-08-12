@@ -72,6 +72,8 @@ public class MyView extends View {
     private float line;
     private float originalLine;
 
+    ArrayList<Coordinates> list = new ArrayList<>();
+
     public MyView(Context context, int displayHeight, int displayWidth, int mode) {
         super(context);
         setupDrawing();
@@ -126,7 +128,7 @@ public class MyView extends View {
         float absY = 1 / magification * (event.getY() - mPosY);
         Log.d("onTouchEvent absolute", String.format("%f, %f", absX, absY));
         Bitmap previousBitmap = canvasBitmap.copy(Bitmap.Config.ARGB_8888, true);
-        ArrayList<Coordinates> list = new ArrayList<>();
+        //ArrayList<Coordinates> list = new ArrayList<>();
         Log.d("confirmation", String.format("%b", confirmation));
 
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
@@ -241,6 +243,7 @@ public class MyView extends View {
                     drawPath.reset();
                     viewPath.reset();
                     drawQueue.push(previousBitmap, list);
+                    list.clear();
                 }
             case MotionEvent.ACTION_POINTER_UP:
                 mode = NONE;

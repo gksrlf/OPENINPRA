@@ -19,9 +19,13 @@ public class DrawQueue {
     private ArrayDeque<Element> queue;
     private ArrayList<ArrayList<Coordinates>> points;
 
+    int minX, minY, maxX, maxY;
+
     public DrawQueue(){
         queue = new ArrayDeque<>(maxSize);
         points = new ArrayList<>();
+        minX = minY = Integer.MAX_VALUE;
+        maxX = maxY = Integer.MIN_VALUE;
     }
 
     public void push(Bitmap e, List list){
@@ -64,9 +68,29 @@ public class DrawQueue {
         for(Element e : queue){
             if(e.list == null) continue;
             for(Coordinates c : (ArrayList<Coordinates>)e.list){
+                minX = minX > (int)c.getX() ? (int)c.getX() : minX;
+                minY = minY > (int)c.getY() ? (int)c.getY() : minY;
+                maxX = maxX < (int)c.getX() ? (int)c.getX() : maxX;
+                maxY = maxY < (int)c.getY() ? (int)c.getY() : maxY;
                 result.add(new Coordinates(c.getX() / 1000, c.getY() / 1000));
             }
         }
         return result;
+    }
+
+    public int getStartX(){
+        return minX;
+    }
+
+    public int getStartY(){
+        return minY;
+    }
+
+    public int getHeight(){
+        return maxY - minY;
+    }
+
+    public int getWitdh(){
+        return maxX - minX;
     }
 }

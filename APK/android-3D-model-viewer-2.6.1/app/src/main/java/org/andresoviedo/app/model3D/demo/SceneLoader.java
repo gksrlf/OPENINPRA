@@ -516,6 +516,7 @@ public class SceneLoader implements LoaderTask.Callback {
             }
         }
 
+
         //TODO Need to change right code
         if (selectedObject != null) {
             //new WavefrontSaver(selectedObject).OutFileToVertexBuffer();
@@ -524,7 +525,7 @@ public class SceneLoader implements LoaderTask.Callback {
             ContentUtils.setThreadActivity(parent);
             ContentUtils.provideAssets(parent);
 
-            if (selectedObject.getId() != "Point") {
+            if (!selectedObject.getUri().equals(Uri.parse("assets://assets/models/Point.obj"))) {
                 if(selectedObject.getIsClicked() == false) {
                     Object3DDisorganization disorganization = new Object3DDisorganization(selectedObject);
                     disorganization.unpackingBuffer();
@@ -533,19 +534,23 @@ public class SceneLoader implements LoaderTask.Callback {
 
                     for (int i = 0; i < vertexArrayList.size(); i++) {
                         Object3DData objPoint = Object3DBuilder.loadV5(parent, Uri.parse("assets://assets/models/Point.obj"));
-                        objPoint.setId("Point");
-                        objPoint.setPosition(new float[]{vertexArrayList.get(i)[0] * 25f, vertexArrayList.get(i)[1] * 25f, vertexArrayList.get(i)[2] * 25f});
+                        objPoint.setPosition(new float[]{vertexArrayList.get(i)[0] * 18f, vertexArrayList.get(i)[1] * 18f, vertexArrayList.get(i)[2] * 18f});
                         objPoint.setScale(new float[]{0.3f, 0.3f, 0.3f});
                         objPoint.setColor(new float[]{1.0f, 0.0f, 0f, 1.0f});
                         addObject(objPoint);
                     }
 
+                    ContentUtils.setThreadActivity(null);
+                    ContentUtils.clearDocumentsProvided();
+
                     selectedObject.setIsClicked(true);
                 }
-            } else {
-                selectedObject.setColor(new float[]{0.0f, 1.0f, 0f, 1.0f});
             }
+
+            if(selectedObject.getUri().equals(Uri.parse("assets://assets/models/Point.obj")))
+                selectedObject.setColor(new float[]{0.0f, 1.0f, 0f, 1.0f});
         }
+
     }
 
     public void processMove(float dx1, float dy1) {

@@ -6,6 +6,7 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/GitHub-OPENINPRA-app-My_Application~1.iml" filepath="$PROJECT_DIR$/.idea/modules/GitHub-OPENINPRA-app-My_Application~1.iml" group="My_Application" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/GitHub-OPENINPRA-app-My_Application~2.iml" filepath="$PROJECT_DIR$/.idea/modules/GitHub-OPENINPRA-app-My_Application~2.iml" group="My_Application" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/GitHub-OPENINPRA-app-app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/GitHub-OPENINPRA-app-app.iml" group="My Application/app" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/GitHub-OPENINPRA-app-app~1.iml" filepath="$PROJECT_DIR$/.idea/modules/app/GitHub-OPENINPRA-app-app~1.iml" group="My Application/app" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/My Application-app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/My Application-app.iml" group="My Application/app" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/My_Application.iml" filepath="$PROJECT_DIR$/.idea/modules/My_Application.iml" group="My_Application" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/OPENINPRA-app-My_Application.iml" filepath="$PROJECT_DIR$/.idea/modules/OPENINPRA-app-My_Application.iml" group="My_Application" />
@@ -13,6 +14,7 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/app.iml" group="My Application/app" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app-My_Application.iml" filepath="$PROJECT_DIR$/.idea/modules/app-My_Application.iml" group="My_Application" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/app-app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/app-app.iml" group="My Application/app" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/null.iml" filepath="$PROJECT_DIR$/.idea/modules/null.iml" group="My_Application" />
     </modules>
   </component>
 </project>

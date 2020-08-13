@@ -101,27 +101,24 @@ public class MainActivity extends AppCompatActivity {
                         final String[] menu = {"Symmetry", "Asymmetry"};
                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
                         alertDialogBuilder.setTitle("Photo type");
-                        alertDialogBuilder.setItems(menu, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                Intent intent;
-                                switch (i) {
-                                    case 0:
-                                        intent = new Intent(getApplicationContext(), EditActivity.class);
-                                        intent.setAction(Intent.ACTION_SEND);
-                                        intent.setData(Uri.fromFile(setFile));
-                                        startActivity(intent);
-                                        break;
-                                    case 1:
-                                        intent = new Intent(getApplicationContext(), DrawActivity.class);
-                                        intent.putExtra("mode", "asymmetry");
-                                        intent.setAction(Intent.ACTION_SEND);
-                                        intent.setData(Uri.fromFile(setFile));
-                                        startActivity(intent);
-                                        break;
-                                    default:
-                                        break;
-                                }
+                        alertDialogBuilder.setItems(menu, (dialogInterface, i) -> {
+                            Intent intent;
+                            switch (i) {
+                                case 0:
+                                    intent = new Intent(getApplicationContext(), EditActivity.class);
+                                    intent.setAction(Intent.ACTION_SEND);
+                                    intent.setData(Uri.fromFile(setFile));
+                                    startActivity(intent);
+                                    break;
+                                case 1:
+                                    intent = new Intent(getApplicationContext(), DrawActivity.class);
+                                    intent.putExtra("mode", "asymmetry");
+                                    intent.setAction(Intent.ACTION_SEND);
+                                    intent.setData(Uri.fromFile(setFile));
+                                    startActivity(intent);
+                                    break;
+                                default:
+                                    break;
                             }
                         });
                         AlertDialog alertDialog = alertDialogBuilder.create();

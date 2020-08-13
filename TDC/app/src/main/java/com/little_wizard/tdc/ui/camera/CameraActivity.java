@@ -48,6 +48,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.little_wizard.tdc.R;
+import com.little_wizard.tdc.ui.draw.DrawActivity;
+import com.little_wizard.tdc.ui.draw.EditActivity;
 import com.little_wizard.tdc.ui.main.MainActivity;
 import com.little_wizard.tdc.util.NetworkStatus;
 import com.little_wizard.tdc.util.S3Transfer;
@@ -140,7 +142,8 @@ public class CameraActivity extends AppCompatActivity implements S3Transfer.Tran
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE && resultCode == Activity.RESULT_OK) {
             assert data != null;
-            upload(getRealPathFromURI(data.getData()));
+            //upload(getRealPathFromURI(data.getData()));
+            startEdit(data.getData());
         }
     }
 
@@ -212,9 +215,12 @@ public class CameraActivity extends AppCompatActivity implements S3Transfer.Tran
         } catch (Exception e) {
             e.printStackTrace();
         }
-        String path = getRealPathFromURI(Uri.parse(insertImage(getContentResolver(), bitmap
-                , "" + System.currentTimeMillis(), "")));
-        upload(path);
+        //String path = getRealPathFromURI(Uri.parse(insertImage(getContentResolver(), bitmap
+                //, "" + System.currentTimeMillis(), "")));
+        //TODO: 추상주소로 바꿔줌
+        String uri = insertImage(getContentResolver(), bitmap, "" + System.currentTimeMillis(), "");
+        //upload(path);
+        startEdit(Uri.parse(uri));
     });
 
     private CameraDevice.StateCallback deviceStateCallback = new CameraDevice.StateCallback() {
@@ -381,6 +387,7 @@ public class CameraActivity extends AppCompatActivity implements S3Transfer.Tran
         return result;
     }
 
+    //TODO: DrawActivity에 upload함수 추가
     private void upload(String path) {
         if (!status.isConnected()) {
             Toast.makeText(this, R.string.network_not_connected, Toast.LENGTH_LONG).show();
@@ -436,5 +443,34 @@ public class CameraActivity extends AppCompatActivity implements S3Transfer.Tran
     @Override
     public void onError(int id, Exception e) {
         e.printStackTrace();
+    }
+
+    //TODO: 이미지 모드 선택 후 사진 Uri 넘김
+    private void startEdit(Uri uri){
+        final String[] menu = {"Symmetry", "Asymmetry"};
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder.setTitle("Photo type");
+        alertDialogBuilder.setItems(menu, (dialogInterface, i) -> {
+            Intent intent;
+            switch (i) {
+                case 0:
+                    intent = new Intent(getApplicationContext(), EditActivity.class);
+                    intent.setAction(Intent.ACTION_SEND);
+                    intent.setData(uri);
+                    startActivity(intent);
+                    break;
+                case 1:
+                    intent = new Intent(getApplicationContext(), DrawActivity.class);
+                    intent.putExtra("mode", "asymmetry");
+                    intent.setAction(Intent.ACTION_SEND);
+                    intent.setData(uri);
+                    startActivity(intent);
+                    break;
+                default:
+                    break;
+            }
+        });
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
     }
 }

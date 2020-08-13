@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/TDC.iml" filepath="$PROJECT_DIR$/.idea/TDC.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/TDC.iml" filepath="$PROJECT_DIR$/.idea/TDC.iml" group="TDC" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/app.iml" group="TDC/app" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/engine/engine.iml" filepath="$PROJECT_DIR$/.idea/modules/engine/engine.iml" group="TDC/engine" />
     </modules>
   </component>
 </project>

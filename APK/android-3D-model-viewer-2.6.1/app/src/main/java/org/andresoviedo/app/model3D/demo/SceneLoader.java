@@ -525,17 +525,18 @@ public class SceneLoader implements LoaderTask.Callback {
             ContentUtils.setThreadActivity(parent);
             ContentUtils.provideAssets(parent);
 
-            if (!selectedObject.getUri().equals(Uri.parse("assets://assets/models/Point.obj"))) {
-                if(selectedObject.getIsClicked() == false) {
+            Uri pointUri = Uri.parse("assets://assets/models/Point.obj");
+            if (!selectedObject.getUri().equals(pointUri)) {
+                if (!selectedObject.getIsClicked()) {
                     Object3DDisorganization disorganization = new Object3DDisorganization(selectedObject);
                     disorganization.unpackingBuffer();
                     disorganization.OutFileToVertexBuffer();
                     vertexArrayList = disorganization.getVertexArrayList();
 
                     for (int i = 0; i < vertexArrayList.size(); i++) {
-                        Object3DData objPoint = Object3DBuilder.loadV5(parent, Uri.parse("assets://assets/models/Point.obj"));
+                        Object3DData objPoint = Object3DBuilder.loadV5(parent, pointUri);
                         objPoint.setPosition(new float[]{vertexArrayList.get(i)[0] * 18f, vertexArrayList.get(i)[1] * 18f, vertexArrayList.get(i)[2] * 18f});
-                        objPoint.setScale(new float[]{0.3f, 0.3f, 0.3f});
+                        objPoint.setScale(new float[]{0.1f, 0.1f, 0.1f});
                         objPoint.setColor(new float[]{1.0f, 0.0f, 0f, 1.0f});
                         addObject(objPoint);
                     }
@@ -545,12 +546,8 @@ public class SceneLoader implements LoaderTask.Callback {
 
                     selectedObject.setIsClicked(true);
                 }
-            }
-
-            if(selectedObject.getUri().equals(Uri.parse("assets://assets/models/Point.obj")))
-                selectedObject.setColor(new float[]{0.0f, 1.0f, 0f, 1.0f});
+            } else selectedObject.setColor(new float[]{0.0f, 1.0f, 0f, 1.0f});
         }
-
     }
 
     public void processMove(float dx1, float dy1) {

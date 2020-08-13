@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <item
+        android:id="@+id/draw_undo"
+        android:icon="@drawable/ic_baseline_undo_24"
+        android:title="되돌리기"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/draw_mode"
+        android:icon="@drawable/ic_baseline_edit_24"
+        android:title="모드 변경"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/draw_add"
+        android:icon="@drawable/ic_baseline_add_24"
+        android:title="추가"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/draw_confirmation"
+        android:icon="@drawable/ic_baseline_done_24"
+        android:title="확정"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/draw_save"
+        android:icon="@drawable/ic_baseline_save_alt_24"
+        android:title="@string/bitmap_save"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/draw_clear"
+        android:icon="@drawable/ic_baseline_clear_24"
+        android:title="처음으로"
+        app:showAsAction="ifRoom"/>
+</menu>

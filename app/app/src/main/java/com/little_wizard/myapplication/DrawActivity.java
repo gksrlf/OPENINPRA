@@ -3,10 +3,12 @@ package com.little_wizard.myapplication;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.ImageDecoder;
@@ -15,9 +17,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Adapter;
 import android.widget.Toast;
 
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
@@ -37,7 +42,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DrawActivity extends AppCompatActivity implements S3Transfer.TransferCallback {
+public class DrawActivity extends AppCompatActivity implements S3Transfer.TransferCallback, DrawAdapter.ItemClickListener {
     public static final int ASYMMETRY = 1;
     public static final int SYMMETRY = 2;
 
@@ -56,6 +61,8 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
     S3Transfer transfer;
 
     ProgressDialog progressDialog;
+    AlertDialog dialog;
+    DrawAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -128,70 +135,59 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
                 return true;
 
             case R.id.draw_add:
+                m.clear();
+                return true;
+
+            case R.id.draw_confirmation:
+                m.setConfirmation(true);
                 List list = m.getList();
                 Bitmap bitmap = m.getCroppedImage().copy(Bitmap.Config.ARGB_8888, true);
                 if(list != null){
                     List newList = new ArrayList<Coordinates>();
                     newList.addAll(list);
                     objectBuffer.push(bitmap, newList);
-                    m.clear();
                     Toast.makeText(this, "추가 완료", Toast.LENGTH_SHORT).show();
                 }
                 return true;
 
-            case R.id.draw_confirmation:
-                m.setConfirmation(true);
-                return true;
-
-            case R.id.draw_save:
-                //TODO: ObjectButter ArrayList들 recyclerView에 표시
+            case R.id.draw_save: //편집한 내역들 확인, 리스트로 표시
                 Log.d(this.toString(), m.getBitmap().toString());
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 RecyclerView recycler = new RecyclerView(this);
+                adapter = new DrawAdapter(this);
+                adapter.setClickListener(this);
+
                 recycler.setLayoutManager(new LinearLayoutManager(this));
-                DrawAdapter adapter = new DrawAdapter(this);
                 recycler.setAdapter(adapter);
                 adapter.setElementList(objectBuffer.getBuffer());
                 builder.setView(recycler);
-                builder.setCancelable(false);
-                builder.show();
+                builder.setNegativeButton("CANCEL", (dialogInterface, i) -> {
+
+                });
+                builder.setPositiveButton("UPLOAD", (dialogInterface, i) -> {
+                    int pos = 0;
+                    String filename = objectBuffer.getName();
+                    for(ObjectBuffer.Element e : objectBuffer.getBuffer()){
+                        saveFile(String.format("%s-%d.jpg", filename, pos), e.getBitmap());
+                        saveFile(String.format("%s-%d.txt", filename, pos), (ArrayList<Coordinates>)e.getList());
+                        upload(String.format("%s-%d",filename, pos), "jpg");
+                        upload(String.format("%s-%d",filename, pos), "txt");
+                        pos++;
+                    }
+                });
+                dialog = builder.create();
+                dialog.show();
                 return true;
 
             case R.id.draw_clear:
                 m.clear();
                 return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
-    /*
-    public static void saveBitmap(Context context, String bitName, Bitmap mBitmap) {//  ww  w.j  a va 2s.c  o  m
 
-        File f = new File(context.getFilesDir() + "/" + bitName + ".png");
-        try {
-            f.createNewFile();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-        }
-        FileOutputStream fOut = null;
-        try {
-            fOut = new FileOutputStream(f);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fOut);
-        try {
-            fOut.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            fOut.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-*/
     public Bitmap resizeBitmapImage(Bitmap source){
         float width = source.getWidth();
         float height = source.getHeight();
@@ -240,13 +236,13 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
 
     // 서버에 보낼 텍스쳐 생성 후 저장
     public Bitmap saveFile(String filename, Bitmap image) {
-        Bitmap result = Bitmap.createBitmap(image, m.getStartX(), m.getStartY(), m.getW(), m.getH());
+        //Bitmap result = Bitmap.createBitmap(image, m.getStartX(), m.getStartY(), m.getW(), m.getH());
         try {
             File f = new File(getExternalCacheDir().toString(), filename);
             //디렉토리 폴더가 없으면 생성함
 
             FileOutputStream out = new FileOutputStream(f);
-            result.compress(Bitmap.CompressFormat.PNG, 100, out);
+            image.compress(Bitmap.CompressFormat.JPEG, 100, out);
             out.close();
         } catch (Exception e){
 
@@ -270,8 +266,8 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
         }
     }
 
-    private void upload(String path) {
-        File file = new File(path);
+    private void upload(String filename, String dataType) {
+        File file = new File(String.format("%s/%s.%s", getExternalCacheDir().toString(), filename, dataType));
         transfer.upload(R.string.s3_bucket, file.getName(), file);
     }
 
@@ -295,5 +291,16 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
     @Override
     public void onError(int id, Exception e) {
         e.printStackTrace();
+    }
+
+    @Override
+    public void onItemClick(int pos) {
+        objectBuffer.remove(pos);
+        List<ObjectBuffer.Element> buffer = objectBuffer.getBuffer();
+        adapter.setElementList(buffer);
+        if (buffer.isEmpty()) {
+            dialog.dismiss();
+            m.clear();
+        }
     }
 }

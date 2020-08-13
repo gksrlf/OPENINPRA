@@ -7,11 +7,11 @@ import android.os.Vibrator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.little_wizard.myapplication.util.ObjectBuffer;
 
 import java.util.ArrayList;
@@ -39,7 +39,12 @@ public class DrawAdapter extends RecyclerView.Adapter<DrawAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int pos) {
-        Glide.with(mContext).load(elementList.get(pos).bitmap).centerCrop().into(holder.imageView);
+        holder.imageButton.setOnClickListener(view -> {
+            if (mClickListener != null) {
+                mClickListener.onItemClick(pos);
+            }
+        });
+        holder.imageView.setImageBitmap((elementList.get(pos).getBitmap()));
     }
 
     @Override
@@ -57,23 +62,15 @@ public class DrawAdapter extends RecyclerView.Adapter<DrawAdapter.ViewHolder> {
         notifyDataSetChanged();
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageView imageView;
+        ImageButton imageButton;
 
         ViewHolder(View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.imageView);
-            itemView.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View view) {
-            if (mClickListener != null) {
-                Vibrator vibe = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
-                vibe.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE));
-                mClickListener.onItemClick(view, getAdapterPosition());
-            }
+            imageButton = itemView.findViewById(R.id.row_button);
         }
     }
 
@@ -82,6 +79,6 @@ public class DrawAdapter extends RecyclerView.Adapter<DrawAdapter.ViewHolder> {
     }
 
     public interface ItemClickListener {
-        void onItemClick(View view, int pos);
+        void onItemClick(int pos);
     }
 }

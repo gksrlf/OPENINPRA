@@ -12,9 +12,17 @@
     app:cardCornerRadius="10dp"
     app:cardElevation="5dp">
 
+
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
+    <ImageButton
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="end"
+        android:id="@+id/row_button"
+        android:background="#00000000"
+        android:src="@drawable/ic_baseline_clear_24"/>
 </androidx.cardview.widget.CardView>

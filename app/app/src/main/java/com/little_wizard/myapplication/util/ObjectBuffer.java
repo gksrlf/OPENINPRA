@@ -7,7 +7,7 @@ import java.util.List;
 
 public class ObjectBuffer {
     public class Element {
-        public Bitmap bitmap;
+        Bitmap bitmap;
         List<Coordinates> list = new ArrayList<>();
 
         public Element(Bitmap bitmap, List<Coordinates> list) {
@@ -15,6 +15,13 @@ public class ObjectBuffer {
             if (list == null) {
                 this.list = null;
             } else this.list.addAll(list);
+        }
+
+        public Bitmap getBitmap() {
+            return bitmap;
+        }
+        public List<Coordinates> getList(){
+            return list;
         }
     }
 
@@ -48,5 +55,10 @@ public class ObjectBuffer {
     public void upload() {
         //TODO: 파일 이름 filename - index 꼴로 bitmap, text 로 filepath에 저장
         //TODO: 파일 이름 filename - index 꼴로 bitmap, text 업로드
+    }
+
+    public String getName(){return filename;}
+    public Element getElement(int index){
+        return buffer.get(index);
     }
 }

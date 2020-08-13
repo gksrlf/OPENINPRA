@@ -142,7 +142,7 @@ public class Camera {
 		//Log.v("Camera","translate:"+dX+","+dY);
 		if (dX == 0 && dY == 0) return;
 		translateCameraImpl(dX, dY);
-		lastAction = new Object[]{"translate",dX, dY};
+		//lastAction = new Object[]{"translate",dX, dY};
 	}
 
 	private void translateCameraImpl(float dX, float dY) {

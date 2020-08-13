@@ -333,7 +333,7 @@ public class Animator {
 	 */
 	private Map<String, float[]> interpolatePoses(KeyFrame previousFrame, KeyFrame nextFrame, float progression) {
 	    // TODO: optimize this (memory allocation)
-		for (Map.Entry<String, JointTransform> entry : previousFrame.getJointKeyFrames().entrySet()) {
+		for (Map.Entry<String,JointTransform> entry : previousFrame.getJointKeyFrames().entrySet()) {
 			final String jointName = entry.getKey();
 			final JointTransform previousTransform = entry.getValue();
 			if (Math.signum(progression) == 0){

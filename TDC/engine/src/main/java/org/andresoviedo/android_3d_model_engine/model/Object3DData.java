@@ -67,6 +67,16 @@ public class Object3DData {
 	private Materials materials;
 	private String textureFile;
 
+	//TODO ------- This value take data to WavefrontLoader.java ---------
+	// Model data's number
+	private int numVerts;
+	private int numNormals;
+	private int numTextures;
+	private int numFaces;
+
+	//TODO ------- This value take data to SceneLoader.java --------
+	private boolean isClicked;
+
 	// Processed arrays
 	private FloatBuffer vertexArrayBuffer = null;
 	private FloatBuffer vertexColorsArrayBuffer = null;
@@ -138,6 +148,23 @@ public class Object3DData {
 		this.faces = faces;  // parameter "faces" could be null in case of async loading
 		this.faceMats = faceMats;
 		this.materials = materials;
+		this.isClicked = false;
+	}
+
+	//TODO -------- new Construct for getting numbers ---------
+	public Object3DData(FloatBuffer verts, FloatBuffer normals, ArrayList<Tuple3> texCoords, Faces faces, FaceMaterials faceMats, Materials materials, int numverts, int numnormals, int numtextures, int numfaces) {
+		super();
+		this.vertexBuffer = verts;
+		this.vertexNormalsBuffer = normals;
+		this.texCoords = texCoords;
+		this.faces = faces;  // parameter "faces" could be null in case of async loading
+		this.faceMats = faceMats;
+		this.materials = materials;
+		this.numVerts = numverts;
+		this.numNormals = numnormals;
+		this.numTextures = numtextures;
+		this.numFaces = numfaces;
+		this.isClicked = false;
 	}
 
 	public void setLoader(WavefrontLoader loader) {
@@ -164,6 +191,19 @@ public class Object3DData {
 	public Octree getOctree(){
 		return octree;
 	}
+
+	//TODO ------- get numbers functions -----------
+	public int getNumVerts() { return numVerts; }
+	public int getNumNormals() { return numNormals; }
+	public int getNumTextures() { return numTextures; }
+	public int getNumFaces() { return numFaces; }
+
+	//TODO ------- get, set bool type data functions ---------
+	public boolean getIsClicked() { return isClicked; }
+	public void setIsClicked(boolean isClicked) {
+		this.isClicked = isClicked;
+	}
+
 
 	/**
 	 * Can be called when the faces were loaded asynchronously

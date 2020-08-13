@@ -26,8 +26,8 @@ public class SkinLoader {
 		this.controllersNode = controllersNode;
 	}
 
-	public Map<String, SkinningData> extractSkinData() {
-		Map<String, SkinningData> ret = new HashMap<String, SkinningData>();
+	public Map<String,SkinningData> extractSkinData() {
+		Map<String,SkinningData> ret = new HashMap<String, SkinningData>();
 		for (XmlNode controller : controllersNode.getChildren("controller")) {
 			XmlNode skinningDataNode = controller.getChild("skin");
 			this.skinningData = skinningDataNode;
@@ -40,7 +40,7 @@ public class SkinLoader {
                 float[] bind_shape_matrix_data = Math3DUtils.parseFloat(bindShapeMatrixNode.getData().trim().split("\\s+"));
                 bindShapeMatrix = new float[16];
                 Matrix.transposeM(bindShapeMatrix, 0, bind_shape_matrix_data, 0);
-                Log.i("SkinLoader","Bind shape matrix: "+ Math3DUtils.toString(bindShapeMatrix,0));
+                Log.i("SkinLoader","Bind shape matrix: "+Math3DUtils.toString(bindShapeMatrix,0));
             }
 
             // Ordered joint list
@@ -67,7 +67,7 @@ public class SkinLoader {
 						.getChild("float_array").getData();
 				Log.d("SkinLoader","invMatrix: "+invMatrixString.trim());
 				inverseBindMatrix = Math3DUtils.parseFloat(invMatrixString.trim().split("\\s+"));
-                Log.d("SkinLoader","Inverse bind matrix: "+ Math3DUtils.toString(inverseBindMatrix,0));
+                Log.d("SkinLoader","Inverse bind matrix: "+Math3DUtils.toString(inverseBindMatrix,0));
 			} catch (Exception e) {
 				Log.i("SkinLoader","No inverse bind matrix available");
 			}

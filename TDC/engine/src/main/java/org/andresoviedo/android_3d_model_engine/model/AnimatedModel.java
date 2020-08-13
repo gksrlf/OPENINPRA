@@ -1,5 +1,7 @@
 package org.andresoviedo.android_3d_model_engine.model;
 
+import android.opengl.Matrix;
+
 import org.andresoviedo.android_3d_model_engine.animation.Animation;
 import org.andresoviedo.android_3d_model_engine.services.collada.entities.Joint;
 

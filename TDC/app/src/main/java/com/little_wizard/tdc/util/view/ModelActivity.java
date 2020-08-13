@@ -21,6 +21,7 @@ import com.little_wizard.tdc.R;
 import com.little_wizard.tdc.ui.main.MainActivity;
 import com.little_wizard.tdc.util.scene_loader.SceneLoader;
 
+import org.andresoviedo.android_3d_model_engine.model.Object3DData;
 import org.andresoviedo.util.android.ContentUtils;
 
 import java.io.IOException;
@@ -167,10 +168,12 @@ public class ModelActivity extends AppCompatActivity {
 
     @OnClick(R.id.select)
     public void onSelectClicked() {
+        Object3DData obj = scene.getSelectedObject();
     }
 
     @OnClick(R.id.scale)
     public void onScaleClicked() {
+        Object3DData obj = scene.getSelectedObject();
     }
 
     @OnClick(R.id.transform)
@@ -190,8 +193,9 @@ public class ModelActivity extends AppCompatActivity {
                 slider.setValues(0.0f, 0.0f);
             }
         });
-        xAxisSlider.addOnChangeListener((slider, value, fromUser) ->
-                Log.d("Slider", String.valueOf(value)));
+        xAxisSlider.addOnChangeListener((slider, value, fromUser) -> {
+
+        });
 
         yAxisSlider.addOnSliderTouchListener(new RangeSlider.OnSliderTouchListener() {
             @Override
@@ -203,8 +207,9 @@ public class ModelActivity extends AppCompatActivity {
                 slider.setValues(0.0f, 0.0f);
             }
         });
-        yAxisSlider.addOnChangeListener((slider, value, fromUser) ->
-                Log.d("Slider", String.valueOf(value)));
+        yAxisSlider.addOnChangeListener((slider, value, fromUser) -> {
+
+        });
 
         zAxisSlider.addOnSliderTouchListener(new RangeSlider.OnSliderTouchListener() {
             @Override
@@ -216,7 +221,8 @@ public class ModelActivity extends AppCompatActivity {
                 slider.setValues(0.0f, 0.0f);
             }
         });
-        zAxisSlider.addOnChangeListener((slider, value, fromUser) ->
-                Log.d("Slider", String.valueOf(value)));
+        zAxisSlider.addOnChangeListener((slider, value, fromUser) -> {
+
+        });
     }
 }

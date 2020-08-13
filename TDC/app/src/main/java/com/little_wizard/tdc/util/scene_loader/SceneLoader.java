@@ -14,6 +14,7 @@ import org.andresoviedo.android_3d_model_engine.model.Camera;
 import org.andresoviedo.android_3d_model_engine.model.Object3DData;
 import org.andresoviedo.android_3d_model_engine.services.LoaderTask;
 import org.andresoviedo.android_3d_model_engine.services.Object3DBuilder;
+import org.andresoviedo.android_3d_model_engine.services.Object3DDisorganization;
 import org.andresoviedo.android_3d_model_engine.services.collada.ColladaLoaderTask;
 import org.andresoviedo.android_3d_model_engine.services.stl.STLLoaderTask;
 import org.andresoviedo.android_3d_model_engine.services.wavefront.WavefrontLoaderTask;
@@ -27,6 +28,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.andresoviedo.android_3d_model_engine.services.Object3DBuilder.loadV5;
+
 /**
  * This class loads a 3D scena as an example of what can be done with the app
  *
@@ -34,58 +37,119 @@ import java.util.List;
  */
 public class SceneLoader implements LoaderTask.Callback {
 
+    /**
+     * Default model color: yellow
+     */
+    private static float[] DEFAULT_COLOR = {1.0f, 1.0f, 0, 1.0f};
+    /**
+     * Parent component
+     */
     protected final ModelActivity parent;
-
+    /**
+     * List of data objects containing info for building the opengl objects
+     */
     private List<Object3DData> objects = new ArrayList<>();
-
+    /**
+     * Show axis or not
+     */
     private boolean drawAxis = false;
-
+    /**
+     * Point of view camera
+     */
     private Camera camera;
-
+    /**
+     * Enable or disable blending (transparency)
+     */
     private boolean isBlendingEnabled = true;
-
+    /**
+     * Force transparency
+     */
     private boolean isBlendingForced = false;
-
+    /**
+     * Whether to draw objects as wireframes
+     */
     private boolean drawWireframe = false;
-
+    /**
+     * Whether to draw using points
+     */
     private boolean drawingPoints = false;
-
+    /**
+     * Whether to draw bounding boxes around objects
+     */
     private boolean drawBoundingBox = false;
-
+    /**
+     * Whether to draw face normals. Normally used to debug models
+     */
     // TODO: toggle feature this
     private boolean drawNormals = false;
-
+    /**
+     * Whether to draw using textures
+     */
     private boolean drawTextures = true;
-
+    /**
+     * Whether to draw using colors or use default white color
+     */
     private boolean drawColors = true;
-
+    /**
+     * Light toggle feature: we have 3 states: no light, light, light + rotation
+     */
     private boolean rotatingLight = true;
-
+    /**
+     * Light toggle feature: whether to draw using lights
+     */
     private boolean drawLighting = true;
-
+    /**
+     * Animate model (dae only) or not
+     */
     private boolean doAnimation = true;
-
+    /**
+     * show bind pose only
+     */
     private boolean showBindPose = false;
-
+    /**
+     * Draw skeleton or not
+     */
     private boolean drawSkeleton = false;
-
+    /**
+     * Toggle collision detection
+     */
     private boolean isCollision = false;
-
+    /**
+     * Toggle 3d
+     */
     private boolean isStereoscopic = false;
-
+    /**
+     * Toggle 3d anaglyph (red, blue glasses)
+     */
     private boolean isAnaglyph = false;
-
+    /**
+     * Toggle 3d VR glasses
+     */
     private boolean isVRGlasses = false;
-
+    /**
+     * Object selected by the user
+     */
     private Object3DData selectedObject = null;
-
+    /**
+     * Initial light position
+     */
     private final float[] lightPosition = new float[]{0, 0, 6, 1};
-
+    /**
+     * Light bulb 3d data
+     */
     private final Object3DData lightPoint = Object3DBuilder.buildPoint(lightPosition).setId("light");
-
+    /**
+     * Animator
+     */
     private Animator animator = new Animator();
-
+    /**
+     * Did the user touched the model for the first time?
+     */
     private boolean userHasInteracted;
+    /**
+     * time when model loading has started (for stats)
+     */
+    private long startTime;
 
     public SceneLoader(ModelActivity main) {
         this.parent = main;
@@ -101,10 +165,12 @@ public class SceneLoader implements LoaderTask.Callback {
             return;
         }
 
+        startTime = SystemClock.uptimeMillis();
         Uri uri = parent.getParamUri();
+        Log.i("Object3DBuilder", "Loading model " + uri + ". async and parallel..");
         if (FilenameUtils.getExtension(uri.toString()).equals("obj")) {
             new WavefrontLoaderTask(parent, uri, this).execute();
-        } else Toast.makeText(parent, "init() Error!", Toast.LENGTH_LONG).show();
+        }
     }
 
     public boolean isDrawAxis() {
@@ -391,6 +457,8 @@ public class SceneLoader implements LoaderTask.Callback {
         if (!allErrors.isEmpty()) {
             makeToastText(allErrors.toString(), Toast.LENGTH_LONG);
         }
+        final String elapsed = (SystemClock.uptimeMillis() - startTime) / 1000 + " secs";
+        makeToastText("Build complete (" + elapsed + ")", Toast.LENGTH_LONG);
         ContentUtils.setThreadActivity(null);
     }
 
@@ -441,6 +509,39 @@ public class SceneLoader implements LoaderTask.Callback {
                     addObject(Object3DBuilder.buildPoint(point).setColor(new float[]{1.0f, 0f, 0f, 1f}));
                 }
             }
+        }
+
+
+        //TODO Need to change right code
+        if (selectedObject != null) {
+            //new WavefrontSaver(selectedObject).OutFileToVertexBuffer();
+            List<float[]> vertexArrayList;
+
+            ContentUtils.setThreadActivity(parent);
+            ContentUtils.provideAssets(parent);
+
+            Uri pointUri = Uri.parse("assets://assets/models/Point.obj");
+            if (!selectedObject.getUri().equals(pointUri)) {
+                if (!selectedObject.getIsClicked()) {
+                    Object3DDisorganization disorganization = new Object3DDisorganization(selectedObject);
+                    disorganization.unpackingBuffer();
+                    disorganization.OutFileToVertexBuffer();
+                    vertexArrayList = disorganization.getVertexArrayList();
+
+                    for (int i = 0; i < vertexArrayList.size(); i++) {
+                        Object3DData objPoint = Object3DBuilder.loadV5(parent, pointUri);
+                        objPoint.setPosition(new float[]{vertexArrayList.get(i)[0] * 18f, vertexArrayList.get(i)[1] * 18f, vertexArrayList.get(i)[2] * 18f});
+                        objPoint.setScale(new float[]{0.1f, 0.1f, 0.1f});
+                        objPoint.setColor(new float[]{1.0f, 0.0f, 0f, 1.0f});
+                        addObject(objPoint);
+                    }
+
+                    ContentUtils.setThreadActivity(null);
+                    ContentUtils.clearDocumentsProvided();
+
+                    selectedObject.setIsClicked(true);
+                }
+            } else selectedObject.setColor(new float[]{0.0f, 1.0f, 0f, 1.0f});
         }
     }
 

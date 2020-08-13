@@ -645,7 +645,7 @@ public class LittleEndianConverter
      *      if error during reading occurs
      */
     public static int read4ByteBlock( final InputStream stream )
-            throws IOException
+            throws java.io.IOException
     {
         return read( stream ) & 0xFF
                 | ( read( stream ) << 8 ) & 0xFF00
@@ -661,7 +661,7 @@ public class LittleEndianConverter
      *      if error during reading occurs
      */
     public static int read2ByteBlock( final InputStream stream )
-            throws IOException
+            throws java.io.IOException
     {
         return read( stream ) & 0xFF
                 | ( read( stream ) << 8 );
@@ -675,7 +675,7 @@ public class LittleEndianConverter
      *      if error during reading occurs
      */
     public static int read3ByteBlock( final InputStream stream )
-            throws IOException
+            throws java.io.IOException
     {
         return read( stream ) & 0xFF
                 | ( read( stream ) << 8 ) & 0xFF00

@@ -68,7 +68,7 @@ public class DrawerFactory {
         }
 
         // experimental: inject glPointSize
-        vertexShaderCode = vertexShaderCode.replace("void main(){", "void main(){\n\tgl_PointSize = 5.0;");
+        vertexShaderCode = vertexShaderCode.replace("void main(){", "void main(){\n\tgl_PointSize = 50.0;");
 
         // create drawer
         Log.v("DrawerFactory", "\n---------- Vertex shader ----------\n");

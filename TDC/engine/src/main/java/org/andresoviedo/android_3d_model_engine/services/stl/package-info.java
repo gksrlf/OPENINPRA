@@ -6,4 +6,3 @@
  * <b>Acknowledgements</b>
  * The code in this package is provided by Dipl. Ing. Paul Szawlowski of the University Of Vienna, Department of Medical Computer Sciences
  */
-package org.andresoviedo.android_3d_model_engine.services.stl;

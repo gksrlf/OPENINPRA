@@ -28,10 +28,12 @@ public class ObjectBuffer {
     String filename;
     String filepath;
     List<Element> buffer;
+    Bitmap originalImage;
 
-    public ObjectBuffer(String filepath, String filename) {
+    public ObjectBuffer(String filepath, String filename, Bitmap bitmap) {
         this.filepath = filepath;
         this.filename = filename;
+        originalImage = bitmap.copy(Bitmap.Config.ARGB_8888, true);
         buffer = new ArrayList<>();
     }
 
@@ -57,8 +59,14 @@ public class ObjectBuffer {
         //TODO: 파일 이름 filename - index 꼴로 bitmap, text 업로드
     }
 
+    public void setName(String name){
+        filename = name;
+    }
     public String getName(){return filename;}
     public Element getElement(int index){
         return buffer.get(index);
+    }
+    public Bitmap getOriginalImage(){
+        return originalImage;
     }
 }

@@ -1,5 +1,6 @@
 package com.little_wizard.tdc.ui.draw;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -11,9 +12,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
@@ -24,9 +28,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.little_wizard.tdc.R;
+import com.little_wizard.tdc.util.NetworkStatus;
 import com.little_wizard.tdc.util.S3Transfer;
 import com.little_wizard.tdc.util.draw.Coordinates;
 import com.little_wizard.tdc.util.draw.ObjectBuffer;
+
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -49,7 +56,7 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
     private int viewHeight;
     private int viewWidth;
     private float line;
-    Bitmap bitmap;
+    Bitmap bitmap = null;
 
     private ObjectBuffer objectBuffer;
     String filepath;
@@ -64,17 +71,6 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Toolbar toolbar = new Toolbar(this);
-        setSupportActionBar(toolbar);
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayShowTitleEnabled(false);
-        }
-
-
-        filepath = getExternalCacheDir() + "/";
-        filename = Long.toString(ZonedDateTime.now().toInstant().toEpochMilli());
-        objectBuffer = new ObjectBuffer(filepath, filename);
 
         display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
@@ -109,13 +105,27 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
         } catch (IOException e) {
             Toast.makeText(context, "오류", Toast.LENGTH_LONG);
         }
-        setContentView(m);
+
+        filepath = getExternalCacheDir() + "/";
+        filename = Long.toString(ZonedDateTime.now().toInstant().toEpochMilli());
+        objectBuffer = new ObjectBuffer(filepath, filename, bitmap);
+
+        //레이아웃 설정
+        setContentView(R.layout.activity_draw);
+        LinearLayout layout = findViewById(R.id.layout_draw);
+        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT
+        );
+        layout.addView(m, p);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().show();
+        layout.invalidate();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.draw_menu, menu);
+        getMenuInflater().inflate(R.menu.menu_draw, menu);
         m.setMenu(menu);
         m.setUnClearMenu();
         menu.findItem(R.id.draw_confirmation).setEnabled(false);
@@ -148,8 +158,7 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
                 List list = m.getList();
                 Bitmap bitmap = m.getCroppedImage().copy(Bitmap.Config.ARGB_8888, true);
                 if (list != null) {
-                    List newList = new ArrayList<Coordinates>();
-                    newList.addAll(list);
+                    List newList = new ArrayList<Coordinates>(list);
                     objectBuffer.push(bitmap, newList);
                     Toast.makeText(this, "추가 완료", Toast.LENGTH_SHORT).show();
                 }
@@ -170,15 +179,6 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
 
                 });
                 builder.setPositiveButton("UPLOAD", (dialogInterface, i) -> {
-                    int pos = 0;
-                    String filename = objectBuffer.getName();
-                    for (ObjectBuffer.Element e : objectBuffer.getBuffer()) {
-                        saveFile(String.format("%s-%d.jpg", filename, pos), e.getBitmap());
-                        saveFile(String.format("%s-%d.txt", filename, pos), (ArrayList<Coordinates>) e.getList());
-                        upload(String.format("%s-%d", filename, pos), "jpg");
-                        upload(String.format("%s-%d", filename, pos), "txt");
-                        pos++;
-                    }
                 });
                 dialog = builder.create();
                 dialog.show();
@@ -308,4 +308,43 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
             m.clear();
         }
     }
+
+    //TODO: MainActivity
+    private void upload(String name) {
+        String path = getExternalCacheDir() + "/";
+        NetworkStatus status = new NetworkStatus(this);
+        if (!status.isConnected()) {
+            Toast.makeText(this, R.string.network_not_connected, Toast.LENGTH_LONG).show();
+            return;
+        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        EditText editText = new EditText(this);
+        builder.setView(editText);
+        builder.setMessage(R.string.name_setting);
+        builder.setCancelable(false);
+        builder.setPositiveButton(R.string.save, (dialogInterface, i) -> {
+            String text = editText.getText().toString();
+
+            //TODO: 원본 비트맵 파일 전송
+            saveFile(filename + ".jpg", objectBuffer.getOriginalImage());
+            File file = new File(path + filename + ".jpg");
+            transfer.upload(R.string.s3_bucket, FilenameUtils.getBaseName(text + ".jpg")
+                    .isEmpty() ? file.getName() : text + ".jpg", file);
+
+            int pos = 0;
+            for (ObjectBuffer.Element e : objectBuffer.getBuffer()) {
+                file = new File(path + String.format("%s-%d.txt", filename, pos));
+                saveFile(String.format("%s-%d.txt", filename, pos), (ArrayList<Coordinates>) e.getList());
+                transfer.upload(R.string.s3_bucket, FilenameUtils.getBaseName(text + ".txt")
+                        .isEmpty() ? file.getName() : text + ".txt", file);
+                pos++;
+            }
+            /*transfer.upload(R.string.s3_bucket, FilenameUtils.getBaseName(text)
+                    .isEmpty() ? file.getName() : text, file);*/
+        });
+        builder.setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
+        });
+        builder.show();
+    }
+
 }

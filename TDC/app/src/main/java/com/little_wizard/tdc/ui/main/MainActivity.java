@@ -170,8 +170,8 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
         for (RepoItem item : list) {
             if (successCount[0] == -1) break;
             Completable.create(sub -> {
-                File file = new File(localPath + item.name);
-                if (!file.exists() && !Objects.equals(fileToMD5(file), item.md5)) {
+                File file = new File(localPath + item.getName());
+                if (!file.exists() && !Objects.equals(fileToMD5(file), item.getMd5())) {
                     if (!status.isConnected()) {
                         Toast.makeText(mContext, R.string.network_not_connected, Toast.LENGTH_LONG).show();
                         return;
@@ -208,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
                     if (successCount[0] == list.size()) {
                         RepoItem item = null;
                         for (RepoItem tmp : list) {
-                            if (FilenameUtils.getExtension(tmp.name).equals("obj")) {
+                            if (FilenameUtils.getExtension(tmp.getName()).equals("obj")) {
                                 item = tmp;
                                 break;
                             }
@@ -217,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
                             Toast.makeText(MainActivity.this, R.string.obj_not_exists, Toast.LENGTH_SHORT).show();
                             return;
                         }
-                        File file = new File(localPath + item.name);
+                        File file = new File(localPath + item.getName());
                         ContentUtils.setCurrentDir(file.getParentFile());
                         launchModelRendererActivity("file://" + file.getAbsolutePath());
                     }
@@ -250,13 +250,14 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
             progressDialog.show();
             new Thread(() -> {
                 for (RepoItem item : list) {
-                    if (FilenameUtils.getExtension(item.name).equals("jpg")) {
-                        s3.deleteObject(getString(R.string.s3_bucket), item.name);
+                    String name = item.getName();
+                    if (FilenameUtils.getExtension(name).equals("jpg")) {
+                        s3.deleteObject(getString(R.string.s3_bucket), name);
                     }
-                    File file = new File(localPath + item.name);
+                    File file = new File(localPath + name);
                     if (file.exists() && !file.delete())
-                        Log.d(TAG, item.name + " Delete failed.");
-                    s3.deleteObject(getString(R.string.s3_bucket_resize), item.name);
+                        Log.d(TAG, name + " Delete failed.");
+                    s3.deleteObject(getString(R.string.s3_bucket_resize), name);
                     runOnUiThread(() -> {
                         progressDialog.dismiss();
                         refreshAdapter();

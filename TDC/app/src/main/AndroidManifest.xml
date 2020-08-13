@@ -39,7 +39,8 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".util.view.ModelActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"/>
     </application>
 
 </manifest>

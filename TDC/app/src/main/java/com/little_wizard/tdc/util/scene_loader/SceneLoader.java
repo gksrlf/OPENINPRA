@@ -19,6 +19,7 @@ import org.andresoviedo.android_3d_model_engine.services.stl.STLLoaderTask;
 import org.andresoviedo.android_3d_model_engine.services.wavefront.WavefrontLoaderTask;
 import org.andresoviedo.util.android.ContentUtils;
 import org.andresoviedo.util.io.IOUtils;
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,119 +34,58 @@ import java.util.List;
  */
 public class SceneLoader implements LoaderTask.Callback {
 
-    /**
-     * Default model color: yellow
-     */
-    private static float[] DEFAULT_COLOR = {1.0f, 1.0f, 0, 1.0f};
-    /**
-     * Parent component
-     */
     protected final ModelActivity parent;
-    /**
-     * List of data objects containing info for building the opengl objects
-     */
+
     private List<Object3DData> objects = new ArrayList<>();
-    /**
-     * Show axis or not
-     */
+
     private boolean drawAxis = false;
-    /**
-     * Point of view camera
-     */
+
     private Camera camera;
-    /**
-     * Enable or disable blending (transparency)
-     */
+
     private boolean isBlendingEnabled = true;
-    /**
-     * Force transparency
-     */
+
     private boolean isBlendingForced = false;
-    /**
-     * Whether to draw objects as wireframes
-     */
+
     private boolean drawWireframe = false;
-    /**
-     * Whether to draw using points
-     */
+
     private boolean drawingPoints = false;
-    /**
-     * Whether to draw bounding boxes around objects
-     */
+
     private boolean drawBoundingBox = false;
-    /**
-     * Whether to draw face normals. Normally used to debug models
-     */
+
     // TODO: toggle feature this
     private boolean drawNormals = false;
-    /**
-     * Whether to draw using textures
-     */
+
     private boolean drawTextures = true;
-    /**
-     * Whether to draw using colors or use default white color
-     */
+
     private boolean drawColors = true;
-    /**
-     * Light toggle feature: we have 3 states: no light, light, light + rotation
-     */
+
     private boolean rotatingLight = true;
-    /**
-     * Light toggle feature: whether to draw using lights
-     */
+
     private boolean drawLighting = true;
-    /**
-     * Animate model (dae only) or not
-     */
+
     private boolean doAnimation = true;
-    /**
-     * show bind pose only
-     */
+
     private boolean showBindPose = false;
-    /**
-     * Draw skeleton or not
-     */
+
     private boolean drawSkeleton = false;
-    /**
-     * Toggle collision detection
-     */
+
     private boolean isCollision = false;
-    /**
-     * Toggle 3d
-     */
+
     private boolean isStereoscopic = false;
-    /**
-     * Toggle 3d anaglyph (red, blue glasses)
-     */
+
     private boolean isAnaglyph = false;
-    /**
-     * Toggle 3d VR glasses
-     */
+
     private boolean isVRGlasses = false;
-    /**
-     * Object selected by the user
-     */
+
     private Object3DData selectedObject = null;
-    /**
-     * Initial light position
-     */
+
     private final float[] lightPosition = new float[]{0, 0, 6, 1};
-    /**
-     * Light bulb 3d data
-     */
+
     private final Object3DData lightPoint = Object3DBuilder.buildPoint(lightPosition).setId("light");
-    /**
-     * Animator
-     */
+
     private Animator animator = new Animator();
-    /**
-     * Did the user touched the model for the first time?
-     */
+
     private boolean userHasInteracted;
-    /**
-     * time when model loading has started (for stats)
-     */
-    private long startTime;
 
     public SceneLoader(ModelActivity main) {
         this.parent = main;
@@ -157,25 +97,17 @@ public class SceneLoader implements LoaderTask.Callback {
         camera = new Camera();
         camera.setChanged(true); // force first draw
 
-        if (parent.getParamUri() == null){
+        if (parent.getParamUri() == null) {
             return;
         }
 
-        startTime = SystemClock.uptimeMillis();
         Uri uri = parent.getParamUri();
-        Log.i("Object3DBuilder", "Loading model " + uri + ". async and parallel..");
-        if (uri.toString().toLowerCase().endsWith(".obj") || parent.getParamType() == 0) {
+        if (FilenameUtils.getExtension(uri.toString()).equals("obj")) {
             new WavefrontLoaderTask(parent, uri, this).execute();
-        } else if (uri.toString().toLowerCase().endsWith(".stl") || parent.getParamType() == 1) {
-            Log.i("Object3DBuilder", "Loading STL object from: "+uri);
-            new STLLoaderTask(parent, uri, this).execute();
-        } else if (uri.toString().toLowerCase().endsWith(".dae") || parent.getParamType() == 2) {
-            Log.i("Object3DBuilder", "Loading Collada object from: "+uri);
-            new ColladaLoaderTask(parent, uri, this).execute();
-        }
+        } else Toast.makeText(parent, "init() Error!", Toast.LENGTH_LONG).show();
     }
 
-    public boolean isDrawAxis(){
+    public boolean isDrawAxis() {
         return drawAxis;
     }
 
@@ -217,7 +149,7 @@ public class SceneLoader implements LoaderTask.Callback {
         if (objects.isEmpty()) return;
 
         if (doAnimation) {
-            for (int i=0; i<objects.size(); i++) {
+            for (int i = 0; i < objects.size(); i++) {
                 Object3DData obj = objects.get(i);
                 animator.update(obj, isShowBindPose());
             }
@@ -233,7 +165,7 @@ public class SceneLoader implements LoaderTask.Callback {
         lightPoint.setRotationY(angleInDegrees);
     }
 
-    private void animateCamera(){
+    private void animateCamera() {
         camera.translateCamera(0.0025f, 0f);
     }
 
@@ -256,20 +188,20 @@ public class SceneLoader implements LoaderTask.Callback {
     }
 
     public void toggleWireframe() {
-        if (!this.drawWireframe && !this.drawingPoints && !this.drawSkeleton){
-                this.drawWireframe = true;
-                makeToastText("Wireframe", Toast.LENGTH_SHORT);
-        } else if (!this.drawingPoints && !this.drawSkeleton){
-                this.drawWireframe = false;
-                this.drawingPoints = true;
-                makeToastText("Points", Toast.LENGTH_SHORT);
-        } else if (!this.drawSkeleton){
-                this.drawingPoints = false;
-                this.drawSkeleton = true;
-                makeToastText("Skeleton", Toast.LENGTH_SHORT);
+        if (!this.drawWireframe && !this.drawingPoints && !this.drawSkeleton) {
+            this.drawWireframe = true;
+            makeToastText("Wireframe", Toast.LENGTH_SHORT);
+        } else if (!this.drawingPoints && !this.drawSkeleton) {
+            this.drawWireframe = false;
+            this.drawingPoints = true;
+            makeToastText("Points", Toast.LENGTH_SHORT);
+        } else if (!this.drawSkeleton) {
+            this.drawingPoints = false;
+            this.drawSkeleton = true;
+            makeToastText("Skeleton", Toast.LENGTH_SHORT);
         } else {
-                this.drawSkeleton = false;
-                makeToastText("Faces", Toast.LENGTH_SHORT);
+            this.drawSkeleton = false;
+            makeToastText("Faces", Toast.LENGTH_SHORT);
         }
         requestRender();
     }
@@ -296,11 +228,11 @@ public class SceneLoader implements LoaderTask.Callback {
     }
 
     public void toggleTextures() {
-        if (drawTextures && drawColors){
+        if (drawTextures && drawColors) {
             this.drawTextures = false;
             this.drawColors = true;
             makeToastText("Texture off", Toast.LENGTH_SHORT);
-        } else if (drawColors){
+        } else if (drawColors) {
             this.drawTextures = false;
             this.drawColors = false;
             makeToastText("Colors off", Toast.LENGTH_SHORT);
@@ -327,7 +259,7 @@ public class SceneLoader implements LoaderTask.Callback {
     }
 
     public void toggleAnimation() {
-        if (!this.doAnimation){
+        if (!this.doAnimation) {
             this.doAnimation = true;
             this.showBindPose = false;
             makeToastText("Animation on", Toast.LENGTH_SHORT);
@@ -348,16 +280,16 @@ public class SceneLoader implements LoaderTask.Callback {
 
     public void toggleCollision() {
         this.isCollision = !isCollision;
-        makeToastText("Collisions: "+isCollision, Toast.LENGTH_SHORT);
+        makeToastText("Collisions: " + isCollision, Toast.LENGTH_SHORT);
     }
 
     public void toggleStereoscopic() {
-        if (!this.isStereoscopic){
+        if (!this.isStereoscopic) {
             this.isStereoscopic = true;
             this.isAnaglyph = true;
             this.isVRGlasses = false;
             makeToastText("Stereoscopic Anaplygh", Toast.LENGTH_SHORT);
-        } else if (this.isAnaglyph){
+        } else if (this.isAnaglyph) {
             this.isAnaglyph = false;
             this.isVRGlasses = true;
             // move object automatically cause with VR glasses we still have no way of moving object
@@ -406,11 +338,11 @@ public class SceneLoader implements LoaderTask.Callback {
     }
 
     public void toggleBlending() {
-        if (this.isBlendingEnabled && !this.isBlendingForced){
+        if (this.isBlendingEnabled && !this.isBlendingForced) {
             makeToastText("Blending forced", Toast.LENGTH_SHORT);
             this.isBlendingEnabled = true;
             this.isBlendingForced = true;
-        } else if (this.isBlendingForced){
+        } else if (this.isBlendingForced) {
             makeToastText("Blending disabled", Toast.LENGTH_SHORT);
             this.isBlendingEnabled = false;
             this.isBlendingForced = false;
@@ -430,7 +362,7 @@ public class SceneLoader implements LoaderTask.Callback {
     }
 
     @Override
-    public void onStart(){
+    public void onStart() {
         ContentUtils.setThreadActivity(parent);
     }
 
@@ -439,8 +371,8 @@ public class SceneLoader implements LoaderTask.Callback {
         // TODO: move texture load to LoaderTask
         for (Object3DData data : datas) {
             if (data.getTextureData() == null && data.getTextureFile() != null) {
-                Log.i("LoaderTask","Loading texture... "+data.getTextureFile());
-                try (InputStream stream = ContentUtils.getInputStream(data.getTextureFile())){
+                Log.i("LoaderTask", "Loading texture... " + data.getTextureFile());
+                try (InputStream stream = ContentUtils.getInputStream(data.getTextureFile())) {
                     if (stream != null) {
                         data.setTextureData(IOUtils.read(stream));
                     }
@@ -456,7 +388,7 @@ public class SceneLoader implements LoaderTask.Callback {
             addObject(data);
             allErrors.addAll(data.getErrors());
         }
-        if (!allErrors.isEmpty()){
+        if (!allErrors.isEmpty()) {
             makeToastText(allErrors.toString(), Toast.LENGTH_LONG);
         }
         ContentUtils.setThreadActivity(null);

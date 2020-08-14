@@ -442,6 +442,39 @@ public final class Object3DBuilder {
 		}
 	}
 
+	//TODO --------Custom build Object3DData Loader ------------
+	public static Object3DData loadCustom(Activity activity, Uri modelUri) {
+		try {
+			//final String modelId = assetDir + "/" + assetFilename;
+
+			InputStream is = new URL(modelUri.toString()).openStream();
+			WavefrontLoader wfl = new WavefrontLoader(modelUri.toString());
+			wfl.analyzeModel(is);
+			is.close();
+
+			wfl.allocateBuffers();
+
+			is = new URL(modelUri.toString()).openStream();
+			wfl.loadModel(is);
+			is.close();
+
+			Object3DData data3D = new Object3DData(wfl.getVerts(), wfl.getNormals(), wfl.getTexCoords(), wfl.getFaces(),
+					wfl.getFaceMats(), wfl.getMaterials());
+			data3D.setId(modelUri.toString());
+			data3D.setUri(modelUri);
+			// data3D.setAssetsDir(assetDir);
+			data3D.setDimensions(wfl.getDimensions());
+			//data3D.centerAndScale(5,new float[]{0,0,0});
+
+			data3D.setDrawMode(GLES20.GL_TRIANGLES);
+			generateArrays(data3D);
+
+			return data3D;
+		} catch (IOException ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+
 	public static Object3DData generateArrays(Object3DData obj) throws IOException {
 
 	    Log.i("Object3DBuilder","Generating arrays for "+obj.getId());

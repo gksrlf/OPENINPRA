@@ -11,11 +11,10 @@ import org.andresoviedo.android_3d_model_engine.model.Camera;
 import org.andresoviedo.android_3d_model_engine.model.Object3DData;
 import org.andresoviedo.android_3d_model_engine.services.LoaderTask;
 import org.andresoviedo.android_3d_model_engine.services.Object3DBuilder;
-import org.andresoviedo.android_3d_model_engine.services.Object3DDisorganization;
+import org.andresoviedo.android_3d_model_engine.services.Object3DUnpacker;
 import org.andresoviedo.android_3d_model_engine.services.collada.ColladaLoaderTask;
 import org.andresoviedo.android_3d_model_engine.services.stl.STLLoaderTask;
 import org.andresoviedo.android_3d_model_engine.services.wavefront.WavefrontLoaderTask;
-import org.andresoviedo.android_3d_model_engine.services.wavefront.WavefrontSaver;
 import org.andresoviedo.app.model3D.view.ModelActivity;
 import org.andresoviedo.app.model3D.view.ModelRenderer;
 import org.andresoviedo.util.android.ContentUtils;
@@ -23,11 +22,11 @@ import org.andresoviedo.util.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static org.andresoviedo.android_3d_model_engine.services.Object3DBuilder.loadV5;
 
 /**
  * This class loads a 3D scena as an example of what can be done with the app
@@ -149,6 +148,12 @@ public class SceneLoader implements LoaderTask.Callback {
      * time when model loading has started (for stats)
      */
     private long startTime;
+
+    private Object3DData previous3DData = null;
+
+    private final float MAGNIFICATION = 16.5f;
+    private float[] RED_COLOR =  new float[] {1f, 0f, 0f, 1f};
+    private float[] GREEN_COLOR =  new float[] {0f, 1f, 0f, 1f};
 
     public SceneLoader(ModelActivity main) {
         this.parent = main;
@@ -511,46 +516,76 @@ public class SceneLoader implements LoaderTask.Callback {
                         (), mr.getModelViewMatrix(), mr.getModelProjectionMatrix(), x, y);
                 if (point != null) {
                     Log.i("SceneLoader", "Drawing intersection point: " + Arrays.toString(point));
-                    addObject(Object3DBuilder.buildPoint(point).setColor(new float[]{1.0f, 0f, 0f, 1f}));
+                    addObject(Object3DBuilder.buildPoint(point).setColor(RED_COLOR));
                 }
             }
         }
+
 
 
         //TODO Need to change right code
         if (selectedObject != null) {
-            //new WavefrontSaver(selectedObject).OutFileToVertexBuffer();
-            List<float[]> vertexArrayList;
+            if (!selectedObject.getUri().equals(Uri.parse("assets://assets/models/Point.obj")))
+                createPointCube();
+        }
+    }
 
-            ContentUtils.setThreadActivity(parent);
-            ContentUtils.provideAssets(parent);
+    // create point cube to selected object
+    private void createPointCube() {
+        List<float[]> vertexArrayList;
 
-            if (!selectedObject.getUri().equals(Uri.parse("assets://assets/models/Point.obj"))) {
-                if(selectedObject.getIsClicked() == false) {
-                    Object3DDisorganization disorganization = new Object3DDisorganization(selectedObject);
-                    disorganization.unpackingBuffer();
-                    disorganization.OutFileToVertexBuffer();
-                    vertexArrayList = disorganization.getVertexArrayList();
+        ContentUtils.setThreadActivity(parent);
+        ContentUtils.provideAssets(parent);
 
-                    for (int i = 0; i < vertexArrayList.size(); i++) {
-                        Object3DData objPoint = Object3DBuilder.loadV5(parent, Uri.parse("assets://assets/models/Point.obj"));
-                        objPoint.setPosition(new float[]{vertexArrayList.get(i)[0] * 18f, vertexArrayList.get(i)[1] * 18f, vertexArrayList.get(i)[2] * 18f});
-                        objPoint.setScale(new float[]{0.3f, 0.3f, 0.3f});
-                        objPoint.setColor(new float[]{1.0f, 0.0f, 0f, 1.0f});
-                        addObject(objPoint);
-                    }
+        if(selectedObject.getIsClicked() == false) {
+            Object3DUnpacker disorganization = new Object3DUnpacker(selectedObject);
+            disorganization.unpackingArrayBuffer();
+            disorganization.unpackingBuffer();
+            vertexArrayList = disorganization.getVertexArrayList();
 
-                    ContentUtils.setThreadActivity(null);
-                    ContentUtils.clearDocumentsProvided();
-
-                    selectedObject.setIsClicked(true);
-                }
+            for (int i = 0; i < vertexArrayList.size(); i++) {
+                Object3DData objPoint = Object3DBuilder.loadV5(parent, Uri.parse("assets://assets/models/Point.obj"));
+                objPoint.setPosition(new float[] {
+                        vertexArrayList.get(i)[0] * MAGNIFICATION,
+                        vertexArrayList.get(i)[1] * MAGNIFICATION,
+                        vertexArrayList.get(i)[2] * MAGNIFICATION });
+                objPoint.setScale(new float[]{0.3f, 0.3f, 0.3f});
+                objPoint.setColor(RED_COLOR);
+                addObject(objPoint);
             }
 
-            if(selectedObject.getUri().equals(Uri.parse("assets://assets/models/Point.obj")))
-                selectedObject.setColor(new float[]{0.0f, 1.0f, 0f, 1.0f});
+            ContentUtils.setThreadActivity(null);
+            ContentUtils.clearDocumentsProvided();
+
+            selectedObject.setIsClicked(true);
+        }
+    }
+
+    private void savingBuffer(List<Object3DData> objects, Object3DData selectedObject)  {
+        List<Object3DData> objPoints = new ArrayList<Object3DData>();
+
+        for(Object3DData obj : objects) {
+            if(obj.getOriginal_id() == selectedObject.getId())
+                objPoints.add(obj);
         }
 
+        for(Object3DData obj : objPoints) {
+            float[] position = obj.getPosition();
+
+            for(int i = 0; i < 3; i++) {
+                position[i] /= MAGNIFICATION;
+            }
+
+            //TODO packing functions place
+        }
+    }
+
+    private static ByteBuffer createNativeByteBuffer(int length) {
+        // initialize vertex byte buffer for shape coordinates
+        ByteBuffer bb = ByteBuffer.allocateDirect(length);
+        // use the device hardware's native byte order
+        bb.order(ByteOrder.nativeOrder());
+        return bb;
     }
 
     public void processMove(float dx1, float dy1) {

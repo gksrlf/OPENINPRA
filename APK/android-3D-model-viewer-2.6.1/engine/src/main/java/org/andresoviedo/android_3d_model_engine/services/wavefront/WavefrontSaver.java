@@ -3,7 +3,7 @@ package org.andresoviedo.android_3d_model_engine.services.wavefront;
 import android.util.Log;
 
 import org.andresoviedo.android_3d_model_engine.model.Object3DData;
-import org.andresoviedo.android_3d_model_engine.services.Object3DDisorganization;
+import org.andresoviedo.android_3d_model_engine.services.Object3DUnpacker;
 import org.andresoviedo.android_3d_model_engine.services.wavefront.WavefrontLoader.Faces;
 import org.andresoviedo.android_3d_model_engine.services.wavefront.WavefrontLoader.Tuple3;
 import org.andresoviedo.android_3d_model_engine.services.wavefront.WavefrontLoader.Materials;
@@ -11,7 +11,6 @@ import org.andresoviedo.android_3d_model_engine.services.wavefront.WavefrontLoad
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,19 +25,19 @@ public class WavefrontSaver {
     FloatBuffer textureCoordsBuffer;
     Faces faces;
 
-    Object3DDisorganization object3DDisorganization;
+    Object3DUnpacker object3DUnpacker;
 
     Materials materials = null;
 
     public WavefrontSaver(Object3DData object3DData) {
-        this.object3DDisorganization = new Object3DDisorganization(object3DData);
+        this.object3DUnpacker = new Object3DUnpacker(object3DData);
         this.object3DData = object3DData;
         this.textureCoordsBuffer = null;
         this.faces = object3DData.getFaces();
     }
 
     // Unpacking FloatBuffer vertexArrayBuffer to vertexBuffer
-    public void unpackingBuffer() {
+    public void unpackingArrayBuffer() {
         ArrayList<Tuple3> texCoords = object3DData.getTexCoords();
         FloatBuffer textureCoordsArrayBuffer = object3DData.getTextureCoordsArrayBuffer();
 
@@ -56,8 +55,8 @@ public class WavefrontSaver {
             }
         }
 
-        object3DDisorganization.unpackingBuffer();
-        object3DDisorganization.ReinstateVertex();
+        object3DUnpacker.unpackingArrayBuffer();
+        object3DUnpacker.ReinstateVertex();
     }
 
     public void OutFileToVertexBuffer() {
@@ -71,10 +70,10 @@ public class WavefrontSaver {
         materials = object3DData.getMaterials();
 
         // unpacking ArrayBuffers to Buffers and reinstating vertex
-        unpackingBuffer();
+        unpackingArrayBuffer();
 
-        object3DDisorganization.OutFileToVertexBuffer();
-        List<float[]> vertexArrayList = object3DDisorganization.getVertexArrayList();
+        object3DUnpacker.unpackingBuffer();
+        List<float[]> vertexArrayList = object3DUnpacker.getVertexArrayList();
 
         // setting v contents of obj's file
         for(int i = 0; i < vertexArrayList.size(); i++) {

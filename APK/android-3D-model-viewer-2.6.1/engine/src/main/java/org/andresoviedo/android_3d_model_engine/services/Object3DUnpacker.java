@@ -14,7 +14,7 @@ import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Object3DDisorganization {
+public class Object3DUnpacker {
     Object3DData object3DData;
 
     // meta data
@@ -24,7 +24,7 @@ public class Object3DDisorganization {
 
     List<float[]> vertexArrayList = new ArrayList<float[]>();
 
-    public Object3DDisorganization(Object3DData object3DData) {
+    public Object3DUnpacker(Object3DData object3DData) {
         this.object3DData = object3DData;
         this.vertexBuffer = object3DData.getVertexBuffer();
         this.faces = object3DData.getFaces();
@@ -32,21 +32,21 @@ public class Object3DDisorganization {
     }
 
     // Unpacking FloatBuffer vertexArrayBuffer to vertexBuffer
-    public void unpackingBuffer() {
-        FloatBuffer vertexArrayBufferNew = object3DData.getVertexArrayBuffer();
+    public void unpackingArrayBuffer() {
+        FloatBuffer vertexArrayBuffer = object3DData.getVertexArrayBuffer();
 
         // allocating memory to returnVertexBuffer
         vertexBuffer = createNativeByteBuffer(object3DData.getNumVerts() * 3 * 4).asFloatBuffer();
 
         // Unpacking vertexArrayBuffer
         for(int i = 0; i < faces.getVerticesReferencesCount(); i++) {
-            vertexBuffer.put(IndexBuffer.get(i) * 3, vertexArrayBufferNew.get(i * 3));
-            vertexBuffer.put(IndexBuffer.get(i) * 3 + 1,vertexArrayBufferNew.get(i * 3 + 1));
-            vertexBuffer.put(IndexBuffer.get(i) * 3 + 2,vertexArrayBufferNew.get(i * 3 + 2));
+            vertexBuffer.put(IndexBuffer.get(i) * 3, vertexArrayBuffer.get(i * 3));
+            vertexBuffer.put(IndexBuffer.get(i) * 3 + 1,vertexArrayBuffer.get(i * 3 + 1));
+            vertexBuffer.put(IndexBuffer.get(i) * 3 + 2,vertexArrayBuffer.get(i * 3 + 2));
         }
     }
 
-    public void OutFileToVertexBuffer() {
+    public void unpackingBuffer() {
         // setting v contents of obj's file
         for(int i = 0; i < object3DData.getNumVerts(); i++) {
             float[] position = new float[3];

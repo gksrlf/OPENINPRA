@@ -44,6 +44,9 @@ public class Object3DData {
 	private boolean drawUsingArrays = false;
 	private boolean flipTextCoords = true;
 
+	// get original 3D Data's id for point objects
+	private String original_id;
+
 	// Model data for the simplest object
 
 	private boolean isVisible = true;
@@ -204,6 +207,11 @@ public class Object3DData {
 		this.isClicked = isClicked;
 	}
 
+	//TODO ------- get, set String type original id functions --------
+	public String getOriginal_id() { return original_id; }
+	public void setOriginal_id(String original_id) {
+		this.original_id = original_id;
+	}
 
 	/**
 	 * Can be called when the faces were loaded asynchronously

@@ -6,31 +6,31 @@
     <item
         android:id="@+id/draw_undo"
         android:icon="@drawable/ic_baseline_undo_24"
-        android:title="되돌리기"
+        android:title="@string/undo"
         app:showAsAction="always"/>
     <item
         android:id="@+id/draw_mode"
         android:icon="@drawable/ic_baseline_edit_24"
-        android:title="모드 변경"
+        android:title="@string/change_mode"
         app:showAsAction="always"/>
     <item
         android:id="@+id/draw_add"
         android:icon="@drawable/ic_baseline_add_24"
-        android:title="추가"
+        android:title="@string/add"
         app:showAsAction="always"/>
     <item
         android:id="@+id/draw_confirmation"
         android:icon="@drawable/ic_baseline_done_24"
-        android:title="확정"
+        android:title="@string/confirm"
         app:showAsAction="always"/>
     <item
         android:id="@+id/draw_save"
         android:icon="@drawable/ic_baseline_save_alt_24"
-        android:title="저장"
+        android:title="@string/save"
         app:showAsAction="always"/>
     <item
-        android:id="@+id/draw_clear"
+        android:id="@+id/draw_reset"
         android:icon="@drawable/ic_baseline_clear_24"
-        android:title="처음으로"
+        android:title="@string/reset"
         app:showAsAction="ifRoom"/>
 </menu>

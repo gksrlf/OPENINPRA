@@ -40,16 +40,15 @@ public class MyView extends View {
     private int paintColor = 0xFFFF0000;
     private Canvas drawCanvas;
     private Bitmap canvasBitmap, originalBitmap;
-    private int paintWidth = 20;
+    private int paintWidth = 5;
 
     private float width;
     private float height;
     private float originalWidth;
-    private float originalHeight;
     private float mPosX;
     private float mPosY;
 
-    private float magification = 1f;
+    private float magnification = 1f;
 
     private float offsetX;
     private float offsetY;
@@ -87,7 +86,7 @@ public class MyView extends View {
 
         drawPaint = new Paint();
         drawPaint.setColor(paintColor);
-        drawPaint.setStrokeWidth(20);
+        drawPaint.setStrokeWidth(paintWidth);
         drawPaint.setStyle(Paint.Style.STROKE);
         drawPaint.setStrokeJoin(Paint.Join.ROUND);
         drawPaint.setStrokeCap(Paint.Cap.ROUND);
@@ -95,7 +94,7 @@ public class MyView extends View {
         viewPaint = new Paint();
         viewPaint.setColor(paintColor);
         //viewPaint.setAntiAlias(true);
-        viewPaint.setStrokeWidth(20);
+        viewPaint.setStrokeWidth(paintWidth);
         viewPaint.setStyle(Paint.Style.STROKE);
         viewPaint.setStrokeJoin(Paint.Join.ROUND);
         viewPaint.setStrokeCap(Paint.Cap.ROUND);
@@ -112,7 +111,7 @@ public class MyView extends View {
         Log.d("scale", String.valueOf(scale));
         Rect dst = new Rect((int) mPosX, (int) mPosY, (int) (mPosX + width), (int) (mPosY + height));
         canvas.drawBitmap(canvasBitmap, null, dst, canvasPaint);
-        viewPaint.setStrokeWidth(paintWidth * magification);
+        viewPaint.setStrokeWidth(paintWidth);
         canvas.drawPath(viewPath, viewPaint);
         canvas.restore();
     }
@@ -121,8 +120,8 @@ public class MyView extends View {
     public boolean onTouchEvent(MotionEvent event) {
         super.onTouchEvent(event);
 
-        float absX = 1 / magification * (event.getX() - mPosX);
-        float absY = 1 / magification * (event.getY() - mPosY);
+        float absX = 1 / magnification * (event.getX() - mPosX);
+        float absY = 1 / magnification * (event.getY() - mPosY);
         Log.d("onTouchEvent absolute", String.format("%f, %f", absX, absY));
         Bitmap previousBitmap = canvasBitmap.copy(Bitmap.Config.ARGB_8888, true);
         //ArrayList<Coordinates> list = new ArrayList<>();
@@ -138,7 +137,7 @@ public class MyView extends View {
                         if(!isInPicture(event)) break;
                         if (lastPoint != null) {
                             drawPath.moveTo(lastPoint.getX(), lastPoint.getY());
-                            viewPath.moveTo(lastPoint.getX() * magification + mPosX, lastPoint.getY() * magification + mPosY);
+                            viewPath.moveTo(lastPoint.getX() * magnification + mPosX, lastPoint.getY() * magnification + mPosY);
                         } else { // 첫번째 터치
                             startX = absX;
                             startY = absY;
@@ -195,11 +194,11 @@ public class MyView extends View {
                         drawQueue.push(previousBitmap, list);
                     }
                 } else {
-                    magification = width / originalWidth;
+                    magnification = width / originalWidth;
                     float pastDist = newDist;
                     newDist = spacing(event);
                     if (newDist - oldDist > 20) {  // zoom in
-                        if (magification > 3f) {
+                        if (magnification > 3f) {
                             newDist = pastDist;
                         } else {
                             scale = (float) Math.sqrt(((newDist - oldDist) * (newDist - oldDist)) / (height * height + width * width));
@@ -214,7 +213,7 @@ public class MyView extends View {
                         }
 
                     } else if (oldDist - newDist > 20) {  // zoom out
-                        if (magification <= 1f) {
+                        if (magnification <= 1f) {
                             newDist = pastDist;
                         } else {
                             scale = (float) Math.sqrt(((newDist - oldDist) * (newDist - oldDist)) / (height * height + width * width));
@@ -281,7 +280,7 @@ public class MyView extends View {
         originalBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
         drawCanvas = new Canvas(canvasBitmap);
         originalWidth = width = canvasBitmap.getWidth();
-        originalHeight = height = canvasBitmap.getHeight();
+        height = canvasBitmap.getHeight();
         if (displayHeight / displayWidth > height / width) { //가로가꽉참
             mPosY = (displayHeight - height) / 2;
         } else {

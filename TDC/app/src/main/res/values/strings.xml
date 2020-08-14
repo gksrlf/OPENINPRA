@@ -27,6 +27,14 @@
     <string name="network_not_connected">네트워크 연결을 확인해주세요.</string>
     <string name="exit_confirm">종료하시려면 \'뒤로\' 버튼을 한번 더 눌러주세요.</string>
     <string name="obj_not_exists">.obj 파일을 찾을 수 없습니다.</string>
+    <string name="undo">되돌리기</string>
+    <string name="change_mode">모드 변경</string>
+    <string name="add">추가</string>
+    <string name="confirm">확정</string>
+    <string name="reset">초기화</string>
+    <string name="photo_type">사진 타입</string>
+    <string name="symmetry">대칭</string>
+    <string name="asymmetry">비대칭</string>
 
     <!-- Constance -->
     <string name="s3_bucket">imagebucket20200724</string>

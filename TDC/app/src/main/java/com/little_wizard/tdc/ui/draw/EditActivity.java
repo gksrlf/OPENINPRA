@@ -85,8 +85,8 @@ public class EditActivity extends AppCompatActivity {
 
                     Intent intent = new Intent(this, DrawActivity.class);
                     intent.setAction(Intent.ACTION_SEND);
-                    intent.putExtra("mode", "symmetry");
-                    intent.putExtra("line", imageView.getLinePosX());
+                    intent.putExtra("MODE", "SYMMETRY");
+                    intent.putExtra("LINE", imageView.getLinePosX());
                     intent.setData(Uri.fromFile(new File(filePath)));
                     startActivity(intent);
                 } else Log.d(TAG, "result == null");

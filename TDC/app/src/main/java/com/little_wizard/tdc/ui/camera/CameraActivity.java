@@ -216,7 +216,7 @@ public class CameraActivity extends AppCompatActivity implements S3Transfer.Tran
             e.printStackTrace();
         }
         //String path = getRealPathFromURI(Uri.parse(insertImage(getContentResolver(), bitmap
-                //, "" + System.currentTimeMillis(), "")));
+        //, "" + System.currentTimeMillis(), "")));
         //TODO: 추상주소로 바꿔줌
         String uri = insertImage(getContentResolver(), bitmap, "" + System.currentTimeMillis(), "");
         //upload(path);
@@ -445,23 +445,22 @@ public class CameraActivity extends AppCompatActivity implements S3Transfer.Tran
         e.printStackTrace();
     }
 
-    //TODO: 이미지 모드 선택 후 사진 Uri 넘김
-    private void startEdit(Uri uri){
-        final String[] menu = {"Symmetry", "Asymmetry"};
+    private void startEdit(Uri uri) {
+        final String[] menu = {getString(R.string.symmetry), getString(R.string.asymmetry)};
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-        alertDialogBuilder.setTitle("Photo type");
+        alertDialogBuilder.setTitle(R.string.photo_type);
         alertDialogBuilder.setItems(menu, (dialogInterface, i) -> {
             Intent intent;
             switch (i) {
                 case 0:
-                    intent = new Intent(getApplicationContext(), EditActivity.class);
+                    intent = new Intent(this, EditActivity.class);
                     intent.setAction(Intent.ACTION_SEND);
                     intent.setData(uri);
                     startActivity(intent);
                     break;
                 case 1:
-                    intent = new Intent(getApplicationContext(), DrawActivity.class);
-                    intent.putExtra("mode", "asymmetry");
+                    intent = new Intent(this, DrawActivity.class);
+                    intent.putExtra("MODE", "ASYMMETRY");
                     intent.setAction(Intent.ACTION_SEND);
                     intent.setData(uri);
                     startActivity(intent);

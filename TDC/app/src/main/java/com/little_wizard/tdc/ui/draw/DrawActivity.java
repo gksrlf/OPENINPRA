@@ -1,6 +1,5 @@
 package com.little_wizard.tdc.ui.draw;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -12,15 +11,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
-import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -87,23 +83,25 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
         progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Horizontal);
 
         Intent intent = getIntent();
-        Context context = getApplicationContext();
-        Uri uri = intent.getData();
 
-        if (intent.getStringExtra("mode").equals("asymmetry")) {//비대칭일 때 갤러리 사진 Uri 가져옴
-            m = new MyView(this, viewHeight, viewWidth, ASYMMETRY);
-        } else { // 대칭일 때 byte array 가져옴, 축 설정
-            m = new MyView(this, viewHeight, viewWidth, SYMMETRY);
-        }
-        line = intent.getFloatExtra("line", Float.MIN_VALUE);
-        try {
-            ImageDecoder.Source source = ImageDecoder.createSource(getApplicationContext().getContentResolver(), uri);
-            bitmap = ImageDecoder.decodeBitmap(source);
-            bitmap = resizeBitmapImage(bitmap);
-            m.setBackgroundBitmap(bitmap);
-            m.setLine(line);
-        } catch (IOException e) {
-            Toast.makeText(context, "오류", Toast.LENGTH_LONG);
+        if (intent != null) {
+            Uri uri = intent.getData();
+            String mode = intent.getStringExtra("MODE");
+            if (mode.equals("ASYMMETRY")) {//비대칭일 때 갤러리 사진 Uri 가져옴
+                m = new MyView(this, viewHeight, viewWidth, ASYMMETRY);
+            } else { // 대칭일 때 byte array 가져옴, 축 설정
+                m = new MyView(this, viewHeight, viewWidth, SYMMETRY);
+            }
+            line = intent.getFloatExtra("LINE", Float.MIN_VALUE);
+            try {
+                ImageDecoder.Source source = ImageDecoder.createSource(getApplicationContext().getContentResolver(), uri);
+                bitmap = ImageDecoder.decodeBitmap(source);
+                bitmap = resizeBitmapImage(bitmap);
+                m.setBackgroundBitmap(bitmap);
+                m.setLine(line);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         filepath = getExternalCacheDir() + "/";
@@ -184,8 +182,10 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
                 dialog.show();
                 return true;
 
-            case R.id.draw_clear:
-                m.clear();
+            case R.id.draw_reset:
+                Intent intent = getIntent();
+                finish();
+                startActivity(intent);
                 return true;
 
             default:

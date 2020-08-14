@@ -20,7 +20,8 @@ import androidx.constraintlayout.widget.ConstraintSet;
 
 import com.little_wizard.tdc.R;
 import com.little_wizard.tdc.ui.main.MainActivity;
-import com.little_wizard.tdc.util.scene_loader.SceneLoader;
+import com.little_wizard.tdc.util.demo.ModelSurfaceView;
+import com.little_wizard.tdc.util.demo.SceneLoader;
 
 import org.andresoviedo.util.android.ContentUtils;
 

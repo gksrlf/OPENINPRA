@@ -187,7 +187,7 @@ public class ColladaLoader {
 
 	public static AnimatedModelData loadColladaModel(InputStream colladaFile, int maxWeights) {
 		XmlNode node = null;
-		Map<String, SkinningData> skinningData = null;
+		Map<String,SkinningData> skinningData = null;
 		SkeletonData jointsData = null;
 		try {
 			node = XmlParser.parse(colladaFile);

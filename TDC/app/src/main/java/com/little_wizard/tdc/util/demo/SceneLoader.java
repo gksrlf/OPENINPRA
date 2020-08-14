@@ -1,4 +1,4 @@
-package com.little_wizard.tdc.util.scene_loader;
+package com.little_wizard.tdc.util.demo;
 
 import android.net.Uri;
 import android.os.SystemClock;
@@ -6,7 +6,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.little_wizard.tdc.util.view.ModelActivity;
-import com.little_wizard.tdc.util.view.ModelRenderer;
 
 import org.andresoviedo.android_3d_model_engine.animation.Animator;
 import org.andresoviedo.android_3d_model_engine.collision.CollisionDetection;
@@ -14,6 +13,7 @@ import org.andresoviedo.android_3d_model_engine.model.Camera;
 import org.andresoviedo.android_3d_model_engine.model.Object3DData;
 import org.andresoviedo.android_3d_model_engine.services.LoaderTask;
 import org.andresoviedo.android_3d_model_engine.services.Object3DBuilder;
+import org.andresoviedo.android_3d_model_engine.services.Object3DUnpacker;
 import org.andresoviedo.android_3d_model_engine.services.collada.ColladaLoaderTask;
 import org.andresoviedo.android_3d_model_engine.services.stl.STLLoaderTask;
 import org.andresoviedo.android_3d_model_engine.services.wavefront.WavefrontLoaderTask;
@@ -22,6 +22,8 @@ import org.andresoviedo.util.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -147,6 +149,12 @@ public class SceneLoader implements LoaderTask.Callback {
      */
     private long startTime;
 
+    private Object3DData previous3DData = null;
+
+    private final float MAGNIFICATION = 16.5f;
+    private float[] RED_COLOR =  new float[] {1f, 0f, 0f, 1f};
+    private float[] GREEN_COLOR =  new float[] {0f, 1f, 0f, 1f};
+
     public SceneLoader(ModelActivity main) {
         this.parent = main;
     }
@@ -157,7 +165,7 @@ public class SceneLoader implements LoaderTask.Callback {
         camera = new Camera();
         camera.setChanged(true); // force first draw
 
-        if (parent.getParamUri() == null){
+        if (parent.getParamUri() == null) {
             return;
         }
 
@@ -167,15 +175,15 @@ public class SceneLoader implements LoaderTask.Callback {
         if (uri.toString().toLowerCase().endsWith(".obj") || parent.getParamType() == 0) {
             new WavefrontLoaderTask(parent, uri, this).execute();
         } else if (uri.toString().toLowerCase().endsWith(".stl") || parent.getParamType() == 1) {
-            Log.i("Object3DBuilder", "Loading STL object from: "+uri);
+            Log.i("Object3DBuilder", "Loading STL object from: " + uri);
             new STLLoaderTask(parent, uri, this).execute();
         } else if (uri.toString().toLowerCase().endsWith(".dae") || parent.getParamType() == 2) {
-            Log.i("Object3DBuilder", "Loading Collada object from: "+uri);
+            Log.i("Object3DBuilder", "Loading Collada object from: " + uri);
             new ColladaLoaderTask(parent, uri, this).execute();
         }
     }
 
-    public boolean isDrawAxis(){
+    public boolean isDrawAxis() {
         return drawAxis;
     }
 
@@ -217,7 +225,7 @@ public class SceneLoader implements LoaderTask.Callback {
         if (objects.isEmpty()) return;
 
         if (doAnimation) {
-            for (int i=0; i<objects.size(); i++) {
+            for (int i = 0; i < objects.size(); i++) {
                 Object3DData obj = objects.get(i);
                 animator.update(obj, isShowBindPose());
             }
@@ -233,7 +241,7 @@ public class SceneLoader implements LoaderTask.Callback {
         lightPoint.setRotationY(angleInDegrees);
     }
 
-    private void animateCamera(){
+    private void animateCamera() {
         camera.translateCamera(0.0025f, 0f);
     }
 
@@ -256,20 +264,20 @@ public class SceneLoader implements LoaderTask.Callback {
     }
 
     public void toggleWireframe() {
-        if (!this.drawWireframe && !this.drawingPoints && !this.drawSkeleton){
-                this.drawWireframe = true;
-                makeToastText("Wireframe", Toast.LENGTH_SHORT);
-        } else if (!this.drawingPoints && !this.drawSkeleton){
-                this.drawWireframe = false;
-                this.drawingPoints = true;
-                makeToastText("Points", Toast.LENGTH_SHORT);
-        } else if (!this.drawSkeleton){
-                this.drawingPoints = false;
-                this.drawSkeleton = true;
-                makeToastText("Skeleton", Toast.LENGTH_SHORT);
+        if (!this.drawWireframe && !this.drawingPoints && !this.drawSkeleton) {
+            this.drawWireframe = true;
+            makeToastText("Wireframe", Toast.LENGTH_SHORT);
+        } else if (!this.drawingPoints && !this.drawSkeleton) {
+            this.drawWireframe = false;
+            this.drawingPoints = true;
+            makeToastText("Points", Toast.LENGTH_SHORT);
+        } else if (!this.drawSkeleton) {
+            this.drawingPoints = false;
+            this.drawSkeleton = true;
+            makeToastText("Skeleton", Toast.LENGTH_SHORT);
         } else {
-                this.drawSkeleton = false;
-                makeToastText("Faces", Toast.LENGTH_SHORT);
+            this.drawSkeleton = false;
+            makeToastText("Faces", Toast.LENGTH_SHORT);
         }
         requestRender();
     }
@@ -296,11 +304,11 @@ public class SceneLoader implements LoaderTask.Callback {
     }
 
     public void toggleTextures() {
-        if (drawTextures && drawColors){
+        if (drawTextures && drawColors) {
             this.drawTextures = false;
             this.drawColors = true;
             makeToastText("Texture off", Toast.LENGTH_SHORT);
-        } else if (drawColors){
+        } else if (drawColors) {
             this.drawTextures = false;
             this.drawColors = false;
             makeToastText("Colors off", Toast.LENGTH_SHORT);
@@ -327,7 +335,7 @@ public class SceneLoader implements LoaderTask.Callback {
     }
 
     public void toggleAnimation() {
-        if (!this.doAnimation){
+        if (!this.doAnimation) {
             this.doAnimation = true;
             this.showBindPose = false;
             makeToastText("Animation on", Toast.LENGTH_SHORT);
@@ -348,16 +356,16 @@ public class SceneLoader implements LoaderTask.Callback {
 
     public void toggleCollision() {
         this.isCollision = !isCollision;
-        makeToastText("Collisions: "+isCollision, Toast.LENGTH_SHORT);
+        makeToastText("Collisions: " + isCollision, Toast.LENGTH_SHORT);
     }
 
     public void toggleStereoscopic() {
-        if (!this.isStereoscopic){
+        if (!this.isStereoscopic) {
             this.isStereoscopic = true;
             this.isAnaglyph = true;
             this.isVRGlasses = false;
             makeToastText("Stereoscopic Anaplygh", Toast.LENGTH_SHORT);
-        } else if (this.isAnaglyph){
+        } else if (this.isAnaglyph) {
             this.isAnaglyph = false;
             this.isVRGlasses = true;
             // move object automatically cause with VR glasses we still have no way of moving object
@@ -406,11 +414,11 @@ public class SceneLoader implements LoaderTask.Callback {
     }
 
     public void toggleBlending() {
-        if (this.isBlendingEnabled && !this.isBlendingForced){
+        if (this.isBlendingEnabled && !this.isBlendingForced) {
             makeToastText("Blending forced", Toast.LENGTH_SHORT);
             this.isBlendingEnabled = true;
             this.isBlendingForced = true;
-        } else if (this.isBlendingForced){
+        } else if (this.isBlendingForced) {
             makeToastText("Blending disabled", Toast.LENGTH_SHORT);
             this.isBlendingEnabled = false;
             this.isBlendingForced = false;
@@ -430,7 +438,7 @@ public class SceneLoader implements LoaderTask.Callback {
     }
 
     @Override
-    public void onStart(){
+    public void onStart() {
         ContentUtils.setThreadActivity(parent);
     }
 
@@ -439,8 +447,8 @@ public class SceneLoader implements LoaderTask.Callback {
         // TODO: move texture load to LoaderTask
         for (Object3DData data : datas) {
             if (data.getTextureData() == null && data.getTextureFile() != null) {
-                Log.i("LoaderTask","Loading texture... "+data.getTextureFile());
-                try (InputStream stream = ContentUtils.getInputStream(data.getTextureFile())){
+                Log.i("LoaderTask", "Loading texture... " + data.getTextureFile());
+                try (InputStream stream = ContentUtils.getInputStream(data.getTextureFile())) {
                     if (stream != null) {
                         data.setTextureData(IOUtils.read(stream));
                     }
@@ -456,9 +464,11 @@ public class SceneLoader implements LoaderTask.Callback {
             addObject(data);
             allErrors.addAll(data.getErrors());
         }
-        if (!allErrors.isEmpty()){
+        if (!allErrors.isEmpty()) {
             makeToastText(allErrors.toString(), Toast.LENGTH_LONG);
         }
+        final String elapsed = (SystemClock.uptimeMillis() - startTime) / 1000 + " secs";
+        makeToastText("Build complete (" + elapsed + ")", Toast.LENGTH_LONG);
         ContentUtils.setThreadActivity(null);
     }
 
@@ -506,10 +516,76 @@ public class SceneLoader implements LoaderTask.Callback {
                         (), mr.getModelViewMatrix(), mr.getModelProjectionMatrix(), x, y);
                 if (point != null) {
                     Log.i("SceneLoader", "Drawing intersection point: " + Arrays.toString(point));
-                    addObject(Object3DBuilder.buildPoint(point).setColor(new float[]{1.0f, 0f, 0f, 1f}));
+                    addObject(Object3DBuilder.buildPoint(point).setColor(RED_COLOR));
                 }
             }
         }
+
+
+
+        //TODO Need to change right code
+        if (selectedObject != null) {
+            if (!selectedObject.getUri().equals(Uri.parse("assets://assets/models/Point.obj")))
+                createPointCube();
+        }
+    }
+
+    // create point cube to selected object
+    private void createPointCube() {
+        List<float[]> vertexArrayList;
+
+        ContentUtils.setThreadActivity(parent);
+        ContentUtils.provideAssets(parent);
+
+        if(selectedObject.getIsClicked() == false) {
+            Object3DUnpacker disorganization = new Object3DUnpacker(selectedObject);
+            disorganization.unpackingArrayBuffer();
+            disorganization.unpackingBuffer();
+            vertexArrayList = disorganization.getVertexArrayList();
+
+            for (int i = 0; i < vertexArrayList.size(); i++) {
+                Object3DData objPoint = Object3DBuilder.loadV5(parent, Uri.parse("assets://assets/models/Point.obj"));
+                objPoint.setPosition(new float[] {
+                        vertexArrayList.get(i)[0] * MAGNIFICATION,
+                        vertexArrayList.get(i)[1] * MAGNIFICATION,
+                        vertexArrayList.get(i)[2] * MAGNIFICATION });
+                objPoint.setScale(new float[]{0.3f, 0.3f, 0.3f});
+                objPoint.setColor(RED_COLOR);
+                addObject(objPoint);
+            }
+
+            ContentUtils.setThreadActivity(null);
+            ContentUtils.clearDocumentsProvided();
+
+            selectedObject.setIsClicked(true);
+        }
+    }
+
+    private void savingBuffer(List<Object3DData> objects, Object3DData selectedObject)  {
+        List<Object3DData> objPoints = new ArrayList<Object3DData>();
+
+        for(Object3DData obj : objects) {
+            if(obj.getOriginal_id() == selectedObject.getId())
+                objPoints.add(obj);
+        }
+
+        for(Object3DData obj : objPoints) {
+            float[] position = obj.getPosition();
+
+            for(int i = 0; i < 3; i++) {
+                position[i] /= MAGNIFICATION;
+            }
+
+            //TODO packing functions place
+        }
+    }
+
+    private static ByteBuffer createNativeByteBuffer(int length) {
+        // initialize vertex byte buffer for shape coordinates
+        ByteBuffer bb = ByteBuffer.allocateDirect(length);
+        // use the device hardware's native byte order
+        bb.order(ByteOrder.nativeOrder());
+        return bb;
     }
 
     public void processMove(float dx1, float dy1) {

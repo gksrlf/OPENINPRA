@@ -23,7 +23,7 @@ public class SkeletonLoader {
 
 	private final XmlNode visualScene;
 
-	private final Map<String, SkinningData> skinningDataMap;
+	private final Map<String,SkinningData> skinningDataMap;
 
 	private SkinningData skinningData;
 
@@ -32,7 +32,7 @@ public class SkeletonLoader {
 	private int jointCount = 0;
 	private boolean jointFound = false;
 
-	public SkeletonLoader(XmlNode rootNode, Map<String, SkinningData> skinningDataMap) {
+	public SkeletonLoader(XmlNode rootNode, Map<String,SkinningData> skinningDataMap) {
 		this.rootNode = rootNode;
 		this.visualScene = rootNode.getChild("library_visual_scenes").getChild("visual_scene");
 		this.geometries = rootNode.getChild("library_geometries");

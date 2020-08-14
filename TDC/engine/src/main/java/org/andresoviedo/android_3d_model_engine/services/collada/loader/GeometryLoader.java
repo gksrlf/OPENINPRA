@@ -31,7 +31,7 @@ public class GeometryLoader {
 	private final XmlNode materialsData;
 	private final XmlNode effectsData;
 	private final XmlNode imagesNode;
-	private Map<String, SkinningData> skinningDataMap;
+	private Map<String,SkinningData> skinningDataMap;
 	private SkeletonData skeletonData;
 	
 	private float[] verticesArray;
@@ -69,7 +69,7 @@ public class GeometryLoader {
     boolean textureLinked = false;
 	boolean colorsLinked = false;
 	
-	public GeometryLoader(XmlNode geometryNode, XmlNode materialsNode, XmlNode effectsNode, XmlNode imagesNode, Map<String, SkinningData> skinningData, SkeletonData skeletonData) {
+	public GeometryLoader(XmlNode geometryNode, XmlNode materialsNode, XmlNode effectsNode, XmlNode imagesNode, Map<String,SkinningData> skinningData, SkeletonData skeletonData) {
 		this.skinningDataMap = skinningData;
 		this.geometryNode = geometryNode;
 		this.materialsData = materialsNode;

@@ -1,10 +1,11 @@
-package com.little_wizard.tdc.util.view;
+package com.little_wizard.tdc.util.demo;
 
 import android.opengl.GLSurfaceView;
 import android.view.MotionEvent;
 
-
 import com.little_wizard.tdc.util.controller.TouchController;
+import com.little_wizard.tdc.util.demo.ModelRenderer;
+import com.little_wizard.tdc.util.view.ModelActivity;
 
 import java.io.IOException;
 

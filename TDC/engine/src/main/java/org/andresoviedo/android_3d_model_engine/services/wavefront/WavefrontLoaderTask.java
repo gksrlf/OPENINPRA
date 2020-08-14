@@ -44,7 +44,7 @@ public class WavefrontLoaderTask extends LoaderTask {
 
         // create the 3D object
         Object3DData data3D = new Object3DData(wfl.getVerts(), wfl.getNormals(), wfl.getTexCoords(), wfl.getFaces(),
-                wfl.getFaceMats(), wfl.getMaterials());
+                wfl.getFaceMats(), wfl.getMaterials(), wfl.numVerts, wfl.numNormals, wfl.numTextures, wfl.numFaces);
         data3D.setId(uri.getPath());
         data3D.setUri(uri);
         data3D.setLoader(wfl);

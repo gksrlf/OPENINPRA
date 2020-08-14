@@ -129,6 +129,12 @@ public class WavefrontLoader {
 		return modelDims;
 	}
 
+	//TODO --------- return number of Object3DData's vertices, Normal vertices, Textures --------------
+	public int getNumVerts() { return numVerts; }
+	public int getNumNormals() { return numNormals; }
+	public int getNumTextures() { return numTextures; }
+	public int getNumFaces() { return numFaces; }
+
 	@Nullable
 	public static String getMaterialLib(Uri uri){
 		return getParameter(uri, "mtllib ");

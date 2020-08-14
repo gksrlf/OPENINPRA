@@ -8,9 +8,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.little_wizard.tdc.util.scene_loader.SceneLoader;
-import com.little_wizard.tdc.util.view.ModelRenderer;
-import com.little_wizard.tdc.util.view.ModelSurfaceView;
+import com.little_wizard.tdc.util.demo.ModelRenderer;
+import com.little_wizard.tdc.util.demo.ModelSurfaceView;
+import com.little_wizard.tdc.util.demo.SceneLoader;
 
 import org.andresoviedo.android_3d_model_engine.model.Camera;
 
@@ -203,11 +203,11 @@ public class TouchController {
 					Log.v(TAG, "Zooming '" + zoomFactor + "'...");
 					camera.MoveCameraZ(zoomFactor);
 				}
-				if (isRotating) {
-					touchStatus = TOUCH_STATUS_ROTATING_CAMERA;
-					Log.v(TAG, "Rotating camera '" + Math.signum(rotationVector[2]) + "'...");
-					camera.Rotate((float) (Math.signum(rotationVector[2]) / Math.PI) / 4);
-				}
+				//if (isRotating) {
+				//	touchStatus = TOUCH_STATUS_ROTATING_CAMERA;
+				//	Log.v(TAG, "Rotating camera '" + Math.signum(rotationVector[2]) + "'...");
+				//	camera.Rotate((float) (Math.signum(rotationVector[2]) / Math.PI) / 4);
+				//}
 			}
 
 			// INFO: Realizamos la acci�n
@@ -384,7 +384,7 @@ class TouchScreen {
 	private float spacing(MotionEvent event) {
 		float x = event.getX(0) - event.getX(1);
 		float y = event.getY(0) - event.getY(1);
-		return (float) Math.sqrt(x * x + y * y);
+		return (float)Math.sqrt(x * x + y * y);
 	}
 
 	/**

@@ -1,11 +1,9 @@
-package com.little_wizard.tdc.util.view;
+package com.little_wizard.tdc.util.demo;
 
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.util.Log;
-
-import com.little_wizard.tdc.util.scene_loader.SceneLoader;
 
 import org.andresoviedo.android_3d_model_engine.animation.Animator;
 import org.andresoviedo.android_3d_model_engine.drawer.DrawerFactory;

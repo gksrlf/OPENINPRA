@@ -19,6 +19,7 @@ import org.andresoviedo.android_3d_model_engine.services.stl.STLLoaderTask;
 import org.andresoviedo.android_3d_model_engine.services.wavefront.WavefrontLoaderTask;
 import org.andresoviedo.util.android.ContentUtils;
 import org.andresoviedo.util.io.IOUtils;
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -155,6 +156,12 @@ public class SceneLoader implements LoaderTask.Callback {
     private float[] RED_COLOR =  new float[] {1f, 0f, 0f, 1f};
     private float[] GREEN_COLOR =  new float[] {0f, 1f, 0f, 1f};
 
+    public interface Callback {
+        void onSelectedObjectChanged(Object3DData selectedObject);
+    }
+
+    private Callback callback;
+
     public SceneLoader(ModelActivity main) {
         this.parent = main;
     }
@@ -171,16 +178,7 @@ public class SceneLoader implements LoaderTask.Callback {
 
         startTime = SystemClock.uptimeMillis();
         Uri uri = parent.getParamUri();
-        Log.i("Object3DBuilder", "Loading model " + uri + ". async and parallel..");
-        if (uri.toString().toLowerCase().endsWith(".obj") || parent.getParamType() == 0) {
-            new WavefrontLoaderTask(parent, uri, this).execute();
-        } else if (uri.toString().toLowerCase().endsWith(".stl") || parent.getParamType() == 1) {
-            Log.i("Object3DBuilder", "Loading STL object from: " + uri);
-            new STLLoaderTask(parent, uri, this).execute();
-        } else if (uri.toString().toLowerCase().endsWith(".dae") || parent.getParamType() == 2) {
-            Log.i("Object3DBuilder", "Loading Collada object from: " + uri);
-            new ColladaLoaderTask(parent, uri, this).execute();
-        }
+        new WavefrontLoaderTask(parent, uri, this).execute();
     }
 
     public boolean isDrawAxis() {
@@ -483,8 +481,13 @@ public class SceneLoader implements LoaderTask.Callback {
         return selectedObject;
     }
 
+    public void setCallback(Callback callback) {
+        this.callback = callback;
+    }
+
     private void setSelectedObject(Object3DData selectedObject) {
         this.selectedObject = selectedObject;
+        callback.onSelectedObjectChanged(selectedObject);
     }
 
     public void loadTexture(Object3DData obj, Uri uri) throws IOException {
@@ -525,8 +528,10 @@ public class SceneLoader implements LoaderTask.Callback {
 
         //TODO Need to change right code
         if (selectedObject != null) {
+            /*
             if (!selectedObject.getUri().equals(Uri.parse("assets://assets/models/Point.obj")))
                 createPointCube();
+             */
         }
     }
 

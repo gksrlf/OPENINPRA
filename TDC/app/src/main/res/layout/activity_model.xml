@@ -16,38 +16,99 @@
         android:theme="?attr/actionBarTheme"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <LinearLayout
-        android:id="@+id/modifyTools"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="10dp"
-        android:orientation="vertical"
-        android:translationZ="90dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/reshapeLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:translationZ="90dp">
 
-        <ImageButton
-            android:id="@+id/zoomIn"
+        <LinearLayout
+            android:id="@+id/modifyLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:src="@drawable/ic_zoom_in" />
+            android:layout_marginEnd="10dp"
+            android:orientation="vertical"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <ImageButton
-            android:id="@+id/zoomOut"
+            <ImageButton
+                android:id="@+id/select"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/ic_select" />
+
+            <ImageButton
+                android:id="@+id/scale"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/ic_zoom_out" />
+
+            <ImageButton
+                android:id="@+id/transform"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/ic_transform" />
+        </LinearLayout>
+
+        <com.google.android.material.slider.RangeSlider
+            android:id="@+id/scaleSlider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="100dp"
+            android:valueFrom="-0.5"
+            android:valueTo="0.5"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:values="@array/initial_slider_values" />
+
+        <LinearLayout
+            android:id="@+id/axisSliderLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:src="@drawable/ic_zoom_out" />
+            android:layout_marginBottom="100dp"
+            android:orientation="vertical"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
 
-        <ImageButton
-            android:id="@+id/panTool"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:src="@drawable/ic_pan_tool" />
-    </LinearLayout>
+            <com.google.android.material.slider.RangeSlider
+                android:id="@+id/xAxisSlider"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:valueFrom="-0.1"
+                android:valueTo="0.1"
+                app:values="@array/initial_slider_values" />
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="3dp" />
+
+            <com.google.android.material.slider.RangeSlider
+                android:id="@+id/yAxisSlider"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:valueFrom="-0.1"
+                android:valueTo="0.1"
+                app:values="@array/initial_slider_values" />
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="3dp" />
+
+            <com.google.android.material.slider.RangeSlider
+                android:id="@+id/zAxisSlider"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:valueFrom="-0.1"
+                android:valueTo="0.1"
+                app:values="@array/initial_slider_values" />
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

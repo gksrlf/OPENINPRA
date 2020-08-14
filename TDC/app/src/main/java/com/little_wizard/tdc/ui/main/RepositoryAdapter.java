@@ -52,17 +52,17 @@ public class RepositoryAdapter extends RecyclerView.Adapter<RepositoryAdapter.Vi
         String key = (String) itemMap.keySet().toArray()[pos];
         RepoItem item = null;
         for (RepoItem tmp : Objects.requireNonNull(itemMap.get(key))) {
-            if (FilenameUtils.getExtension(tmp.name).equals("jpg")) {
+            if (FilenameUtils.getExtension(tmp.getName()).equals("jpg")) {
                 item = tmp;
                 break;
             }
         }
         if (item == null) {
-            Toast.makeText(mContext, R.string.obj_not_exists, Toast.LENGTH_SHORT).show();
+            Toast.makeText(mContext, R.string.jpg_not_exists, Toast.LENGTH_SHORT).show();
             return;
         }
         String path = "https://" + mContext.getString(R.string.s3_bucket_resize)
-                + ".s3.ap-northeast-2.amazonaws.com/" + item.name;
+                + ".s3.ap-northeast-2.amazonaws.com/" + item.getName();
         Glide.with(mContext).load(path).centerCrop().into(holder.imageView);
         holder.name.setText(key);
     }
@@ -74,7 +74,7 @@ public class RepositoryAdapter extends RecyclerView.Adapter<RepositoryAdapter.Vi
 
     public void setItemList(List<RepoItem> itemList) {
         for (RepoItem item : itemList) {
-            String baseName = FilenameUtils.getBaseName(item.name);
+            String baseName = FilenameUtils.getBaseName(item.getName());
             List<RepoItem> list = itemMapIndexOf(itemMap, baseName);
             list.add(item);
             itemMap.put(baseName, list);

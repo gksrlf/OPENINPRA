@@ -19,6 +19,7 @@ import org.andresoviedo.app.model3D.view.ModelActivity;
 import org.andresoviedo.app.model3D.view.ModelRenderer;
 import org.andresoviedo.util.android.ContentUtils;
 import org.andresoviedo.util.io.IOUtils;
+import org.andresoviedo.util.view.ObjectManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -519,6 +520,10 @@ public class SceneLoader implements LoaderTask.Callback {
                     addObject(Object3DBuilder.buildPoint(point).setColor(RED_COLOR));
                 }
             }
+            if(ObjectManager.isPoint(objectToSelect)){
+                if(objectToSelect.getColor() == RED_COLOR) objectToSelect.setColor(GREEN_COLOR);
+                else objectToSelect.setColor(RED_COLOR);
+            }
         }
 
 
@@ -543,6 +548,8 @@ public class SceneLoader implements LoaderTask.Callback {
             disorganization.unpackingBuffer();
             vertexArrayList = disorganization.getVertexArrayList();
 
+            ArrayList<Object3DData> list = new ArrayList<>();
+
             for (int i = 0; i < vertexArrayList.size(); i++) {
                 Object3DData objPoint = Object3DBuilder.loadV5(parent, Uri.parse("assets://assets/models/Point.obj"));
                 objPoint.setPosition(new float[] {
@@ -552,12 +559,14 @@ public class SceneLoader implements LoaderTask.Callback {
                 objPoint.setScale(new float[]{0.3f, 0.3f, 0.3f});
                 objPoint.setColor(RED_COLOR);
                 addObject(objPoint);
+                list.add(objPoint);
             }
 
             ContentUtils.setThreadActivity(null);
             ContentUtils.clearDocumentsProvided();
 
             selectedObject.setIsClicked(true);
+            ObjectManager.addParts(selectedObject, list);
         }
     }
 

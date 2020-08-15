@@ -6,13 +6,19 @@
     <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="Show only selected application" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ceacb292-9318-4aab-9e1c-fe9ebaec87e6" name="Default Changelist" comment="" />
+    <list default="true" id="ceacb292-9318-4aab-9e1c-fe9ebaec87e6" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/org/andresoviedo/util/view/ObjectManager.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/engine/src/main/java/org/andresoviedo/android_3d_model_engine/services/Object3DPacker.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/andresoviedo/app/model3D/demo/SceneLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/andresoviedo/app/model3D/demo/SceneLoader.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/andresoviedo/app/model3D/view/ModelRenderer.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/andresoviedo/app/model3D/view/ModelRenderer.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="Pixel_3a_API_27" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="172.30.1.12:5555" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -132,46 +138,46 @@
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
     <state x="-982" y="382" width="471" height="293" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.classes/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597418638494" />
-    <state width="459" height="438" key="DebuggerActiveHint" timestamp="1597425826355">
+    <state width="459" height="438" key="DebuggerActiveHint" timestamp="1597511663028">
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="459" height="438" key="DebuggerActiveHint/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597425826355" />
-    <state x="-993" y="275" key="FileChooserDialogImpl" timestamp="1597496041347">
+    <state width="459" height="438" key="DebuggerActiveHint/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597511663028" />
+    <state x="-993" y="275" key="FileChooserDialogImpl" timestamp="1597507960217">
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state x="-993" y="275" key="FileChooserDialogImpl/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597496041347" />
-    <state width="1500" height="303" key="GridCell.Tab.0.bottom" timestamp="1597426844997">
+    <state x="-993" y="275" key="FileChooserDialogImpl/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597507960217" />
+    <state width="1215" height="303" key="GridCell.Tab.0.bottom" timestamp="1597511548166">
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1500" height="303" key="GridCell.Tab.0.bottom/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597426844997" />
-    <state width="1500" height="303" key="GridCell.Tab.0.center" timestamp="1597426844997">
+    <state width="1215" height="303" key="GridCell.Tab.0.bottom/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597511548166" />
+    <state width="1215" height="303" key="GridCell.Tab.0.center" timestamp="1597511548166">
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1500" height="303" key="GridCell.Tab.0.center/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597426844997" />
-    <state width="1500" height="303" key="GridCell.Tab.0.left" timestamp="1597426844997">
+    <state width="1215" height="303" key="GridCell.Tab.0.center/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597511548166" />
+    <state width="1215" height="303" key="GridCell.Tab.0.left" timestamp="1597511548166">
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1500" height="303" key="GridCell.Tab.0.left/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597426844997" />
-    <state width="1500" height="303" key="GridCell.Tab.0.right" timestamp="1597426844997">
+    <state width="1215" height="303" key="GridCell.Tab.0.left/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597511548166" />
+    <state width="1215" height="303" key="GridCell.Tab.0.right" timestamp="1597511548166">
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1500" height="303" key="GridCell.Tab.0.right/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597426844997" />
-    <state width="1500" height="303" key="GridCell.Tab.1.bottom" timestamp="1597426844997">
+    <state width="1215" height="303" key="GridCell.Tab.0.right/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597511548166" />
+    <state width="1215" height="303" key="GridCell.Tab.1.bottom" timestamp="1597511570961">
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1500" height="303" key="GridCell.Tab.1.bottom/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597426844997" />
-    <state width="1500" height="303" key="GridCell.Tab.1.center" timestamp="1597426844997">
+    <state width="1215" height="303" key="GridCell.Tab.1.bottom/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597511570961" />
+    <state width="1215" height="303" key="GridCell.Tab.1.center" timestamp="1597511570961">
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1500" height="303" key="GridCell.Tab.1.center/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597426844997" />
-    <state width="1500" height="303" key="GridCell.Tab.1.left" timestamp="1597426844997">
+    <state width="1215" height="303" key="GridCell.Tab.1.center/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597511570961" />
+    <state width="1215" height="303" key="GridCell.Tab.1.left" timestamp="1597511570961">
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1500" height="303" key="GridCell.Tab.1.left/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597426844997" />
-    <state width="1500" height="303" key="GridCell.Tab.1.right" timestamp="1597426844997">
+    <state width="1215" height="303" key="GridCell.Tab.1.left/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597511570961" />
+    <state width="1215" height="303" key="GridCell.Tab.1.right" timestamp="1597511570961">
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1500" height="303" key="GridCell.Tab.1.right/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597426844997" />
+    <state width="1215" height="303" key="GridCell.Tab.1.right/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597511570961" />
     <state x="775" y="337" key="com.intellij.ide.util.TipDialog" timestamp="1597489769225">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
@@ -181,34 +187,31 @@
     </state>
     <state x="287" y="0" width="1100" height="1047" key="dock-window-1/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597507679199" />
     <state x="-1338" y="-16" width="1516" height="1026" maximized="true" key="dock-window-1/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1597506654363" />
+    <state x="69" y="0" width="929" height="1047" key="dock-window-2" timestamp="1597510676564">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="69" y="0" width="929" height="1047" key="dock-window-2/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597510676564" />
+    <state x="352" y="0" width="929" height="1047" key="dock-window-3" timestamp="1597510487186">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="352" y="0" width="929" height="1047" key="dock-window-3/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597510487186" />
+    <state x="-1004" y="0" width="929" height="1047" key="dock-window-4" timestamp="1597509121395">
+      <screen x="-1920" y="0" width="1920" height="1040" />
+    </state>
+    <state x="-1004" y="0" width="929" height="1047" key="dock-window-4/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597509121395" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/org/andresoviedo/app/model3D/demo/SceneLoader.java</url>
-          <line>588</line>
-          <option name="timeStamp" value="10" />
-        </line-breakpoint>
-        <line-breakpoint suspend="THREAD" type="java-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/org/andresoviedo/app/model3D/demo/SceneLoader.java</url>
-          <line>500</line>
-          <option name="timeStamp" value="28" />
+          <url>file://$PROJECT_DIR$/app/src/main/java/org/andresoviedo/app/model3D/view/ModelRenderer.java</url>
+          <line>429</line>
+          <option name="timeStamp" value="65" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/org/andresoviedo/app/model3D/view/ModelRenderer.java</url>
-          <line>365</line>
-          <option name="timeStamp" value="31" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/org/andresoviedo/app/model3D/view/ModelRenderer.java</url>
-          <line>393</line>
-          <option name="timeStamp" value="32" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/org/andresoviedo/app/model3D/view/ModelRenderer.java</url>
-          <line>420</line>
-          <option name="timeStamp" value="51" />
+          <line>430</line>
+          <option name="timeStamp" value="66" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

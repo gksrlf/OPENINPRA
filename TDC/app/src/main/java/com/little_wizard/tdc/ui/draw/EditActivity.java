@@ -89,8 +89,8 @@ public class EditActivity extends AppCompatActivity {
                     intent.putExtra("LINE", imageView.getLinePosX());
                     intent.setData(Uri.fromFile(new File(filePath)));
                     startActivity(intent);
+                    finish();
                 } else Log.d(TAG, "result == null");
-                finish();
                 return true;
             }
             default:

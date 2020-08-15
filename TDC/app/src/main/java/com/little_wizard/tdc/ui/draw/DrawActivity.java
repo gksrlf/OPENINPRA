@@ -148,6 +148,7 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
                 return true;
 
             case R.id.draw_add:
+            case R.id.draw_reset:
                 m.clear();
                 return true;
 
@@ -180,12 +181,6 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
                 });
                 dialog = builder.create();
                 dialog.show();
-                return true;
-
-            case R.id.draw_reset:
-                Intent intent = getIntent();
-                finish();
-                startActivity(intent);
                 return true;
 
             default:

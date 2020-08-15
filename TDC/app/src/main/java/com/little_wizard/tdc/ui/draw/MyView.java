@@ -94,7 +94,7 @@ public class MyView extends View {
         viewPaint = new Paint();
         viewPaint.setColor(paintColor);
         //viewPaint.setAntiAlias(true);
-        viewPaint.setStrokeWidth(paintWidth);
+        viewPaint.setStrokeWidth(paintWidth * magnification);
         viewPaint.setStyle(Paint.Style.STROKE);
         viewPaint.setStrokeJoin(Paint.Join.ROUND);
         viewPaint.setStrokeCap(Paint.Cap.ROUND);
@@ -282,13 +282,16 @@ public class MyView extends View {
         originalWidth = width = canvasBitmap.getWidth();
         height = canvasBitmap.getHeight();
         if (displayHeight / displayWidth > height / width) { //가로가꽉참
+            mPosX = 0;
             mPosY = (displayHeight - height) / 2;
         } else {
             mPosX = (displayWidth - width) / 2;
+            mPosY = 0;
         }
         drawQueue.push(bitmap, null);
         line = originalLine;
         scale = 1f;
+        magnification = 1f;
     }
 
     public void setItemMode(boolean mode) {

@@ -1,4 +1,4 @@
-#Sun Aug 16 02:14:55 KST 2020
+#Sun Aug 16 02:33:35 KST 2020
 base.0=D\:\\GitHub\\OPENINPRA\\APK\\android-3D-model-viewer-2.6.1\\app\\build\\intermediates\\dex\\debug\\mergeDexDebug\\classes.dex
 path.0=classes.dex
 renamed.0=classes.dex

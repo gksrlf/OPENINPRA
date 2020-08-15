@@ -14,7 +14,7 @@ import org.andresoviedo.android_3d_model_engine.model.Object3DData;
 import org.andresoviedo.android_3d_model_engine.services.Object3DBuilder;
 import org.andresoviedo.app.model3D.demo.SceneLoader;
 import org.andresoviedo.util.android.GLUtil;
-import org.andresoviedo.util.view.ObjectManager;
+import org.andresoviedo.util.ObjectManager;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

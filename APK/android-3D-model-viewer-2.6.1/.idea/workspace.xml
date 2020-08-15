@@ -7,11 +7,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ceacb292-9318-4aab-9e1c-fe9ebaec87e6" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/org/andresoviedo/util/view/ObjectManager.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/engine/src/main/java/org/andresoviedo/android_3d_model_engine/services/Object3DPacker.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/org/andresoviedo/app/model3D/demo/SceneLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/andresoviedo/app/model3D/demo/SceneLoader.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/org/andresoviedo/app/model3D/view/ModelRenderer.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/andresoviedo/app/model3D/view/ModelRenderer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/andresoviedo/util/view/ObjectManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/andresoviedo/util/ObjectManager.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -134,10 +133,10 @@
     <servers />
   </component>
   <component name="WindowStateProjectService">
-    <state x="-982" y="382" width="471" height="293" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.classes" timestamp="1597418638494">
+    <state x="-982" y="382" width="471" height="293" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.classes" timestamp="1597512793680">
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state x="-982" y="382" width="471" height="293" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.classes/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597418638494" />
+    <state x="-982" y="382" width="471" height="293" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.classes/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597512793680" />
     <state width="459" height="438" key="DebuggerActiveHint" timestamp="1597511663028">
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
@@ -146,38 +145,38 @@
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
     <state x="-993" y="275" key="FileChooserDialogImpl/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597507960217" />
-    <state width="1215" height="303" key="GridCell.Tab.0.bottom" timestamp="1597511548166">
+    <state width="1215" height="303" key="GridCell.Tab.0.bottom" timestamp="1597512766292">
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1215" height="303" key="GridCell.Tab.0.bottom/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597511548166" />
-    <state width="1215" height="303" key="GridCell.Tab.0.center" timestamp="1597511548166">
+    <state width="1215" height="303" key="GridCell.Tab.0.bottom/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597512766292" />
+    <state width="1215" height="303" key="GridCell.Tab.0.center" timestamp="1597512766292">
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1215" height="303" key="GridCell.Tab.0.center/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597511548166" />
-    <state width="1215" height="303" key="GridCell.Tab.0.left" timestamp="1597511548166">
+    <state width="1215" height="303" key="GridCell.Tab.0.center/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597512766292" />
+    <state width="1215" height="303" key="GridCell.Tab.0.left" timestamp="1597512766292">
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1215" height="303" key="GridCell.Tab.0.left/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597511548166" />
-    <state width="1215" height="303" key="GridCell.Tab.0.right" timestamp="1597511548166">
+    <state width="1215" height="303" key="GridCell.Tab.0.left/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597512766292" />
+    <state width="1215" height="303" key="GridCell.Tab.0.right" timestamp="1597512766292">
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1215" height="303" key="GridCell.Tab.0.right/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597511548166" />
-    <state width="1215" height="303" key="GridCell.Tab.1.bottom" timestamp="1597511570961">
+    <state width="1215" height="303" key="GridCell.Tab.0.right/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597512766292" />
+    <state width="1215" height="303" key="GridCell.Tab.1.bottom" timestamp="1597512766292">
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1215" height="303" key="GridCell.Tab.1.bottom/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597511570961" />
-    <state width="1215" height="303" key="GridCell.Tab.1.center" timestamp="1597511570961">
+    <state width="1215" height="303" key="GridCell.Tab.1.bottom/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597512766292" />
+    <state width="1215" height="303" key="GridCell.Tab.1.center" timestamp="1597512766292">
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1215" height="303" key="GridCell.Tab.1.center/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597511570961" />
-    <state width="1215" height="303" key="GridCell.Tab.1.left" timestamp="1597511570961">
+    <state width="1215" height="303" key="GridCell.Tab.1.center/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597512766292" />
+    <state width="1215" height="303" key="GridCell.Tab.1.left" timestamp="1597512766292">
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1215" height="303" key="GridCell.Tab.1.left/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597511570961" />
-    <state width="1215" height="303" key="GridCell.Tab.1.right" timestamp="1597511570961">
+    <state width="1215" height="303" key="GridCell.Tab.1.left/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597512766292" />
+    <state width="1215" height="303" key="GridCell.Tab.1.right" timestamp="1597512766292">
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1215" height="303" key="GridCell.Tab.1.right/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597511570961" />
+    <state width="1215" height="303" key="GridCell.Tab.1.right/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597512766292" />
     <state x="775" y="337" key="com.intellij.ide.util.TipDialog" timestamp="1597489769225">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
@@ -195,10 +194,10 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="352" y="0" width="929" height="1047" key="dock-window-3/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597510487186" />
-    <state x="-1004" y="0" width="929" height="1047" key="dock-window-4" timestamp="1597509121395">
+    <state x="-1004" y="0" width="929" height="1047" key="dock-window-4" timestamp="1597512290292">
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state x="-1004" y="0" width="929" height="1047" key="dock-window-4/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597509121395" />
+    <state x="-1004" y="0" width="929" height="1047" key="dock-window-4/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597512290292" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

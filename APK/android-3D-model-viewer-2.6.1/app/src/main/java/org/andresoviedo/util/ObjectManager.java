@@ -1,4 +1,4 @@
-package org.andresoviedo.util.view;
+package org.andresoviedo.util;
 
 import org.andresoviedo.android_3d_model_engine.model.Object3DData;
 

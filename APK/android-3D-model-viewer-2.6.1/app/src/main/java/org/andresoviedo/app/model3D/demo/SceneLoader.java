@@ -19,7 +19,7 @@ import org.andresoviedo.app.model3D.view.ModelActivity;
 import org.andresoviedo.app.model3D.view.ModelRenderer;
 import org.andresoviedo.util.android.ContentUtils;
 import org.andresoviedo.util.io.IOUtils;
-import org.andresoviedo.util.view.ObjectManager;
+import org.andresoviedo.util.ObjectManager;
 
 import java.io.IOException;
 import java.io.InputStream;

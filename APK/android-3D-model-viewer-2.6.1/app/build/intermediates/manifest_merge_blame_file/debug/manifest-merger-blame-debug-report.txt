@@ -1,0 +1,90 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="org.andresoviedo.dddmodel2"
+4    android:versionCode="23"
+5    android:versionName="2.7.0" >
+6
+7    <uses-sdk
+7-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:8:5-10:82
+8        android:minSdkVersion="14"
+8-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:8:5-10:82
+9        android:targetSdkVersion="28" />
+9-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:9:9-38
+10
+11    <uses-feature
+11-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:12:5-14:35
+12        android:glEsVersion="0x00020000"
+12-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:13:9-41
+13        android:required="true" />
+13-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:14:9-32
+14
+15    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+15-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:16:5-79
+15-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:16:22-77
+16    <uses-permission android:name="android.permission.INTERNET" />
+16-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:17:5-67
+16-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:17:22-64
+17
+18    <application
+18-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:19:5-50:19
+19        android:allowBackup="true"
+19-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:20:9-35
+20        android:appComponentFactory="android.support.v4.app.CoreComponentFactory"
+20-->[com.android.support:support-compat:28.0.0] C:\Users\zaq73\.gradle\caches\transforms-2\files-2.1\00567bd0de14b33d1bf8a440dc72bff8\support-compat-28.0.0\AndroidManifest.xml:22:18-91
+21        android:debuggable="true"
+22        android:icon="@drawable/ic_launcher"
+22-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:21:9-45
+23        android:label="@string/app_name"
+23-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:22:9-41
+24        android:testOnly="true"
+25        android:theme="@style/AppTheme" >
+25-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:23:9-40
+26        <activity
+26-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:24:9-32:20
+27            android:name="org.andresoviedo.app.model3D.MainActivity"
+27-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:25:13-69
+28            android:label="@string/app_name" >
+28-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:26:13-45
+29            <intent-filter>
+29-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:27:13-31:29
+30                <action android:name="android.intent.action.MAIN" />
+30-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:28:17-69
+30-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:28:25-66
+31
+32                <category android:name="android.intent.category.LAUNCHER" />
+32-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:30:17-77
+32-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:30:27-74
+33            </intent-filter>
+34        </activity>
+35        <activity
+35-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:33:9-37:20
+36            android:name="org.andresoviedo.app.model3D.view.MenuActivity"
+36-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:34:13-74
+37            android:label="@string/title_activity_menu"
+37-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:35:13-56
+38            android:parentActivityName="org.andresoviedo.app.model3D.MainActivity" >
+38-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:36:13-83
+39        </activity>
+40        <activity
+40-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:38:9-42:20
+41            android:name="org.andresoviedo.util.view.TextActivity"
+41-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:39:13-67
+42            android:label="@string/title_activity_text"
+42-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:40:13-56
+43            android:parentActivityName="org.andresoviedo.app.model3D.MainActivity" >
+43-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:41:13-83
+44        </activity>
+45        <activity
+45-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:43:9-49:20
+46            android:name="org.andresoviedo.app.model3D.view.ModelActivity"
+46-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:44:13-75
+47            android:label="@string/title_activity_model"
+47-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:45:13-57
+48            android:parentActivityName="org.andresoviedo.app.model3D.MainActivity" >
+48-->D:\GitHub\OPENINPRA\APK\android-3D-model-viewer-2.6.1\app\src\main\AndroidManifest.xml:46:13-83
+49
+50            <!-- android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" -->
+51        </activity>
+52    </application>
+53
+54</manifest>

@@ -1,0 +1,50 @@
+[
+    {
+        "merged": "D:\\GitHub\\OPENINPRA\\APK\\android-3D-model-viewer-2.6.1\\app\\build\\intermediates\\res\\merged\\debug\\layout_activity_model.xml.flat",
+        "source": "D:\\GitHub\\OPENINPRA\\APK\\android-3D-model-viewer-2.6.1\\app\\src\\main\\res\\layout\\activity_model.xml"
+    },
+    {
+        "merged": "D:\\GitHub\\OPENINPRA\\APK\\android-3D-model-viewer-2.6.1\\app\\build\\intermediates\\res\\merged\\debug\\layout_activity_main.xml.flat",
+        "source": "D:\\GitHub\\OPENINPRA\\APK\\android-3D-model-viewer-2.6.1\\app\\src\\main\\res\\layout\\activity_main.xml"
+    },
+    {
+        "merged": "D:\\GitHub\\OPENINPRA\\APK\\android-3D-model-viewer-2.6.1\\app\\build\\intermediates\\res\\merged\\debug\\menu_model.xml.flat",
+        "source": "D:\\GitHub\\OPENINPRA\\APK\\android-3D-model-viewer-2.6.1\\app\\src\\main\\res\\menu\\model.xml"
+    },
+    {
+        "merged": "D:\\GitHub\\OPENINPRA\\APK\\android-3D-model-viewer-2.6.1\\app\\build\\intermediates\\res\\merged\\debug\\layout_activity_demo.xml.flat",
+        "source": "D:\\GitHub\\OPENINPRA\\APK\\android-3D-model-viewer-2.6.1\\app\\src\\main\\res\\layout\\activity_demo.xml"
+    },
+    {
+        "merged": "D:\\GitHub\\OPENINPRA\\APK\\android-3D-model-viewer-2.6.1\\app\\build\\intermediates\\res\\merged\\debug\\layout_activity_menu.xml.flat",
+        "source": "D:\\GitHub\\OPENINPRA\\APK\\android-3D-model-viewer-2.6.1\\app\\src\\main\\res\\layout\\activity_menu.xml"
+    },
+    {
+        "merged": "D:\\GitHub\\OPENINPRA\\APK\\android-3D-model-viewer-2.6.1\\app\\build\\intermediates\\res\\merged\\debug\\drawable_ic_launcher.png.flat",
+        "source": "D:\\GitHub\\OPENINPRA\\APK\\android-3D-model-viewer-2.6.1\\app\\src\\main\\res\\drawable\\ic_launcher.png"
+    },
+    {
+        "merged": "D:\\GitHub\\OPENINPRA\\APK\\android-3D-model-viewer-2.6.1\\app\\build\\intermediates\\res\\merged\\debug\\menu_main.xml.flat",
+        "source": "D:\\GitHub\\OPENINPRA\\APK\\android-3D-model-viewer-2.6.1\\app\\src\\main\\res\\menu\\main.xml"
+    },
+    {
+        "merged": "D:\\GitHub\\OPENINPRA\\APK\\android-3D-model-viewer-2.6.1\\app\\build\\intermediates\\res\\merged\\debug\\menu_menu.xml.flat",
+        "source": "D:\\GitHub\\OPENINPRA\\APK\\android-3D-model-viewer-2.6.1\\app\\src\\main\\res\\menu\\menu.xml"
+    },
+    {
+        "merged": "D:\\GitHub\\OPENINPRA\\APK\\android-3D-model-viewer-2.6.1\\app\\build\\intermediates\\res\\merged\\debug\\layout_activity_menu_item.xml.flat",
+        "source": "D:\\GitHub\\OPENINPRA\\APK\\android-3D-model-viewer-2.6.1\\app\\src\\main\\res\\layout\\activity_menu_item.xml"
+    },
+    {
+        "merged": "D:\\GitHub\\OPENINPRA\\APK\\android-3D-model-viewer-2.6.1\\app\\build\\intermediates\\res\\merged\\debug\\layout_activity_text.xml.flat",
+        "source": "D:\\GitHub\\OPENINPRA\\APK\\android-3D-model-viewer-2.6.1\\app\\src\\main\\res\\layout\\activity_text.xml"
+    },
+    {
+        "merged": "D:\\GitHub\\OPENINPRA\\APK\\android-3D-model-viewer-2.6.1\\app\\build\\intermediates\\res\\merged\\debug\\layout_dialog_load_model.xml.flat",
+        "source": "D:\\GitHub\\OPENINPRA\\APK\\android-3D-model-viewer-2.6.1\\app\\src\\main\\res\\layout\\dialog_load_model.xml"
+    },
+    {
+        "merged": "D:\\GitHub\\OPENINPRA\\APK\\android-3D-model-viewer-2.6.1\\app\\build\\intermediates\\res\\merged\\debug\\layout_activity_demo_item.xml.flat",
+        "source": "D:\\GitHub\\OPENINPRA\\APK\\android-3D-model-viewer-2.6.1\\app\\src\\main\\res\\layout\\activity_demo_item.xml"
+    }
+]

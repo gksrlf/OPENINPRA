@@ -1,0 +1,35 @@
+R_DEF: Internal format may change without notice
+local
+raw shader_anim_colors_frag
+raw shader_anim_colors_vert
+raw shader_anim_frag
+raw shader_anim_light_colors_frag
+raw shader_anim_light_colors_vert
+raw shader_anim_light_frag
+raw shader_anim_light_texture_colors_frag
+raw shader_anim_light_texture_colors_vert
+raw shader_anim_light_texture_frag
+raw shader_anim_light_texture_vert
+raw shader_anim_light_vert
+raw shader_anim_texture_colors_frag
+raw shader_anim_texture_colors_vert
+raw shader_anim_texture_frag
+raw shader_anim_texture_vert
+raw shader_anim_vert
+raw shader_colors_frag
+raw shader_colors_vert
+raw shader_frag
+raw shader_light_colors_frag
+raw shader_light_colors_vert
+raw shader_light_frag
+raw shader_light_texture_colors_frag
+raw shader_light_texture_colors_vert
+raw shader_light_texture_frag
+raw shader_light_texture_vert
+raw shader_light_vert
+raw shader_texture_colors_frag
+raw shader_texture_colors_vert
+raw shader_texture_frag
+raw shader_texture_vert
+raw shader_vert
+string app_name

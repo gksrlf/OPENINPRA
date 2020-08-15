@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "applicationId": "org.andresoviedo.android_3d_model_engine",
+  "variantType": "LIBRARY",
+  "elements": [
+    {
+      "outputType": {
+        "type": "AAPT_FRIENDLY_MERGED_MANIFESTS"
+      },
+      "apkData": {
+        "type": "MAIN",
+        "splits": [],
+        "versionCode": 1,
+        "versionName": "1.0",
+        "outputFile": "engine-debug.aar",
+        "fullName": "debug",
+        "baseName": "debug",
+        "dirName": ""
+      },
+      "path": "AndroidManifest.xml",
+      "properties": {
+        "packageId": "org.andresoviedo.android_3d_model_engine",
+        "split": ""
+      }
+    }
+  ]
+}

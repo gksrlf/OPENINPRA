@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "applicationId": "org.andresoviedo.dddmodel2",
+  "variantType": "BASE_APK",
+  "elements": [
+    {
+      "outputType": {
+        "type": "PROCESSED_RES"
+      },
+      "apkData": {
+        "type": "MAIN",
+        "splits": [],
+        "versionCode": 23,
+        "versionName": "2.7.0",
+        "outputFile": "app-debug.apk",
+        "fullName": "debug",
+        "baseName": "debug",
+        "dirName": ""
+      },
+      "path": "resources-debug.ap_",
+      "properties": {
+        "packageId": "org.andresoviedo.dddmodel2",
+        "split": "",
+        "minSdkVersion": "14"
+      }
+    }
+  ]
+}

@@ -173,9 +173,7 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
                 recycler.setAdapter(adapter);
                 adapter.setElementList(objectBuffer.getBuffer());
                 builder.setView(recycler);
-                builder.setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
-
-                });
+                builder.setNegativeButton(R.string.cancel, (dialogInterface, i) -> {});
                 builder.setPositiveButton(R.string.upload, (dialogInterface, i) -> {
                     upload(objectBuffer.getName());
                 });

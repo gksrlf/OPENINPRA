@@ -13,6 +13,7 @@ import org.andresoviedo.android_3d_model_engine.model.Camera;
 import org.andresoviedo.android_3d_model_engine.model.Object3DData;
 import org.andresoviedo.android_3d_model_engine.services.LoaderTask;
 import org.andresoviedo.android_3d_model_engine.services.Object3DBuilder;
+import org.andresoviedo.android_3d_model_engine.services.Object3DPacker;
 import org.andresoviedo.android_3d_model_engine.services.Object3DUnpacker;
 import org.andresoviedo.android_3d_model_engine.services.collada.ColladaLoaderTask;
 import org.andresoviedo.android_3d_model_engine.services.stl.STLLoaderTask;
@@ -148,13 +149,11 @@ public class SceneLoader implements LoaderTask.Callback {
     /**
      * time when model loading has started (for stats)
      */
-    private long startTime;
 
     private Object3DData previous3DData = null;
 
     private final float MAGNIFICATION = 16.5f;
-    private float[] RED_COLOR =  new float[] {1f, 0f, 0f, 1f};
-    private float[] GREEN_COLOR =  new float[] {0f, 1f, 0f, 1f};
+    private float[] RED_COLOR = new float[]{1f, 0f, 0f, 1f};
 
     public interface Callback {
         void onSelectedObjectChanged(Object3DData selectedObject);
@@ -176,9 +175,17 @@ public class SceneLoader implements LoaderTask.Callback {
             return;
         }
 
-        startTime = SystemClock.uptimeMillis();
         Uri uri = parent.getParamUri();
-        new WavefrontLoaderTask(parent, uri, this).execute();
+        Log.i("Object3DBuilder", "Loading model " + uri + ". async and parallel..");
+        if (FilenameUtils.getExtension(uri.toString()).equals("obj")) {
+            new WavefrontLoaderTask(parent, uri, this).execute();
+        } else if (FilenameUtils.getExtension(uri.toString()).equals("stl")) {
+            Log.i("Object3DBuilder", "Loading STL object from: " + uri);
+            new STLLoaderTask(parent, uri, this).execute();
+        } else if (FilenameUtils.getExtension(uri.toString()).equals("dae")) {
+            Log.i("Object3DBuilder", "Loading Collada object from: " + uri);
+            new ColladaLoaderTask(parent, uri, this).execute();
+        }
     }
 
     public boolean isDrawAxis() {
@@ -243,7 +250,7 @@ public class SceneLoader implements LoaderTask.Callback {
         camera.translateCamera(0.0025f, 0f);
     }
 
-    synchronized void addObject(Object3DData obj) {
+    synchronized public void addObject(Object3DData obj) {
         List<Object3DData> newList = new ArrayList<Object3DData>(objects);
         newList.add(obj);
         this.objects = newList;
@@ -465,8 +472,6 @@ public class SceneLoader implements LoaderTask.Callback {
         if (!allErrors.isEmpty()) {
             makeToastText(allErrors.toString(), Toast.LENGTH_LONG);
         }
-        final String elapsed = (SystemClock.uptimeMillis() - startTime) / 1000 + " secs";
-        makeToastText("Build complete (" + elapsed + ")", Toast.LENGTH_LONG);
         ContentUtils.setThreadActivity(null);
     }
 
@@ -481,13 +486,10 @@ public class SceneLoader implements LoaderTask.Callback {
         return selectedObject;
     }
 
-    public void setCallback(Callback callback) {
-        this.callback = callback;
-    }
-
     private void setSelectedObject(Object3DData selectedObject) {
         this.selectedObject = selectedObject;
-        callback.onSelectedObjectChanged(selectedObject);
+        if (callback != null)
+            callback.onSelectedObjectChanged(selectedObject);
     }
 
     public void loadTexture(Object3DData obj, Uri uri) throws IOException {
@@ -523,66 +525,30 @@ public class SceneLoader implements LoaderTask.Callback {
                 }
             }
         }
-
-
-
-        //TODO Need to change right code
-        if (selectedObject != null) {
-            /*
-            if (!selectedObject.getUri().equals(Uri.parse("assets://assets/models/Point.obj")))
-                createPointCube();
-             */
-        }
     }
 
-    // create point cube to selected object
-    private void createPointCube() {
-        List<float[]> vertexArrayList;
-
-        ContentUtils.setThreadActivity(parent);
-        ContentUtils.provideAssets(parent);
-
-        if(selectedObject.getIsClicked() == false) {
-            Object3DUnpacker disorganization = new Object3DUnpacker(selectedObject);
-            disorganization.unpackingArrayBuffer();
-            disorganization.unpackingBuffer();
-            vertexArrayList = disorganization.getVertexArrayList();
-
-            for (int i = 0; i < vertexArrayList.size(); i++) {
-                Object3DData objPoint = Object3DBuilder.loadV5(parent, Uri.parse("assets://assets/models/Point.obj"));
-                objPoint.setPosition(new float[] {
-                        vertexArrayList.get(i)[0] * MAGNIFICATION,
-                        vertexArrayList.get(i)[1] * MAGNIFICATION,
-                        vertexArrayList.get(i)[2] * MAGNIFICATION });
-                objPoint.setScale(new float[]{0.3f, 0.3f, 0.3f});
-                objPoint.setColor(RED_COLOR);
-                addObject(objPoint);
-            }
-
-            ContentUtils.setThreadActivity(null);
-            ContentUtils.clearDocumentsProvided();
-
-            selectedObject.setIsClicked(true);
-        }
-    }
-
-    private void savingBuffer(List<Object3DData> objects, Object3DData selectedObject)  {
+    private void savingBuffer(List<Object3DData> objects, Object3DData targetObject) {
         List<Object3DData> objPoints = new ArrayList<Object3DData>();
+        Object3DPacker packer = new Object3DPacker(targetObject);
 
-        for(Object3DData obj : objects) {
-            if(obj.getOriginal_id() == selectedObject.getId())
+        for (Object3DData obj : objects) {
+            if (obj.getOriginalId().equals(targetObject.getId()))
                 objPoints.add(obj);
         }
 
-        for(Object3DData obj : objPoints) {
-            float[] position = obj.getPosition();
+        for (int i = 0; i < objPoints.size(); i++) {
+            float[] position = objPoints.get(i).getPosition();
 
-            for(int i = 0; i < 3; i++) {
-                position[i] /= MAGNIFICATION;
+            for (int j = 0; j < 3; j++) {
+                position[j] /= MAGNIFICATION;
             }
 
-            //TODO packing functions place
+            packer.packingBuffer(position, i * 3);
         }
+
+        packer.packingArrayBuffer();
+
+        selectedObject.setVertexArrayBuffer(packer.getVertexArrayBuffer());
     }
 
     private static ByteBuffer createNativeByteBuffer(int length) {
@@ -599,5 +565,9 @@ public class SceneLoader implements LoaderTask.Callback {
 
     public boolean isRotatingLight() {
         return rotatingLight;
+    }
+
+    public void setCallback(Callback callback) {
+        this.callback = callback;
     }
 }

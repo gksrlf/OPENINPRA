@@ -96,8 +96,8 @@ public class ContentUtils {
         if (uri != null) {
             return getInputStream(uri);
         }
-        Log.w("ContentUtils","Media not found: "+path);
-        Log.w("ContentUtils","Available media: "+documentsProvided);
+        Log.w("ContentUtils", "Media not found: " + path);
+        Log.w("ContentUtils", "Available media: " + documentsProvided);
         return null;
     }
 

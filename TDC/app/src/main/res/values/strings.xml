@@ -9,6 +9,7 @@
     <string name="album">앨범</string>
     <string name="image_description">이미지</string>
     <string name="name">이름</string>
+    <string name="upload">업로드</string>
     <string name="uploading">업로드 중…</string>
     <string name="downloading">다운로드 중…</string>
     <string name="deleting">삭제 중…</string>

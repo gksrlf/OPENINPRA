@@ -2,7 +2,6 @@ package com.little_wizard.tdc.ui.draw;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.ImageDecoder;
@@ -139,9 +138,9 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
 
             case R.id.draw_mode:
                 if (!isDrawMode) {
-                    item.setIcon(R.drawable.ic_baseline_pan_tool_24);
+                    item.setIcon(R.drawable.ic_pan);
                 } else {
-                    item.setIcon(R.drawable.ic_baseline_edit_24);
+                    item.setIcon(R.drawable.ic_edit);
                 }
                 isDrawMode = !isDrawMode;
                 m.setItemMode(isDrawMode);
@@ -174,10 +173,11 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
                 recycler.setAdapter(adapter);
                 adapter.setElementList(objectBuffer.getBuffer());
                 builder.setView(recycler);
-                builder.setNegativeButton("CANCEL", (dialogInterface, i) -> {
+                builder.setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
 
                 });
-                builder.setPositiveButton("UPLOAD", (dialogInterface, i) -> {
+                builder.setPositiveButton(R.string.upload, (dialogInterface, i) -> {
+                    upload(objectBuffer.getName());
                 });
                 dialog = builder.create();
                 dialog.show();
@@ -250,9 +250,9 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
         return null;
     }
 
-    public void readFile(String filename) {
+    public void readFile(String fileName) {
         try {
-            File file = new File(getExternalCacheDir() + "/" + filename + ".txt");
+            File file = new File(getExternalCacheDir() + "/" + fileName + ".txt");
             FileReader reader = new FileReader(file);
             char[] buffer = new char[20];
 
@@ -261,13 +261,13 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
             }
             reader.close();
         } catch (FileNotFoundException e) {
-            Toast.makeText(this, filename + "이 존재하지 않음", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, fileName + "이 존재하지 않음", Toast.LENGTH_LONG).show();
         } catch (IOException e) {
         }
     }
 
-    private void upload(String filename, String dataType) {
-        File file = new File(String.format("%s/%s.%s", getExternalCacheDir().toString(), filename, dataType));
+    private void upload(String fileName, String dataType) {
+        File file = new File(String.format("%s/%s.%s", getExternalCacheDir().toString(), fileName, dataType));
         transfer.upload(R.string.s3_bucket, file.getName(), file);
     }
 

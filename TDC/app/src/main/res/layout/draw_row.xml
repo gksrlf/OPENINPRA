@@ -24,5 +24,5 @@
         android:layout_gravity="end"
         android:id="@+id/row_button"
         android:background="#00000000"
-        android:src="@drawable/ic_baseline_clear_24"/>
+        android:src="@drawable/ic_clear"/>
 </androidx.cardview.widget.CardView>

@@ -34,7 +34,6 @@ public class Object3DData {
 	 * The directory where the files reside so we can build referenced files in the model like material and textures
 	 * files
 	 */
-	private Uri uri;
 	/**
 	 * The assets directory where the files reside so we can build referenced files in the model like material and
 	 * textures files
@@ -45,7 +44,7 @@ public class Object3DData {
 	private boolean flipTextCoords = true;
 
 	// get original 3D Data's id for point objects
-	private String original_id;
+	private String originalId;
 
 	// Model data for the simplest object
 
@@ -208,9 +207,9 @@ public class Object3DData {
 	}
 
 	//TODO ------- get, set String type original id functions --------
-	public String getOriginal_id() { return original_id; }
-	public void setOriginal_id(String original_id) {
-		this.original_id = original_id;
+	public String getOriginalId() { return originalId; }
+	public void setOriginalId(String original_id) {
+		this.originalId = original_id;
 	}
 
 	/**
@@ -413,22 +412,6 @@ public class Object3DData {
 	public Object3DData setDrawOrder(IntBuffer drawBuffer) {
 		this.drawOrderBuffer = drawBuffer;
 		return this;
-	}
-
-	/*public File getCurrentDir() {
-		return currentDir;
-	}
-
-	public void setCurrentDir(File currentDir) {
-		this.currentDir = currentDir;
-	}*/
-
-	public void setUri(Uri uri) {
-		this.uri = uri;
-	}
-
-	public Uri getUri() {
-		return this.uri;
 	}
 
 	public boolean isDrawUsingArrays() {

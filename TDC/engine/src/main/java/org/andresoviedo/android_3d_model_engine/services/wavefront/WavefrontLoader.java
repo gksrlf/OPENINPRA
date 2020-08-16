@@ -68,8 +68,6 @@ public class WavefrontLoader {
 	private FaceMaterials faceMats; // materials used by faces
 	private Materials materials; // materials defined in MTL file
 	private ModelDimensions modelDims; // model dimensions
-
-	private String modelNm; // without path or ".OBJ" extension
 	private float maxSize; // for scaling the model
 
 	// metadata
@@ -90,13 +88,9 @@ public class WavefrontLoader {
 	// flags
 	private static final int triangleMode = GLES20.GL_TRIANGLE_FAN;
 
-	public WavefrontLoader(String nm) {
-		modelNm = nm;
+	public WavefrontLoader() {
 		maxSize = 1.0F;
-
 		texCoords = new ArrayList<Tuple3>();
-
-
 		faceMats = new FaceMaterials();
 		modelDims = new ModelDimensions();
 	} // end of initModelData()

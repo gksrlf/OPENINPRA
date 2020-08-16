@@ -1,6 +1,7 @@
 package org.andresoviedo.android_3d_model_engine.services;
 
 import android.app.Activity;
+import android.content.res.AssetManager;
 import android.net.Uri;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
@@ -368,103 +369,31 @@ public final class Object3DBuilder {
 				.setDrawMode(GLES20.GL_LINES).setFaces(new Faces(0));
 	}
 
-	public static Object3DData buildCubeV1() {
-		return new Object3DData(
-				createNativeByteBuffer(cubePositionData.length * 4).asFloatBuffer().put(cubePositionData))
-				.setDrawMode(GLES20.GL_TRIANGLES).setId("cubeV1").centerAndScale(1.0f).setFaces(new Faces(8));
-	}
-
-	public static Object3DData buildCubeV1_with_normals() {
-		return new Object3DData(
-				createNativeByteBuffer(cubePositionData.length * 4).asFloatBuffer().put(cubePositionData))
-				.setVertexColorsArrayBuffer(
-						createNativeByteBuffer(cubeColorData.length * 4).asFloatBuffer().put(cubeColorData))
-				.setVertexNormalsArrayBuffer(
-						createNativeByteBuffer(cubeNormalData.length * 4).asFloatBuffer().put(cubeNormalData))
-				.setDrawMode(GLES20.GL_TRIANGLES).setId("cubeV1_light").centerAndScale(1.0f).setFaces(new Faces(8));
-	}
-
-	public static Object3DData buildSquareV2() {
-		IntBuffer drawBuffer = createNativeByteBuffer(squareDrawOrderData.length * 4).asIntBuffer().put(squareDrawOrderData);
-		FloatBuffer vertexBuffer = createNativeByteBuffer(squarePositionData.length * 4).asFloatBuffer().put(squarePositionData);
-		return new Object3DData(vertexBuffer,drawBuffer.asReadOnlyBuffer()).setDrawMode(GLES20.GL_TRIANGLES).setId("cubeV2")
-				.centerAndScale(1.0f).setFaces(new Faces(8)).setDrawOrder(drawBuffer).setVertexArrayBuffer(vertexBuffer);
-	}
-
-	public static Object3DData buildCubeV3(byte[] textureData) {
-		return new Object3DData(
-				createNativeByteBuffer(cubePositionData.length * 4).asFloatBuffer().put(cubePositionData),
-				createNativeByteBuffer(cubeTextureCoordinateData.length * 4).asFloatBuffer()
-						.put(cubeTextureCoordinateData).asReadOnlyBuffer(),
-				textureData).setDrawMode(GLES20.GL_TRIANGLES).setId("cubeV3").centerAndScale(1.0f).setFaces(new Faces(8));
-	}
-
-	public static Object3DData buildCubeV4(byte[] textureData) {
-		return new Object3DData(
-				createNativeByteBuffer(cubePositionData.length * 4).asFloatBuffer().put(cubePositionData),
-				createNativeByteBuffer(cubeColorDataWithTransparency.length * 4).asFloatBuffer().put(cubeColorDataWithTransparency)
-						.asReadOnlyBuffer(),
-				createNativeByteBuffer(cubeTextureCoordinateData.length * 4).asFloatBuffer()
-						.put(cubeTextureCoordinateData).asReadOnlyBuffer(),
-				textureData).setDrawMode(GLES20.GL_TRIANGLES).setId("cubeV4").centerAndScale(1.0f).setFaces(new Faces(8));
-	}
-
-	public static Object3DData loadV5(Activity activity, Uri modelUri) {
+	//TODO --------Custom build Object3DData Loader ------------
+	public static Object3DData loadSelectedObjectPoints(Activity activity, String modelPath, Object3DData targetObject) {
 		try {
-			//final String modelId = assetDir + "/" + assetFilename;
-
-			InputStream is = new URL(modelUri.toString()).openStream();
-			WavefrontLoader wfl = new WavefrontLoader(modelUri.toString());
+			AssetManager am = activity.getAssets();
+			InputStream is = am.open(modelPath);
+			WavefrontLoader wfl = new WavefrontLoader();
 			wfl.analyzeModel(is);
 			is.close();
 
 			wfl.allocateBuffers();
 
-			is = new URL(modelUri.toString()).openStream();
+			is = am.open(modelPath);
 			wfl.loadModel(is);
 			is.close();
 
 			Object3DData data3D = new Object3DData(wfl.getVerts(), wfl.getNormals(), wfl.getTexCoords(), wfl.getFaces(),
 					wfl.getFaceMats(), wfl.getMaterials());
-			data3D.setId(modelUri.toString());
-			data3D.setUri(modelUri);
+			data3D.setId(modelPath);
+			// set original 3D data's uri
+			data3D.setOriginalId(targetObject.getId());
+
 			// data3D.setAssetsDir(assetDir);
 			data3D.setDimensions(wfl.getDimensions());
 			//data3D.centerAndScale(5,new float[]{0,0,0});
 			data3D.centerScale();
-
-			data3D.setDrawMode(GLES20.GL_TRIANGLES);
-			generateArrays(data3D);
-
-			return data3D;
-		} catch (IOException ex) {
-			throw new RuntimeException(ex);
-		}
-	}
-
-	//TODO --------Custom build Object3DData Loader ------------
-	public static Object3DData loadCustom(Activity activity, Uri modelUri) {
-		try {
-			//final String modelId = assetDir + "/" + assetFilename;
-
-			InputStream is = new URL(modelUri.toString()).openStream();
-			WavefrontLoader wfl = new WavefrontLoader(modelUri.toString());
-			wfl.analyzeModel(is);
-			is.close();
-
-			wfl.allocateBuffers();
-
-			is = new URL(modelUri.toString()).openStream();
-			wfl.loadModel(is);
-			is.close();
-
-			Object3DData data3D = new Object3DData(wfl.getVerts(), wfl.getNormals(), wfl.getTexCoords(), wfl.getFaces(),
-					wfl.getFaceMats(), wfl.getMaterials());
-			data3D.setId(modelUri.toString());
-			data3D.setUri(modelUri);
-			// data3D.setAssetsDir(assetDir);
-			data3D.setDimensions(wfl.getDimensions());
-			//data3D.centerAndScale(5,new float[]{0,0,0});
 
 			data3D.setDrawMode(GLES20.GL_TRIANGLES);
 			generateArrays(data3D);

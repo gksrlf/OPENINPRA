@@ -1,8 +1,11 @@
 package com.little_wizard.tdc.util.view;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,11 +27,14 @@ import com.little_wizard.tdc.util.demo.ModelSurfaceView;
 import com.little_wizard.tdc.util.demo.SceneLoader;
 
 import org.andresoviedo.android_3d_model_engine.model.Object3DData;
+import org.andresoviedo.android_3d_model_engine.services.Object3DBuilder;
+import org.andresoviedo.android_3d_model_engine.services.Object3DUnpacker;
 import org.andresoviedo.util.android.ContentUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -76,6 +82,9 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
     private boolean scaleSliderVisible = false;
     private boolean axisSliderVisible = false;
     private Object3DData selectedObject;
+
+    private float[] RED_COLOR = new float[]{1f, 0f, 0f, 1f};
+    private float[] GREEN_COLOR = new float[]{0f, 1f, 0f, 1f};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -177,10 +186,19 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
 
     @OnClick(R.id.select)
     public void onSelectClicked() {
+        if (selectedObject != null) {
+            if (!selectedObject.getId().equals("models/Point.obj")) {
+                if (selectedObject.getIsClicked()) {
+                    selectedObject.setIsClicked(false);
+                    destroyPointCube();
+                } else createPointCube();
+            }
+        }
     }
 
     @OnClick(R.id.scale)
     public void onScaleClicked() {
+        if (selectedObject.getIsClicked()) destroyPointCube();
         if (axisSliderVisible) {
             axisSliderVisible = false;
             axisSliderLayout.setVisibility(View.GONE);
@@ -191,12 +209,53 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
 
     @OnClick(R.id.transform)
     public void onTransformClicked() {
+        if (selectedObject.getIsClicked()) destroyPointCube();
         if (scaleSliderVisible) {
             scaleSliderVisible = false;
             scaleSlider.setVisibility(View.GONE);
         }
         axisSliderVisible = !axisSliderVisible;
         axisSliderLayout.setVisibility(axisSliderVisible ? View.VISIBLE : View.GONE);
+    }
+
+    private void createPointCube() {
+        List<float[]> vertexArrayList;
+
+        ContentUtils.setThreadActivity(this);
+        ContentUtils.provideAssets(this);
+
+        if (!selectedObject.getIsClicked()) {
+            Object3DUnpacker unPacker = new Object3DUnpacker(selectedObject);
+
+            unPacker.unpackingArrayBuffer();
+            unPacker.unpackingBuffer();
+            vertexArrayList = unPacker.getVertexArrayList();
+
+            for (int i = 0; i < vertexArrayList.size(); i++) {
+                Object3DData objPoint = Object3DBuilder.loadSelectedObjectPoints(this, "models/Point.obj", selectedObject);
+                objPoint.setPosition(new float[]{
+                        vertexArrayList.get(i)[0] * 16.5f + selectedObject.getPositionX(),
+                        vertexArrayList.get(i)[1] * 16.5f + selectedObject.getPositionY(),
+                        vertexArrayList.get(i)[2] * 16.5f + selectedObject.getPositionZ()});
+                objPoint.setScale(new float[]{0.3f, 0.3f, 0.3f});
+                objPoint.setColor(RED_COLOR);
+                scene.addObject(objPoint);
+            }
+
+            ContentUtils.setThreadActivity(null);
+            ContentUtils.clearDocumentsProvided();
+
+            selectedObject.setIsClicked(true);
+        }
+    }
+
+    private void destroyPointCube() {
+        List<Object3DData> objects = scene.getObjects();
+        for (int i = 0; i < objects.size(); i++) {
+            if (objects.get(i).getId().equals("models/Point.obj")) {
+                objects.remove(i--);
+            }
+        }
     }
 
     private void sliderInit() {
@@ -274,8 +333,11 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
 
     @Override
     public void onSelectedObjectChanged(Object3DData selectedObject) {
+        Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        vibe.vibrate(VibrationEffect.createOneShot(10, VibrationEffect.DEFAULT_AMPLITUDE));
         this.selectedObject = selectedObject;
         if (selectedObject == null) {
+            destroyPointCube();
             axisSliderVisible = false;
             scaleSliderVisible = false;
             axisSliderLayout.setVisibility(View.GONE);

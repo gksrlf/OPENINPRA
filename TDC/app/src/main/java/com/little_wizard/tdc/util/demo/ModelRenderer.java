@@ -416,6 +416,7 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 				}
 
 				// Draw bounding box
+				/*
 				if (scene.isDrawBoundingBox() || scene.getSelectedObject() == objData) {
 					Object3DData boundingBoxData = boundingBoxes.get(objData);
                     if (boundingBoxData == null || changed) {
@@ -426,6 +427,7 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 					boundingBoxDrawer.draw(boundingBoxData, projectionMatrix, viewMatrix, -1,
                             lightPosInWorldSpace, colorMask, cameraPosInWorldSpace);
 				}
+				 */
 
 				// Draw normals
 				if (scene.isDrawNormals()) {

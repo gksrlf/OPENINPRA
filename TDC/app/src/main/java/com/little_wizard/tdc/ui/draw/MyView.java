@@ -29,6 +29,7 @@ public class MyView extends View {
 
     private static int pointCount = 0;
     private final int pick = 3;
+    private final int unitPixel = 1;
 
     private DrawQueue drawQueue;
 
@@ -40,7 +41,7 @@ public class MyView extends View {
     private int paintColor = 0xFFFF0000;
     private Canvas drawCanvas;
     private Bitmap canvasBitmap, originalBitmap;
-    private int paintWidth = 5;
+    private final int paintWidth = 5;
 
     private float width;
     private float height;
@@ -68,7 +69,9 @@ public class MyView extends View {
     private float line;
     private float originalLine;
 
-    ArrayList<Coordinates> list = new ArrayList<>();
+    ArrayList<Coordinates> listX = new ArrayList<>();
+    ArrayList<Coordinates> listY = new ArrayList<>();
+    Coordinates start, end;
 
     public MyView(Context context, int displayHeight, int displayWidth, int mode) {
         super(context);
@@ -124,7 +127,6 @@ public class MyView extends View {
         float absY = 1 / magnification * (event.getY() - mPosY);
         Log.d("onTouchEvent absolute", String.format("%f, %f", absX, absY));
         Bitmap previousBitmap = canvasBitmap.copy(Bitmap.Config.ARGB_8888, true);
-        //ArrayList<Coordinates> list = new ArrayList<>();
         Log.d("confirmation", String.format("%b", confirmation));
         Coordinates lastPoint = drawQueue.getLastPoint();
 
@@ -149,7 +151,9 @@ public class MyView extends View {
                             }
                             viewPath.moveTo(event.getX(), event.getY());
                         }
-                        list.add(new Coordinates(absX, absY));
+                        if((int)absX % unitPixel == 0) listX.add(new Coordinates((int)absX, (int)absY));
+                        if((int)absY % unitPixel == 0) listY.add(new Coordinates((int)absX, (int)absY));
+                        start = new Coordinates((int)absX, (int)absY);
                         mode = DROW;
                     } else {
                         posX1 = (int) event.getX();
@@ -176,22 +180,28 @@ public class MyView extends View {
                 } else if (mode == DROW && !confirmation) {
                     if (isInPicture(event)) {
                         viewPath.lineTo(event.getX(), event.getY());
+
+                        if((int)absX % unitPixel == 0) listX.add(new Coordinates((int)absX, (int)absY));
+                        if((int)absY % unitPixel == 0) listY.add(new Coordinates((int)absX, (int)absY));
                         pointCount++;
                         if (pointCount % pick == 0) {
                             drawPath.lineTo(absX, absY);
-                            list.add(new Coordinates(absX, absY));
                             pointCount = 0;
                             Log.d("getPointer", String.valueOf(absX) + "," + String.valueOf(absY));
                         }
                     } else { //draw상태에서 사진 범위 넘어갔을 때
                         mode = NONE;
-                        list.add(new Coordinates(absX, absY));
+                        if((int)absX % unitPixel == 0) listX.add(new Coordinates((int)absX, (int)absY));
+                        if((int)absY % unitPixel == 0) listY.add(new Coordinates((int)absX, (int)absY));
                         drawPath.lineTo(absX, absY);
                         viewPath.lineTo(event.getX(), event.getY());
                         drawCanvas.drawPath(drawPath, drawPaint);
                         drawPath.reset();
                         viewPath.reset();
-                        drawQueue.push(previousBitmap, list);
+
+                        end = new Coordinates((int)absX, (int)absY);
+                        drawQueue.push(listX, listY);
+                        drawQueue.push(previousBitmap, start, end);
                     }
                 } else {
                     magnification = width / originalWidth;
@@ -211,7 +221,6 @@ public class MyView extends View {
 
                             oldDist = newDist;
                         }
-
                     } else if (oldDist - newDist > 20) {  // zoom out
                         if (magnification <= 1f) {
                             newDist = pastDist;
@@ -232,14 +241,20 @@ public class MyView extends View {
                 break;
             case MotionEvent.ACTION_UP:
                 if (mode == DROW && !confirmation) {
-                    list.add(new Coordinates(absX, absY));
+                    if((int)absX % unitPixel == 0) listX.add(new Coordinates((int)absX, (int)absY));
+                    if((int)absY % unitPixel == 0) listY.add(new Coordinates((int)absX, (int)absY));
                     drawPath.lineTo(absX, absY);
                     viewPath.lineTo(event.getX(), event.getY());
                     drawCanvas.drawPath(drawPath, drawPaint);
                     drawPath.reset();
                     viewPath.reset();
-                    drawQueue.push(previousBitmap, list);
-                    list.clear();
+
+                    end = new Coordinates((int)absX, (int)absY);
+                    drawQueue.push(listX, listY);
+                    drawQueue.push(previousBitmap, start, end);
+
+                    listX.clear();
+                    listY.clear();
                     if(drawQueue.isClear()){
                         setClearMenu();
                     }else{
@@ -288,7 +303,8 @@ public class MyView extends View {
             mPosX = (displayWidth - width) / 2;
             mPosY = 0;
         }
-        drawQueue.push(bitmap, null);
+        drawQueue.push(bitmap, null, null);
+        drawQueue.push(null, null);
         line = originalLine;
         scale = 1f;
         magnification = 1f;
@@ -298,8 +314,24 @@ public class MyView extends View {
         isDrawMode = mode;
     }
 
-    public List getList() {
-        return drawQueue.getResult();
+    public List getListX() {
+        return drawQueue.getResultX();
+    }
+
+    public List getListY() {
+        return drawQueue.getResultY();
+    }
+
+    public ArrayList<Coordinates> getSymmetryResult(){
+        return drawQueue.getResultY();
+    }
+
+    public ArrayList<Coordinates> getPairX(){
+        return drawQueue.getPairX();
+    }
+
+    public ArrayList<Coordinates> getPairY(){
+        return drawQueue.getPairY();
     }
 
     public void undo() {
@@ -349,16 +381,27 @@ public class MyView extends View {
             Coordinates lastPoint = drawQueue.getLastPoint();
             //TODO: 대칭일때 마지막 점 처리 (완료)
             drawPath.moveTo(lastPoint.getX(), lastPoint.getY());
+
+            Coordinates start = lastPoint;
+            Coordinates end;
             if (photo_mode == ASYMMETRY) {
                 point.add(new Coordinates(startX, startY));
+                end = new Coordinates(startX, startY);
                 drawPath.lineTo(startX, startY);
             } else {
                 point.add(new Coordinates(originalLine, lastPoint.getY()));
+                end = new Coordinates(originalLine, lastPoint.getY());
                 drawPath.lineTo(originalLine, lastPoint.getY());
             }
             drawCanvas.drawPath(drawPath, drawPaint);
+            drawQueue.push(previousBitmap, start, end);
 
-            drawQueue.push(previousBitmap, point);
+            ArrayList<Coordinates> lastPointX = new ArrayList<>();
+            lastPointX.add(drawQueue.getLastPointX());
+            ArrayList<Coordinates> lastPointY = new ArrayList<>();
+            lastPointY.add(drawQueue.getLastPointY());
+            drawQueue.push(lastPointX, lastPointY);
+
             drawPath.reset();
             invalidate();
         } else {
@@ -406,5 +449,9 @@ public class MyView extends View {
 
     public Bitmap getCroppedImage(){
         return Bitmap.createBitmap(originalBitmap, drawQueue.getStartX(), drawQueue.getStartY(), drawQueue.getWidth(), drawQueue.getHeight());
+    }
+
+    public float getLine(){
+        return originalLine;
     }
 }

@@ -20,7 +20,8 @@ public class ObjectBuffer {
         public Bitmap getBitmap() {
             return bitmap;
         }
-        public List<Coordinates> getList(){
+
+        public List<Coordinates> getList() {
             return list;
         }
     }
@@ -29,6 +30,7 @@ public class ObjectBuffer {
     String filepath;
     List<Element> buffer;
     Bitmap originalImage;
+    String mode;
 
     public ObjectBuffer(String filepath, String filename, Bitmap bitmap) {
         this.filepath = filepath;
@@ -59,14 +61,27 @@ public class ObjectBuffer {
         //TODO: 파일 이름 filename - index 꼴로 bitmap, text 업로드
     }
 
-    public void setName(String name){
+    public void setName(String name) {
         filename = name;
     }
-    public String getName(){return filename;}
-    public Element getElement(int index){
+
+    public String getName() {
+        return filename;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
+
+    public String getMode(){
+        return mode;
+    }
+
+    public Element getElement(int index) {
         return buffer.get(index);
     }
-    public Bitmap getOriginalImage(){
+
+    public Bitmap getOriginalImage() {
         return originalImage;
     }
 }

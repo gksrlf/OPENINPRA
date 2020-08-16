@@ -2,12 +2,15 @@ package com.little_wizard.tdc.ui.draw;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.ImageDecoder;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
@@ -44,6 +47,7 @@ import java.util.List;
 public class DrawActivity extends AppCompatActivity implements S3Transfer.TransferCallback, DrawAdapter.ItemClickListener {
     public static final int ASYMMETRY = 1;
     public static final int SYMMETRY = 2;
+    public static final int FLAT = 3;
 
     private MyView m;
     private boolean isDrawMode = false;
@@ -63,6 +67,14 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
     AlertDialog dialog;
     DrawAdapter adapter;
 
+    List resultList;
+    String axis;
+
+    Context mContext;
+
+    private AlertDialog alertDialog;
+    private BackgroundThread backgroundThread;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,6 +88,8 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
         transfer = new S3Transfer(this);
         transfer.setCallback(this);
 
+        mContext = this;
+
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage(getString(R.string.uploading));
         progressDialog.setCancelable(false);
@@ -88,8 +102,10 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
             String mode = intent.getStringExtra("MODE");
             if (mode.equals("ASYMMETRY")) {//비대칭일 때 갤러리 사진 Uri 가져옴
                 m = new MyView(this, viewHeight, viewWidth, ASYMMETRY);
-            } else { // 대칭일 때 byte array 가져옴, 축 설정
+            } else if (mode.equals("SYMMETRY")) { // 대칭일 때 byte array 가져옴, 축 설정
                 m = new MyView(this, viewHeight, viewWidth, SYMMETRY);
+            } else {
+                m = new MyView(this, viewHeight, viewWidth, FLAT);
             }
             line = intent.getFloatExtra("LINE", Float.MIN_VALUE);
             try {
@@ -101,11 +117,12 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
 
-        filepath = getExternalCacheDir() + "/";
-        filename = Long.toString(ZonedDateTime.now().toInstant().toEpochMilli());
-        objectBuffer = new ObjectBuffer(filepath, filename, bitmap);
+            filepath = getExternalCacheDir() + "/";
+            filename = Long.toString(ZonedDateTime.now().toInstant().toEpochMilli());
+            objectBuffer = new ObjectBuffer(filepath, filename, bitmap);
+            objectBuffer.setMode(mode);
+        }
 
         //레이아웃 설정
         setContentView(R.layout.activity_draw);
@@ -153,10 +170,18 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
 
             case R.id.draw_confirmation:
                 m.setConfirmation(true);
-                List list = m.getList();
+                if (!objectBuffer.getMode().equals("SYMMETRY")) {
+                    selectAxis();
+                    resultList = m.getPairX();
+                    //backgroundThread = new BackgroundThread();
+                    //backgroundThread.setRunning(true);
+                    //backgroundThread.start();
+                } else {
+                    resultList = m.getSymmetryResult();
+                }
                 Bitmap bitmap = m.getCroppedImage().copy(Bitmap.Config.ARGB_8888, true);
-                if (list != null) {
-                    List newList = new ArrayList<Coordinates>(list);
+                if (resultList != null) {
+                    List newList = new ArrayList<Coordinates>(resultList);
                     objectBuffer.push(bitmap, newList);
                     Toast.makeText(this, "추가 완료", Toast.LENGTH_SHORT).show();
                 }
@@ -200,7 +225,6 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
         } else {
             newWidth = (int) (viewHeight / rate);
         }
-
         line = (line * newWidth) / width;
         return Bitmap.createScaledBitmap(source, (int) newWidth, (int) newHeight, true);
     }
@@ -222,9 +246,34 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
             //파일쓰기
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fos));
 
-            for (Coordinates c : list) {
-                writer.write(String.format("%f;%f;\n", c.getX(), c.getY()));
-                writer.flush();
+            String mode = objectBuffer.getMode();
+            writer.write(String.format("%s\n", mode));
+            if (mode.equals("SYMMETRY")) {
+                float axis = m.getLine() / 1000;
+                writer.write(String.format("%f\n", axis));
+                ArrayList<Coordinates> result = m.getSymmetryResult();
+                for (Coordinates c : result) {
+                    writer.write(String.format("%f\n%f\n", c.getX(), c.getY()));
+                    writer.flush();
+                }
+            } else {
+                //TODO: TreeMap<Float, Set<Float>> => TreeMap<Float, TreeSet<Float>>
+                writer.write(String.format("%s\n", axis));
+                for (Coordinates c : (ArrayList<Coordinates>) resultList) {
+                    writer.write(String.format("%f %f\n", c.getX(), c.getY()));
+                }
+                //result = resultList;
+                //if(axis.equals("X")){
+                //    result = m.getPairX();
+                //    for(Coordinates c : result){
+                //        writer.write(String.format("%f %f\n", c.getX(), c.getY()));
+                //    }
+                //}else{
+                //    result = m.getPairY();
+                //    for(Coordinates c : result){
+                //        writer.write(String.format("%f %f\n", c.getX(), c.getY()));
+                //    }
+                //}
             }
 
             writer.close();
@@ -342,4 +391,68 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
         builder.show();
     }
 
+    protected void selectAxis() {
+        final String[] menu = {getString(R.string.axis_x), getString(R.string.axis_y)};
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder.setTitle(R.string.photo_type);
+        alertDialogBuilder.setItems(menu, (dialogInterface, i) -> {
+            switch (i) {
+                case 0:
+                    axis = "X";
+                    resultList = m.getPairX();
+
+                    break;
+                case 1:
+                    axis = "Y";
+                    resultList = m.getPairY();
+                    break;
+                default:
+                    break;
+            }
+        });
+        alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+    }
+
+    protected class BackgroundThread extends Thread {
+        volatile boolean running = false;
+        int cnt;
+
+        void setRunning(boolean b) {
+            running = b;
+            cnt = 7;
+        }
+
+        @Override
+        public void run() {
+            while (running) {
+                try {
+                    sleep(500);
+                    if (cnt-- == 0) {
+                        running = false;
+                    }
+                } catch (InterruptedException e) {
+
+                }
+            }
+            handler.sendMessage(handler.obtainMessage());
+        }
+    }
+
+    Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            alertDialog.dismiss();
+
+            boolean retry = true;
+            while (retry) {
+                try {
+                    backgroundThread.join();
+                    retry = false;
+                } catch (InterruptedException e) {
+
+                }
+            }
+        }
+    };
 }

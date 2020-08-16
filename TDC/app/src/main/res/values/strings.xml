@@ -93,4 +93,7 @@
 
     <!-- To review -->
     <string name="app_logo_desc">Teapot animated logo</string>
+
+    <string name="axis_x">X축 대칭</string>
+    <string name="axis_y">Y축 대칭</string>
 </resources>

@@ -39,7 +39,7 @@ public class MyView extends View {
     private Path drawPath, viewPath;
     private Paint drawPaint, viewPaint, canvasPaint;
     private int paintColor = 0xFFFF0000;
-    
+
     private Canvas drawCanvas;
     private Bitmap canvasBitmap, originalBitmap;
     private final int paintWidth = 5;
@@ -128,7 +128,6 @@ public class MyView extends View {
         float absY = 1 / magnification * (event.getY() - mPosY);
         Log.d("onTouchEvent absolute", String.format("%f, %f", absX, absY));
         Bitmap previousBitmap = canvasBitmap.copy(Bitmap.Config.ARGB_8888, true);
-        Log.d("confirmation", String.format("%b", confirmation));
         Coordinates lastPoint = drawQueue.getLastPoint();
 
         switch (event.getAction() & MotionEvent.ACTION_MASK) {

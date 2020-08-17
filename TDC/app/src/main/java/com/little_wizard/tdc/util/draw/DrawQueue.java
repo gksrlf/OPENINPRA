@@ -220,8 +220,8 @@ public class DrawQueue {
         for (ArrayList<Coordinates> list : listY) {
             if (list == null) continue;
             for (Coordinates c : list) {
-                float key = c.getX() / 1000;
-                float value = c.getY() / 1000;
+                float key = c.getY() / 1000;
+                float value = c.getX() / 1000;
                 if (!hashMap.containsKey(key)) {
                     TreeSet<Float> set = new TreeSet<>();
                     set.add(value);
@@ -240,7 +240,6 @@ public class DrawQueue {
         ArrayList<Coordinates> result = new ArrayList<>();
         for(Float y : treeMap.keySet()){
             if(treeMap.get(y).first() == treeMap.get(y).last()) continue;
-
 
             result.add(new Coordinates(treeMap.get(y).first(), y));
             result.add(new Coordinates(treeMap.get(y).last(), y));

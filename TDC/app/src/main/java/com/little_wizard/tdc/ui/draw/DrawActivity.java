@@ -248,29 +248,16 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
             if (mode.equals("SYMMETRY")) {
                 float axisF = m.getLine() / 1000;
                 writer.write(String.format("%f\n", axisF));
-                ArrayList<Coordinates> result = m.getSymmetryResult();
-                for (Coordinates c : result) {
+                //ArrayList<Coordinates> result = m.getSymmetryResult();
+                for (Coordinates c : list) {
                     writer.write(String.format("%f\n%f\n", c.getX(), c.getY()));
                     writer.flush();
                 }
             } else {
-                //TODO: TreeMap<Float, Set<Float>> => TreeMap<Float, TreeSet<Float>>
                 writer.write(String.format("%s\n", axis));
-                for (Coordinates c : (ArrayList<Coordinates>) resultList) {
+                for (Coordinates c : list) {
                     writer.write(String.format("%f %f\n", c.getX(), c.getY()));
                 }
-                //result = resultList;
-                //if(axis.equals("X")){
-                //    result = m.getPairX();
-                //    for(Coordinates c : result){
-                //        writer.write(String.format("%f %f\n", c.getX(), c.getY()));
-                //    }
-                //}else{
-                //    result = m.getPairY();
-                //    for(Coordinates c : result){
-                //        writer.write(String.format("%f %f\n", c.getX(), c.getY()));
-                //    }
-                //}
             }
 
             writer.close();

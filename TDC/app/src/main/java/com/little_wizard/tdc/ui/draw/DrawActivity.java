@@ -231,6 +231,46 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
     }
 
     // 좌표 리스트를 텍스트 파일로 생성
+    public void saveFile(String filename, ObjectBuffer.Element element) {
+        try {
+            File dir = new File(getExternalCacheDir().toString());
+            //디렉토리 폴더가 없으면 생성함
+            if (!dir.exists()) {
+                dir.mkdir();
+            }
+            //파일 output stream 생성
+            FileOutputStream fos = new FileOutputStream(getExternalCacheDir() + "/" + filename, true);
+            //파일쓰기
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fos));
+
+            String mode = objectBuffer.getMode();
+            float width = (float)element.getBitmap().getWidth();
+            float height = (float)element.getBitmap().getHeight();
+
+            writer.write(String.format("%s\n", mode));
+            writer.write(String.format("%f %f\n", width / 1000, height / 1000));
+            if (mode.equals("SYMMETRY")) {
+                float axisF = m.getLine() / 1000;
+                writer.write(String.format("%f\n", axisF));
+                for (Coordinates c : element.getList()) {
+                    writer.write(String.format("%f\n%f\n", c.getX(), c.getY()));
+                    writer.flush();
+                }
+            } else {
+                writer.write(String.format("%s\n", axis));
+                for (Coordinates c : element.getList()) {
+                    writer.write(String.format("%f %f\n", c.getX(), c.getY()));
+                }
+            }
+
+            writer.close();
+            fos.close();
+        } catch (IOException e) {
+
+        }
+    }
+
+    // 좌표 리스트를 텍스트 파일로 생성
     public void saveFile(String filename, ArrayList<Coordinates> list, String axis) {
         try {
             File dir = new File(getExternalCacheDir().toString());
@@ -362,9 +402,15 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
             int pos = 0;
             for (ObjectBuffer.Element e : objectBuffer.getBuffer()) {
                 file = new File(path + String.format("%s-%d.txt", filename, pos));
-                saveFile(String.format("%s-%d.txt", filename, pos), (ArrayList<Coordinates>) e.getList(), e.getAxis());
+                saveFile(String.format("%s-%d.txt", filename, pos), e);
                 transfer.upload(R.string.s3_bucket, FilenameUtils.getBaseName(text + ".txt")
                         .isEmpty() ? file.getName() : text + ".txt", file);
+
+                file = new File(path + String.format("%s-%d.jpg", filename, pos));
+                saveFile(String.format("%s-%d.jpg", filename, pos),  e.getBitmap());
+                transfer.upload(R.string.s3_bucket, FilenameUtils.getBaseName(text + ".txt")
+                        .isEmpty() ? file.getName() : text + ".jpg", file);
+
                 pos++;
             }
             /*transfer.upload(R.string.s3_bucket, FilenameUtils.getBaseName(text)

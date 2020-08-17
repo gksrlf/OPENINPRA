@@ -240,6 +240,8 @@ public class DrawQueue {
         ArrayList<Coordinates> result = new ArrayList<>();
         for(Float y : treeMap.keySet()){
             if(treeMap.get(y).first() == treeMap.get(y).last()) continue;
+
+
             result.add(new Coordinates(treeMap.get(y).first(), y));
             result.add(new Coordinates(treeMap.get(y).last(), y));
         }

@@ -8,6 +8,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.PointF;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.util.Log;
 import android.view.Display;
@@ -36,6 +37,7 @@ public class MyImageView extends androidx.appcompat.widget.AppCompatImageView {
     float magnification = 1f;
     float centerLine = 0;
     float linePosX;
+    float width, height;
 
     private static final float MIN_ZOOM = 0.7f;
     private static final float MAX_ZOOM = 3.0f;
@@ -67,8 +69,11 @@ public class MyImageView extends androidx.appcompat.widget.AppCompatImageView {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        float pastOldDist = 0;
-        float pastNowDist = 0;
+
+        Rect bounds = getDrawable().getBounds();
+
+        width = bounds.right - bounds.left;
+        height = bounds.bottom - bounds.top;
 
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
@@ -78,8 +83,6 @@ public class MyImageView extends androidx.appcompat.widget.AppCompatImageView {
                 break;
             case MotionEvent.ACTION_POINTER_DOWN:
                 oldDist = spacing(event);
-                pastOldDist = oldDist;
-
                 if (oldDist > 10f) {
                     savedMatrix.set(matrix);
                     midPoint(mid, event);
@@ -96,46 +99,25 @@ public class MyImageView extends androidx.appcompat.widget.AppCompatImageView {
                     savedMatrix.getValues(savedMatrixArray);
                     matrix.getValues(matrixArray);
                     magnification = matrixArray[Matrix.MSCALE_X];
-                    pastNowDist = nowDist;
+
+                    float scaleX = matrixArray[Matrix.MSCALE_X];
+                    float scaleY = matrixArray[Matrix.MSCALE_Y];
+                    if(scaleX > MAX_ZOOM || scaleX < MIN_ZOOM || scaleY > MAX_ZOOM || scaleY < MIN_ZOOM) {
+                        mode = NONE;
+                        break;
+                    }
+
                     nowDist = spacing(event);
 
-                    Log.i("magnification", String.valueOf(magnification));
                     if (nowDist > 10f) {
                         matrix.set(savedMatrix);
                         scale = nowDist / oldDist;
-                        Log.i("scale", String.valueOf(scale));
+
                         nowRadian = Math.atan2(event.getY() - mid.y, event.getX() - mid.x);
                         nowDegree = (nowRadian * 180) / Math.PI;
-                        Log.i("magnification degree", String.valueOf(nowDegree));
-                        /*if(magnification > 3f || magnification < 0.7f){
-                            magnification = magnification>3f?3f:0.7f;
-                            matrix.setValues(new float[]{
-                                    magnification, savedMatrixArray[1], savedMatrixArray[2],
-                                    savedMatrixArray[3], magnification, savedMatrixArray[5],
-                                    savedMatrixArray[6], savedMatrixArray[7], savedMatrixArray[8]
-                            });
-                        }else{
-                            matrix.postScale(scale, scale, mid.x, mid.y);
-                        }*/
-                        /*if(Math.abs(magnification) > 3f || Math.abs(magnification) < 0.7f){
-                            if(magnification > 0){
-                                magnification = magnification > 3f?3f:0.7f;
-                            }else{
-                                magnification = magnification < -3f?-3f:-0.7f;
-                            }
-                            matrix.postScale(magnification / scale, magnification / scale, mid.x, mid.y);
-                            //oldDist = nowDist = 1f;
-                            Log.i("magnification", "DSFSDFSDFSDFSDFSDF");
-                        }else{
-                            matrix.postScale(scale, scale, mid.x, mid.y);
-                        }*/
+
                         matrix.postScale(scale, scale, mid.x, mid.y);
                         matrix.postRotate((float) (nowDegree - oldDegree), mid.x, mid.y);
-
-                        Log.i("magnification", String.format("MPERSP_0 %f MPERSP_1 %f MPERSP_2 %f", matrixArray[Matrix.MPERSP_0], matrixArray[Matrix.MPERSP_1], matrixArray[Matrix.MPERSP_2]));
-                        Log.i("magnification", String.format("MSCALE_X %f MSKEW_X %f MTRANS_X %f", matrixArray[Matrix.MSCALE_X], matrixArray[Matrix.MSKEW_X], matrixArray[Matrix.MTRANS_X]));
-                        Log.i("magnification", String.format("MSCALE_Y %f MSKEW_Y %f MTRANS_Y %f", matrixArray[Matrix.MSCALE_Y], matrixArray[Matrix.MSKEW_Y], matrixArray[Matrix.MTRANS_Y]));
-                        Log.i("realDegree", String.valueOf(getRealDegree()));
                     }
                 }
                 break;
@@ -144,6 +126,9 @@ public class MyImageView extends androidx.appcompat.widget.AppCompatImageView {
                 mode = NONE;
                 break;
         }
+        limitZoom(matrix);
+        limitDrag(matrix);
+
         setImageMatrix(matrix);
         return true;
     }
@@ -219,6 +204,85 @@ public class MyImageView extends androidx.appcompat.widget.AppCompatImageView {
 
         }
         return false;
+    }
+    private void limitZoom(Matrix m) {
+        float[] values = new float[9];
+        m.getValues(values);
+        float scaleX = values[Matrix.MSCALE_X];
+        float scaleY = values[Matrix.MSCALE_Y];
+        if(scaleX > MAX_ZOOM) {
+            scaleX = MAX_ZOOM;
+        } else if(scaleX < MIN_ZOOM) {
+            scaleX = MIN_ZOOM;
+        }
+
+        if(scaleY > MAX_ZOOM) {
+            scaleY = MAX_ZOOM;
+        } else if(scaleY < MIN_ZOOM) {
+            scaleY = MIN_ZOOM;
+        }
+
+        values[Matrix.MSCALE_X] = scaleX;
+        values[Matrix.MSCALE_Y] = scaleY;
+        m.setValues(values);
+
+    }
+
+
+    private void limitDrag(Matrix m) {
+
+        /*float[] values = new float[9];
+        m.getValues(values);
+        float transX = values[Matrix.MTRANS_X];
+        float transY = values[Matrix.MTRANS_Y];
+        float scaleX = values[Matrix.MSCALE_X];
+        float scaleY = values[Matrix.MSCALE_Y];
+//--- limit moving to left ---
+        float minX = (-width + 0) * (scaleX-1);
+        float minY = (-height + 0) * (scaleY-1);
+//--- limit moving to right ---
+        float maxX=minX+width*(scaleX-1);
+        float maxY=minY+height*(scaleY-1);
+        if(transX>maxX){transX = maxX;}
+        if(transX<minX){transX = minX;}
+        if(transY>maxY){transY = maxY;}
+        if(transY<minY){transY = minY;}
+        values[Matrix.MTRANS_X] = transX;
+        values[Matrix.MTRANS_Y] = transY;
+        m.setValues(values);*/
+
+        float[] values = new float[9];
+        m.getValues(values);
+        float transX = values[Matrix.MTRANS_X];
+        float transY = values[Matrix.MTRANS_Y];
+        float scaleX = values[Matrix.MSCALE_X];
+        float scaleY = values[Matrix.MSCALE_Y];
+
+        Rect bounds = getDrawable().getBounds();
+        int viewWidth = getResources().getDisplayMetrics().widthPixels;
+        int viewHeight = getResources().getDisplayMetrics().heightPixels;
+
+        int width = bounds.right - bounds.left;
+        int height = bounds.bottom - bounds.top;
+
+        float minX = (-width + 20) * scaleX;
+        float minY = (-height + 20) * scaleY;
+
+        if(transX > (viewWidth - 20)) {
+            transX = viewWidth - 20;
+        } else if(transX < minX) {
+            transX = minX;
+        }
+
+        if(transY > (viewHeight - 80)) {
+            transY = viewHeight - 80;
+        } else if(transY < minY) {
+            transY = minY;
+        }
+
+        values[Matrix.MTRANS_X] = transX;
+        values[Matrix.MTRANS_Y] = transY;
+        m.setValues(values);
     }
 
     public Bitmap getResult() {

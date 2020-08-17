@@ -172,7 +172,8 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
                 m.setConfirmation(true);
                 if (!objectBuffer.getMode().equals("SYMMETRY")) {
                     selectAxis();
-                    resultList = m.getPairX();
+                    return true;
+                    //resultList = m.getPairX();
                     //backgroundThread = new BackgroundThread();
                     //backgroundThread.setRunning(true);
                     //backgroundThread.start();
@@ -396,20 +397,33 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         alertDialogBuilder.setTitle(R.string.photo_type);
         alertDialogBuilder.setItems(menu, (dialogInterface, i) -> {
+            Bitmap bitmap;
             switch (i) {
                 case 0:
                     axis = "X";
                     resultList = m.getPairX();
-
+                    bitmap = m.getCroppedImage().copy(Bitmap.Config.ARGB_8888, true);
+                    if (resultList != null) {
+                        List newList = new ArrayList<Coordinates>(resultList);
+                        objectBuffer.push(bitmap, newList);
+                        Toast.makeText(this, "추가 완료", Toast.LENGTH_SHORT).show();
+                    }
                     break;
                 case 1:
                     axis = "Y";
                     resultList = m.getPairY();
+                    bitmap = m.getCroppedImage().copy(Bitmap.Config.ARGB_8888, true);
+                    if (resultList != null) {
+                        List newList = new ArrayList<Coordinates>(resultList);
+                        objectBuffer.push(bitmap, newList);
+                        Toast.makeText(this, "추가 완료", Toast.LENGTH_SHORT).show();
+                    }
                     break;
                 default:
                     break;
             }
         });
+        alertDialogBuilder.setCancelable(false);
         alertDialog = alertDialogBuilder.create();
         alertDialog.show();
     }

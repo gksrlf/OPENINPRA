@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.time.ZonedDateTime;
 
 public class EditActivity extends AppCompatActivity {
-    MyImageView imageView;
+    EditImageView imageView;
     Context context;
     String TAG = getClass().getSimpleName();
     String filePath;
@@ -34,7 +34,7 @@ public class EditActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        imageView = new MyImageView(this);
+        imageView = new EditImageView(this);
         context = getApplicationContext();
 
         Intent intent = getIntent();

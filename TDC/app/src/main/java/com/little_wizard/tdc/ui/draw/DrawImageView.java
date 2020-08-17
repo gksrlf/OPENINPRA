@@ -3,13 +3,17 @@ package com.little_wizard.tdc.ui.draw;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PointF;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.little_wizard.tdc.R;
 import com.little_wizard.tdc.util.draw.Coordinates;
@@ -18,7 +22,7 @@ import com.little_wizard.tdc.util.draw.DrawQueue;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MyView extends View {
+public class DrawImageView extends androidx.appcompat.widget.AppCompatImageView {
     private final int NONE = 0;
     private final int DRAG = 1;
     private final int ZOOM = 2;
@@ -46,18 +50,8 @@ public class MyView extends View {
 
     private float width;
     private float height;
-    private float originalWidth;
-    private float mPosX;
-    private float mPosY;
 
-    private float magnification = 1f;
-
-    private float offsetX;
-    private float offsetY;
-
-    private float posX1, posX2, posY1, posY2;
     private float oldDist = 1f;
-    private float newDist = 1f;
     private float scale = 1f;
 
     private int displayHeight;
@@ -74,7 +68,23 @@ public class MyView extends View {
     ArrayList<Coordinates> listY = new ArrayList<>();
     Coordinates start, end;
 
-    public MyView(Context context, int displayHeight, int displayWidth, int mode) {
+    // matrix
+
+    Matrix matrix = new Matrix();
+    Matrix savedMatrix = new Matrix();
+    Bitmap bitmap;
+    BitmapDrawable bitmapDrawable;
+    float matrixValue[] = new float[9];
+    float savedMatrixValue[] = new float[9];
+
+    PointF startPoint = new PointF();
+    PointF mid = new PointF();
+    float nowDist = 0;
+
+    private static final float MIN_ZOOM = 0.7f;
+    private static final float MAX_ZOOM = 3.0f;
+
+    public DrawImageView(Context context, int displayHeight, int displayWidth, int mode) {
         super(context);
         setupDrawing();
         this.displayHeight = displayHeight;
@@ -98,7 +108,7 @@ public class MyView extends View {
         viewPaint = new Paint();
         viewPaint.setColor(paintColor);
         //viewPaint.setAntiAlias(true);
-        viewPaint.setStrokeWidth(paintWidth * magnification);
+        viewPaint.setStrokeWidth(paintWidth * getRealScale());
         viewPaint.setStyle(Paint.Style.STROKE);
         viewPaint.setStrokeJoin(Paint.Join.ROUND);
         viewPaint.setStrokeCap(Paint.Cap.ROUND);
@@ -112,10 +122,7 @@ public class MyView extends View {
 
     protected void onDraw(Canvas canvas) {
         canvas.save();
-        Log.d("scale", String.valueOf(scale));
-        Rect dst = new Rect((int) mPosX, (int) mPosY, (int) (mPosX + width), (int) (mPosY + height));
-        canvas.drawBitmap(canvasBitmap, null, dst, canvasPaint);
-        viewPaint.setStrokeWidth(paintWidth);
+        canvas.drawBitmap(canvasBitmap, matrix, null);
         canvas.drawPath(viewPath, viewPaint);
         canvas.restore();
     }
@@ -124,9 +131,15 @@ public class MyView extends View {
     public boolean onTouchEvent(MotionEvent event) {
         super.onTouchEvent(event);
 
-        float absX = 1 / magnification * (event.getX() - mPosX);
-        float absY = 1 / magnification * (event.getY() - mPosY);
-        Log.d("onTouchEvent absolute", String.format("%f, %f", absX, absY));
+        Rect bounds = getDrawable().getBounds();
+
+        width = bounds.right - bounds.left;
+        height = bounds.bottom - bounds.top;
+        matrix.getValues(matrixValue);
+
+        float absX = 1 / getRealScale() * (event.getX() - matrixValue[Matrix.MTRANS_X]);
+        float absY = 1 / getRealScale() * (event.getY() - matrixValue[Matrix.MTRANS_Y]);
+
         Bitmap previousBitmap = canvasBitmap.copy(Bitmap.Config.ARGB_8888, true);
         Coordinates lastPoint = drawQueue.getLastPoint();
 
@@ -135,46 +148,48 @@ public class MyView extends View {
                 if (mode == NONE) {
                     Log.d("onTouchEvent Event", "ACTION_DOWN");
                     if (!isDraggable(event)) break;
-                    if (isDrawMode && !confirmation) { //TODO: 대칭일때 첫번째 점 처리
+                    if (isDrawMode && !confirmation) { // 그리기 모드 && 확정 상태가 아닐 때
                         if (!isInPicture(event)) break;
+                        // 첫번째 터치 아닐 때
                         if (lastPoint != null) {
                             drawPath.moveTo(lastPoint.getX(), lastPoint.getY());
-                            viewPath.moveTo(lastPoint.getX() * magnification + mPosX, lastPoint.getY() * magnification + mPosY);
+                            viewPath.moveTo(lastPoint.getX() * getRealScale() + matrixValue[Matrix.MTRANS_X], lastPoint.getY() * getRealScale() + matrixValue[Matrix.MTRANS_Y]);
                         } else { // 첫번째 터치
                             startX = absX;
                             startY = absY;
                             if (photo_mode == SYMMETRY) {
                                 drawPath.moveTo(originalLine, absY);
                                 drawPath.lineTo(absX, absY);
+                                viewPath.moveTo(originalLine * getRealScale() + matrixValue[Matrix.MTRANS_X], event.getY());
+                                viewPath.lineTo(event.getX(), event.getY());
                             } else {
                                 drawPath.moveTo(absX, absY);
+                                viewPath.moveTo(event.getX(), event.getY());
                             }
-                            viewPath.moveTo(event.getX(), event.getY());
                         }
                         addAbsList(absX, absY);
                         start = new Coordinates((int) absX, (int) absY);
                         mode = DROW;
                     } else {
-                        posX1 = (int) event.getX();
-                        posY1 = (int) event.getY();
-                        offsetX = posX1 - mPosX;
-                        offsetY = posY1 - mPosY;
-
+                        savedMatrix.set(matrix);
+                        startPoint.set(event.getX(), event.getY());
                         mode = DRAG;
                     }
+                }
+                break;
+            case MotionEvent.ACTION_POINTER_DOWN:
+                oldDist = spacing(event);
+                if (oldDist > 1f) {
+                    savedMatrix.set(matrix);
+                    midPoint(mid, event);
+                    mode = ZOOM;
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (mode == DRAG) {
                     if (isDraggable(event)) {
-                        mPosX = posX2 - offsetX;
-                        mPosY = posY2 - offsetY;
-                        posX2 = (int) event.getX();
-                        posY2 = (int) event.getY();
-                        if (Math.abs(posX2 - posX1) > 20 || Math.abs(posY2 - posY1) > 20) {
-                            posX1 = posX2;
-                            posY1 = posY2;
-                        }
+                        matrix.set(savedMatrix);
+                        matrix.postTranslate(event.getX() - startPoint.x, event.getY() - startPoint.y);
                     }
                 } else if (mode == DROW && !confirmation) {
                     if (isInPicture(event)) {
@@ -185,7 +200,6 @@ public class MyView extends View {
                         if (pointCount % pick == 0) {
                             drawPath.lineTo(absX, absY);
                             pointCount = 0;
-                            Log.d("getPointer", String.valueOf(absX) + "," + String.valueOf(absY));
                         }
                     } else { //draw상태에서 사진 범위 넘어갔을 때
                         mode = NONE;
@@ -199,41 +213,34 @@ public class MyView extends View {
                         end = new Coordinates((int) absX, (int) absY);
                         drawQueue.push(listX, listY);
                         drawQueue.push(previousBitmap, start, end);
-                    }
-                } else {
-                    magnification = width / originalWidth;
-                    float pastDist = newDist;
-                    newDist = spacing(event);
-                    if (newDist - oldDist > 20) {  // zoom in
-                        if (magnification > 3f) {
-                            newDist = pastDist;
+
+                        listX.clear();
+                        listY.clear();
+                        if (drawQueue.isClear()) {
+                            setClearMenu();
                         } else {
-                            scale = (float) Math.sqrt(((newDist - oldDist) * (newDist - oldDist)) / (height * height + width * width));
-                            mPosY = mPosY - (height * scale / 2);
-                            mPosX = mPosX - (width * scale / 2);
-
-                            height = height * (1 + scale);
-                            width = width * (1 + scale);
-                            line = (originalLine * width) / originalWidth;
-
-                            oldDist = newDist;
-                        }
-                    } else if (oldDist - newDist > 20) {  // zoom out
-                        if (magnification <= 1f) {
-                            newDist = pastDist;
-                        } else {
-                            scale = (float) Math.sqrt(((newDist - oldDist) * (newDist - oldDist)) / (height * height + width * width));
-                            scale = 0 - scale;
-                            mPosY = mPosY - (height * scale / 2);
-                            mPosX = mPosX - (width * scale / 2);
-
-                            height = height * (1 + scale);
-                            width = width * (1 + scale);
-                            line = (originalLine * width) / originalWidth;
-
-                            oldDist = newDist;
+                            setUnClearMenu();
                         }
                     }
+                } else if(mode == ZOOM){
+                    savedMatrix.getValues(savedMatrixValue);
+                    matrix.getValues(matrixValue);
+
+                    //float scaleX = matrixValue[Matrix.MSCALE_X];
+                    //float scaleY = matrixValue[Matrix.MSCALE_Y];
+                    //if(scaleX > MAX_ZOOM || scaleX < MIN_ZOOM || scaleY > MAX_ZOOM || scaleY < MIN_ZOOM) {
+                    //    mode = NONE;
+                    //    break;
+                    //}
+                    nowDist = spacing(event);
+
+                    if (nowDist > 10f) {
+                        matrix.set(savedMatrix);
+                        scale = nowDist / oldDist;
+                        matrix.postScale(scale, scale, mid.x, mid.y);
+                    }
+
+                    line = originalLine * getRealScale();
                 }
                 break;
             case MotionEvent.ACTION_UP:
@@ -260,26 +267,35 @@ public class MyView extends View {
             case MotionEvent.ACTION_POINTER_UP:
                 mode = NONE;
                 break;
-            case MotionEvent.ACTION_POINTER_DOWN:
-                mode = ZOOM;
-                newDist = spacing(event);
-                oldDist = spacing(event);
-                break;
             default:
                 return false;
         }
+        limitZoom(matrix);
+        limitDrag(matrix);
+
+        setImageMatrix(matrix);
+        matrix.getValues(matrixValue);
         invalidate();
         return true;
     }
 
     private float spacing(MotionEvent event) {
-        if (event.getPointerCount() > 1) {
-            float x = event.getX(0) - event.getX(1);
-            float y = event.getY(0) - event.getY(1);
-            return (float) Math.sqrt(x * x + y * y);
-        } else {
-            return oldDist;
-        }
+        float x = event.getX(0) - event.getX(1);
+        float y = event.getY(0) - event.getY(1);
+        return (float) Math.sqrt(x * x + y * y);
+        //if (event.getPointerCount() > 1) {
+        //    float x = event.getX(0) - event.getX(1);
+        //    float y = event.getY(0) - event.getY(1);
+        //    return (float) Math.sqrt(x * x + y * y);
+        //} else {
+        //    return oldDist;
+        //}
+    }
+
+    private void midPoint(PointF point, MotionEvent event) {
+        float x = event.getX(0) + event.getX(1);
+        float y = event.getY(0) + event.getY(1);
+        point.set(x / 2, y / 2);
     }
 
     public Bitmap getBitmap() {
@@ -290,20 +306,83 @@ public class MyView extends View {
         canvasBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
         originalBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
         drawCanvas = new Canvas(canvasBitmap);
-        originalWidth = width = canvasBitmap.getWidth();
-        height = canvasBitmap.getHeight();
-        if (displayHeight / displayWidth > height / width) { //가로가꽉참
-            mPosX = 0;
-            mPosY = (displayHeight - height) / 2;
-        } else {
-            mPosX = (displayWidth - width) / 2;
-            mPosY = 0;
-        }
+        //width = canvasBitmap.getWidth();
+        //height = canvasBitmap.getHeight();
         drawQueue.push(bitmap, null, null);
         drawQueue.push(null, null);
         line = originalLine;
         scale = 1f;
-        magnification = 1f;
+
+        bitmapDrawable = new BitmapDrawable(this.bitmap);
+        setImageDrawable(bitmapDrawable);
+        setScaleType(ScaleType.MATRIX);
+        invalidate();
+    }
+
+    public float getRealScale(){
+        matrix.getValues(matrixValue);
+        float scaleX = matrixValue[Matrix.MSCALE_X];
+        float skewY = matrixValue[Matrix.MSKEW_Y];
+        return (float) Math.sqrt(scaleX * scaleX + skewY * skewY);
+    }
+
+    private void limitZoom(Matrix m) {
+        float[] values = new float[9];
+        m.getValues(values);
+        float scaleX = values[Matrix.MSCALE_X];
+        float scaleY = values[Matrix.MSCALE_Y];
+
+        if(scaleX > MAX_ZOOM) {
+            scaleX = MAX_ZOOM;
+        } else if(scaleX < MIN_ZOOM) {
+            scaleX = MIN_ZOOM;
+        }
+
+        if(scaleY > MAX_ZOOM) {
+            scaleY = MAX_ZOOM;
+        } else if(scaleY < MIN_ZOOM) {
+            scaleY = MIN_ZOOM;
+        }
+
+        values[Matrix.MSCALE_X] = scaleX;
+        values[Matrix.MSCALE_Y] = scaleY;
+        m.setValues(values);
+    }
+
+
+    private void limitDrag(Matrix m) {
+        float[] values = new float[9];
+        m.getValues(values);
+        float transX = values[Matrix.MTRANS_X];
+        float transY = values[Matrix.MTRANS_Y];
+        float scaleX = values[Matrix.MSCALE_X];
+        float scaleY = values[Matrix.MSCALE_Y];
+
+        Rect bounds = getDrawable().getBounds();
+        int viewWidth = getResources().getDisplayMetrics().widthPixels;
+        int viewHeight = getResources().getDisplayMetrics().heightPixels;
+
+        int width = bounds.right - bounds.left;
+        int height = bounds.bottom - bounds.top;
+
+        float minX = (-width + 20) * scaleX;
+        float minY = (-height + 20) * scaleY;
+
+        if(transX > (viewWidth - 20)) {
+            transX = viewWidth - 20;
+        } else if(transX < minX) {
+            transX = minX;
+        }
+
+        if(transY > (viewHeight - 80)) {
+            transY = viewHeight - 80;
+        } else if(transY < minY) {
+            transY = minY;
+        }
+
+        values[Matrix.MTRANS_X] = transX;
+        values[Matrix.MTRANS_Y] = transY;
+        m.setValues(values);
     }
 
     public void setItemMode(boolean mode) {
@@ -349,10 +428,28 @@ public class MyView extends View {
         setConfirmation(false);
         activityMenu.findItem(R.id.draw_confirmation).setEnabled(false);
         setBackgroundBitmap(originalBitmap);
+
+        float rate = (float)getWidth() / (float)getHeight();
+        float bitmapRate = (float)originalBitmap.getWidth() / (float)originalBitmap.getHeight();
+        if(rate > bitmapRate){
+            matrixValue[Matrix.MTRANS_X] = (getWidth() - originalBitmap.getWidth()) / 2f;
+            matrixValue[Matrix.MTRANS_Y] = 0;
+        }else{
+            matrixValue[Matrix.MTRANS_X] = 0;
+            matrixValue[Matrix.MTRANS_Y] = (getHeight() - originalBitmap.getHeight()) / 2f;
+        }
+        matrixValue[Matrix.MSCALE_X] = matrixValue[Matrix.MSCALE_Y] = 1f;
+        matrix.setValues(matrixValue);
+
+        setImageMatrix(matrix);
         invalidate();
     }
 
     protected boolean isInPicture(MotionEvent e) {
+        float mPosX = matrixValue[Matrix.MTRANS_X];
+        float mPosY = matrixValue[Matrix.MTRANS_Y];
+        float width = originalBitmap.getWidth() * getRealScale();
+        float height = originalBitmap.getHeight() * getRealScale();
         if (photo_mode == SYMMETRY) {
             return (mPosX <= e.getX() && e.getX() <= mPosX + line && mPosY <= e.getY() && e.getY() <= mPosY + height) ? true : false;
         } else {
@@ -361,6 +458,10 @@ public class MyView extends View {
     }
 
     protected boolean isDraggable(MotionEvent e) {
+        float mPosX = matrixValue[Matrix.MTRANS_X];
+        float mPosY = matrixValue[Matrix.MTRANS_Y];
+        float width = originalBitmap.getWidth() * getRealScale();
+        float height = originalBitmap.getHeight() * getRealScale();
         return (mPosX <= e.getX() && e.getX() <= mPosX + width && mPosY <= e.getY() && e.getY() <= mPosY + height) ? true : false;
     }
 
@@ -375,7 +476,7 @@ public class MyView extends View {
             ArrayList<Coordinates> point = new ArrayList<>();
             setClearMenu();
             Coordinates lastPoint = drawQueue.getLastPoint();
-            //TODO: 대칭일때 마지막 점 처리 (완료)
+            // 마지막 점까지 선 잇기
             drawPath.moveTo(lastPoint.getX(), lastPoint.getY());
 
             Coordinates start = lastPoint;
@@ -425,22 +526,6 @@ public class MyView extends View {
 
     public void setLine(float line) {
         originalLine = this.line = line;
-    }
-
-    public int getStartX() {
-        return drawQueue.getStartX();
-    }
-
-    public int getStartY() {
-        return drawQueue.getStartY();
-    }
-
-    public int getH() {
-        return drawQueue.getHeight();
-    }
-
-    public int getW() {
-        return drawQueue.getWidth();
     }
 
     public Bitmap getCroppedImage() {

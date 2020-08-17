@@ -49,7 +49,7 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
     public static final int SYMMETRY = 2;
     public static final int FLAT = 3;
 
-    private MyView m;
+    private DrawImageView m;
     private boolean isDrawMode = false;
     Display display;
     private int viewHeight;
@@ -101,11 +101,11 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
             Uri uri = intent.getData();
             String mode = intent.getStringExtra("MODE");
             if (mode.equals("ASYMMETRY")) {//비대칭일 때 갤러리 사진 Uri 가져옴
-                m = new MyView(this, viewHeight, viewWidth, ASYMMETRY);
+                m = new DrawImageView(this, viewHeight, viewWidth, ASYMMETRY);
             } else if (mode.equals("SYMMETRY")) { // 대칭일 때 byte array 가져옴, 축 설정
-                m = new MyView(this, viewHeight, viewWidth, SYMMETRY);
+                m = new DrawImageView(this, viewHeight, viewWidth, SYMMETRY);
             } else {
-                m = new MyView(this, viewHeight, viewWidth, FLAT);
+                m = new DrawImageView(this, viewHeight, viewWidth, FLAT);
             }
             line = intent.getFloatExtra("LINE", Float.MIN_VALUE);
             try {

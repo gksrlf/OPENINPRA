@@ -15,7 +15,7 @@ import android.view.Display;
 import android.view.MotionEvent;
 import android.widget.Toast;
 
-public class MyImageView extends androidx.appcompat.widget.AppCompatImageView {
+public class EditImageView extends androidx.appcompat.widget.AppCompatImageView {
     static final int NONE = 0;
     static final int DRAG = 1;
     static final int ZOOM = 2;
@@ -25,8 +25,8 @@ public class MyImageView extends androidx.appcompat.widget.AppCompatImageView {
     Matrix savedMatrix;
     Bitmap bitmap;
     BitmapDrawable bitmapDrawable;
-    float matrixArray[];
-    float savedMatrixArray[];
+    float matrixValue[];
+    float savedMatrixValue[];
 
     PointF start = new PointF();
     PointF mid = new PointF();
@@ -34,7 +34,6 @@ public class MyImageView extends androidx.appcompat.widget.AppCompatImageView {
     float oldDist = 1f, nowDist = 0;
     double oldRadian = 0, nowRadian = 0;
     double oldDegree = 0, nowDegree = 0;
-    float magnification = 1f;
     float centerLine = 0;
     float linePosX;
     float width, height;
@@ -42,7 +41,7 @@ public class MyImageView extends androidx.appcompat.widget.AppCompatImageView {
     private static final float MIN_ZOOM = 0.7f;
     private static final float MAX_ZOOM = 3.0f;
 
-    public MyImageView(Context context) {
+    public EditImageView(Context context) {
         super(context);
     }
 
@@ -52,8 +51,8 @@ public class MyImageView extends androidx.appcompat.widget.AppCompatImageView {
         centerLine = size.x / 2;
         matrix = new Matrix();
         savedMatrix = new Matrix();
-        matrixArray = new float[9];
-        savedMatrixArray = new float[9];
+        matrixValue = new float[9];
+        savedMatrixValue = new float[9];
 
         this.bitmap = getResizedBitmap(bitmap, size.x, size.y);
         bitmapDrawable = new BitmapDrawable(this.bitmap);
@@ -96,12 +95,11 @@ public class MyImageView extends androidx.appcompat.widget.AppCompatImageView {
                     matrix.set(savedMatrix);
                     matrix.postTranslate(event.getX() - start.x, event.getY() - start.y);
                 } else if (mode == ZOOM) {
-                    savedMatrix.getValues(savedMatrixArray);
-                    matrix.getValues(matrixArray);
-                    magnification = matrixArray[Matrix.MSCALE_X];
+                    savedMatrix.getValues(savedMatrixValue);
+                    matrix.getValues(matrixValue);
 
-                    float scaleX = matrixArray[Matrix.MSCALE_X];
-                    float scaleY = matrixArray[Matrix.MSCALE_Y];
+                    float scaleX = matrixValue[Matrix.MSCALE_X];
+                    float scaleY = matrixValue[Matrix.MSCALE_Y];
                     if(scaleX > MAX_ZOOM || scaleX < MIN_ZOOM || scaleY > MAX_ZOOM || scaleY < MIN_ZOOM) {
                         mode = NONE;
                         break;
@@ -165,23 +163,23 @@ public class MyImageView extends androidx.appcompat.widget.AppCompatImageView {
     }
 
     public float getRealScale(){
-        matrix.getValues(matrixArray);
-        float scaleX = matrixArray[Matrix.MSCALE_X];
-        float skewY = matrixArray[Matrix.MSKEW_Y];
+        matrix.getValues(matrixValue);
+        float scaleX = matrixValue[Matrix.MSCALE_X];
+        float skewY = matrixValue[Matrix.MSKEW_Y];
         return (float) Math.sqrt(scaleX * scaleX + skewY * skewY);
     }
 
     public float getRealDegree(){
-        matrix.getValues(matrixArray);
-        float scaleX = matrixArray[Matrix.MSCALE_X];
-        float skewX = matrixArray[Matrix.MSKEW_X];
+        matrix.getValues(matrixValue);
+        float scaleX = matrixValue[Matrix.MSCALE_X];
+        float skewX = matrixValue[Matrix.MSKEW_X];
         return -Math.round(Math.atan2(skewX, scaleX) * (180 / Math.PI));
     }
 
     public float getRealRadians(){
-        matrix.getValues(matrixArray);
-        float scaleX = matrixArray[Matrix.MSCALE_X];
-        float skewX = matrixArray[Matrix.MSKEW_X];
+        matrix.getValues(matrixValue);
+        float scaleX = matrixValue[Matrix.MSCALE_X];
+        float skewX = matrixValue[Matrix.MSKEW_X];
         return -(float)Math.atan2(skewX, scaleX);
     }
 
@@ -300,10 +298,10 @@ public class MyImageView extends androidx.appcompat.widget.AppCompatImageView {
 
         // 기준 축 생성
         float scale = getRealScale();
-        if(matrixArray[Matrix.MTRANS_X] < centerLine){
-            linePosX = rotaionPoints[0][0] + (centerLine - matrixArray[Matrix.MTRANS_X]) / scale;
+        if(matrixValue[Matrix.MTRANS_X] < centerLine){
+            linePosX = rotaionPoints[0][0] + (centerLine - matrixValue[Matrix.MTRANS_X]) / scale;
         }else{
-            linePosX = rotaionPoints[0][0] - ((matrixArray[Matrix.MTRANS_X] - centerLine) / scale);
+            linePosX = rotaionPoints[0][0] - ((matrixValue[Matrix.MTRANS_X] - centerLine) / scale);
         }
 
         if(linePosX < 0 || maxX < linePosX) {

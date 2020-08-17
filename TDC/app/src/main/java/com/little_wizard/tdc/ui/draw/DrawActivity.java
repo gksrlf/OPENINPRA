@@ -173,17 +173,13 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
                 if (!objectBuffer.getMode().equals("SYMMETRY")) {
                     selectAxis();
                     return true;
-                    //resultList = m.getPairX();
-                    //backgroundThread = new BackgroundThread();
-                    //backgroundThread.setRunning(true);
-                    //backgroundThread.start();
-                } else {
-                    resultList = m.getSymmetryResult();
                 }
+
+                resultList = m.getSymmetryResult();
                 Bitmap bitmap = m.getCroppedImage().copy(Bitmap.Config.ARGB_8888, true);
                 if (resultList != null) {
                     List newList = new ArrayList<Coordinates>(resultList);
-                    objectBuffer.push(bitmap, newList);
+                    objectBuffer.push(bitmap, newList, "");
                     Toast.makeText(this, "추가 완료", Toast.LENGTH_SHORT).show();
                 }
                 return true;
@@ -235,7 +231,7 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
     }
 
     // 좌표 리스트를 텍스트 파일로 생성
-    public void saveFile(String filename, ArrayList<Coordinates> list) {
+    public void saveFile(String filename, ArrayList<Coordinates> list, String axis) {
         try {
             File dir = new File(getExternalCacheDir().toString());
             //디렉토리 폴더가 없으면 생성함
@@ -250,8 +246,8 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
             String mode = objectBuffer.getMode();
             writer.write(String.format("%s\n", mode));
             if (mode.equals("SYMMETRY")) {
-                float axis = m.getLine() / 1000;
-                writer.write(String.format("%f\n", axis));
+                float axisF = m.getLine() / 1000;
+                writer.write(String.format("%f\n", axisF));
                 ArrayList<Coordinates> result = m.getSymmetryResult();
                 for (Coordinates c : result) {
                     writer.write(String.format("%f\n%f\n", c.getX(), c.getY()));
@@ -379,7 +375,7 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
             int pos = 0;
             for (ObjectBuffer.Element e : objectBuffer.getBuffer()) {
                 file = new File(path + String.format("%s-%d.txt", filename, pos));
-                saveFile(String.format("%s-%d.txt", filename, pos), (ArrayList<Coordinates>) e.getList());
+                saveFile(String.format("%s-%d.txt", filename, pos), (ArrayList<Coordinates>) e.getList(), e.getAxis());
                 transfer.upload(R.string.s3_bucket, FilenameUtils.getBaseName(text + ".txt")
                         .isEmpty() ? file.getName() : text + ".txt", file);
                 pos++;
@@ -405,7 +401,7 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
                     bitmap = m.getCroppedImage().copy(Bitmap.Config.ARGB_8888, true);
                     if (resultList != null) {
                         List newList = new ArrayList<Coordinates>(resultList);
-                        objectBuffer.push(bitmap, newList);
+                        objectBuffer.push(bitmap, newList, "X");
                         Toast.makeText(this, "추가 완료", Toast.LENGTH_SHORT).show();
                     }
                     break;
@@ -415,7 +411,7 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
                     bitmap = m.getCroppedImage().copy(Bitmap.Config.ARGB_8888, true);
                     if (resultList != null) {
                         List newList = new ArrayList<Coordinates>(resultList);
-                        objectBuffer.push(bitmap, newList);
+                        objectBuffer.push(bitmap, newList, "Y");
                         Toast.makeText(this, "추가 완료", Toast.LENGTH_SHORT).show();
                     }
                     break;

@@ -9,12 +9,14 @@ public class ObjectBuffer {
     public class Element {
         Bitmap bitmap;
         List<Coordinates> list = new ArrayList<>();
+        String axis;
 
-        public Element(Bitmap bitmap, List<Coordinates> list) {
+        public Element(Bitmap bitmap, List<Coordinates> list, String axis) {
             this.bitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
             if (list == null) {
                 this.list = null;
             } else this.list.addAll(list);
+            this.axis = axis;
         }
 
         public Bitmap getBitmap() {
@@ -23,6 +25,9 @@ public class ObjectBuffer {
 
         public List<Coordinates> getList() {
             return list;
+        }
+        public String getAxis() {
+            return axis;
         }
     }
 
@@ -39,13 +44,13 @@ public class ObjectBuffer {
         buffer = new ArrayList<>();
     }
 
-    public void push(Bitmap bitmap, List<Coordinates> list) {
+    public void push(Bitmap bitmap, List<Coordinates> list, String axis) {
         List<Coordinates> newList = null;
         if (list != null) {
             newList = new ArrayList<>();
             newList.addAll(list);
         }
-        buffer.add(new Element(bitmap.copy(Bitmap.Config.ARGB_8888, true), newList));
+        buffer.add(new Element(bitmap.copy(Bitmap.Config.ARGB_8888, true), newList, axis));
     }
 
     public void remove(int index) {

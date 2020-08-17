@@ -185,26 +185,6 @@ public class MyImageView extends androidx.appcompat.widget.AppCompatImageView {
         return -(float)Math.atan2(skewX, scaleX);
     }
 
-    // 사진 안에 y축 있는지 검사
-    protected boolean baselineCheck(){
-        float points[][] = {{0, 0}, {bitmap.getWidth(), 0},
-                {0, bitmap.getHeight()}, {bitmap.getWidth(), bitmap.getHeight()}};
-        float rotaionPoints[][] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}};
-        float degree = getRealDegree();
-        float radians = getRealRadians();
-
-        for(int i=0;i<4;i++){
-            rotaionPoints[i][0] = (float)Math.cos(radians) * points[i][0] - (float)Math.sin(radians) * points[i][1];
-            rotaionPoints[i][1] = (float)Math.sin(radians) * points[i][0] + (float)Math.cos(radians) * points[i][1];
-        }
-
-        if(-90 < degree && degree < 90){
-
-        }else{
-
-        }
-        return false;
-    }
     private void limitZoom(Matrix m) {
         float[] values = new float[9];
         m.getValues(values);
@@ -230,27 +210,6 @@ public class MyImageView extends androidx.appcompat.widget.AppCompatImageView {
 
 
     private void limitDrag(Matrix m) {
-
-        /*float[] values = new float[9];
-        m.getValues(values);
-        float transX = values[Matrix.MTRANS_X];
-        float transY = values[Matrix.MTRANS_Y];
-        float scaleX = values[Matrix.MSCALE_X];
-        float scaleY = values[Matrix.MSCALE_Y];
-//--- limit moving to left ---
-        float minX = (-width + 0) * (scaleX-1);
-        float minY = (-height + 0) * (scaleY-1);
-//--- limit moving to right ---
-        float maxX=minX+width*(scaleX-1);
-        float maxY=minY+height*(scaleY-1);
-        if(transX>maxX){transX = maxX;}
-        if(transX<minX){transX = minX;}
-        if(transY>maxY){transY = maxY;}
-        if(transY<minY){transY = minY;}
-        values[Matrix.MTRANS_X] = transX;
-        values[Matrix.MTRANS_Y] = transY;
-        m.setValues(values);*/
-
         float[] values = new float[9];
         m.getValues(values);
         float transX = values[Matrix.MTRANS_X];

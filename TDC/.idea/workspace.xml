@@ -12,11 +12,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1280432e-51e9-4d00-b76b-c57315dbf3d1" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gradle/6.1.1/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.1.1/fileHashes/fileHashes.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/6.1.1/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.1.1/fileHashes/fileHashes.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/little_wizard/tdc/ui/draw/DrawActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/little_wizard/tdc/ui/draw/DrawActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/little_wizard/tdc/ui/draw/MyImageView.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/little_wizard/tdc/ui/draw/MyImageView.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/little_wizard/tdc/util/draw/ObjectBuffer.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/little_wizard/tdc/util/draw/ObjectBuffer.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -275,10 +272,10 @@
     <state x="473" y="0" width="1282" height="989" maximized="true" key="dock-window-1/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597500402001" />
     <state x="953" y="0" width="974" height="1047" key="dock-window-1/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1597342622689" />
     <state x="2217" y="-19" width="1257" height="1026" maximized="true" key="dock-window-1/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1597607677410" />
-    <state x="881" y="126" width="1936" height="1047" key="dock-window-2" timestamp="1597607723069">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state x="1339" y="-20" width="1936" height="1047" maximized="true" key="dock-window-2" timestamp="1597652665321">
+      <screen x="1920" y="0" width="1920" height="1040" />
     </state>
-    <state x="881" y="126" width="1936" height="1047" key="dock-window-2/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1597607723069" />
+    <state x="1339" y="-20" width="1936" height="1047" maximized="true" key="dock-window-2/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1597652665321" />
     <state x="397" y="86" width="777" height="652" key="find.popup" timestamp="1597573759122">
       <screen x="0" y="0" width="1536" height="824" />
     </state>

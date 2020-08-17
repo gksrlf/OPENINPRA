@@ -61,11 +61,6 @@ public class ObjectBuffer {
         return buffer;
     }
 
-    public void upload() {
-        //TODO: 파일 이름 filename - index 꼴로 bitmap, text 로 filepath에 저장
-        //TODO: 파일 이름 filename - index 꼴로 bitmap, text 업로드
-    }
-
     public void setName(String name) {
         filename = name;
     }

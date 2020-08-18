@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
@@ -20,20 +21,24 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 
-import com.google.android.material.slider.RangeSlider;
+import com.google.android.material.slider.Slider;
 import com.little_wizard.tdc.R;
 import com.little_wizard.tdc.ui.main.MainActivity;
+import com.little_wizard.tdc.util.S3Transfer;
 import com.little_wizard.tdc.util.demo.ModelSurfaceView;
 import com.little_wizard.tdc.util.demo.SceneLoader;
 
 import org.andresoviedo.android_3d_model_engine.model.Object3DData;
 import org.andresoviedo.android_3d_model_engine.services.Object3DBuilder;
 import org.andresoviedo.android_3d_model_engine.services.Object3DUnpacker;
+import org.andresoviedo.android_3d_model_engine.services.wavefront.WavefrontSaver;
 import org.andresoviedo.util.android.ContentUtils;
 import org.apache.commons.io.FilenameUtils;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
 import butterknife.BindView;
@@ -52,24 +57,30 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
     ConstraintLayout layout;
     @BindView(R.id.toolbar)
     Toolbar toolbar;
-    @BindView(R.id.select)
-    ImageButton select;
     @BindView(R.id.scale)
     ImageButton scale;
     @BindView(R.id.transform)
     ImageButton transform;
     @BindView(R.id.modifyLayout)
     LinearLayout modifyLayout;
-    @BindView(R.id.axisSliderLayout)
-    LinearLayout axisSliderLayout;
-    @BindView(R.id.xAxisSlider)
-    RangeSlider xAxisSlider;
-    @BindView(R.id.yAxisSlider)
-    RangeSlider yAxisSlider;
-    @BindView(R.id.zAxisSlider)
-    RangeSlider zAxisSlider;
-    @BindView(R.id.scaleSlider)
-    RangeSlider scaleSlider;
+    @BindView(R.id.rotate)
+    ImageButton rotate;
+    @BindView(R.id.slider)
+    Slider slider;
+    @BindView(R.id.xAxisZoomIn)
+    ImageButton xAxisZoomIn;
+    @BindView(R.id.xAxisZoomOut)
+    ImageButton xAxisZoomOut;
+    @BindView(R.id.yAxisZoomIn)
+    ImageButton yAxisZoomIn;
+    @BindView(R.id.yAxisZoomOut)
+    ImageButton yAxisZoomOut;
+    @BindView(R.id.zAxisZoomIn)
+    ImageButton zAxisZoomIn;
+    @BindView(R.id.zAxisZoomOut)
+    ImageButton zAxisZoomOut;
+    @BindView(R.id.axisLayout)
+    ConstraintLayout axisLayout;
 
     private Uri paramUri;
 
@@ -79,12 +90,23 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
 
     private SceneLoader scene;
 
-    private boolean scaleSliderVisible = false;
-    private boolean axisSliderVisible = false;
+    private int axisMode = -1;
+    final int AXIS_SCALE = 1;
+    final int AXIS_ROTATE = 2;
+    final int AXIS_TRANSFORM = 3;
+    final int AXIS_DEFAULT = -1;
+
+    final float SCALE_MIN = 0.5f;
+    final float SCALE_MAX = 12.0f;
+
     private Object3DData selectedObject;
 
     private float[] RED_COLOR = new float[]{1f, 0f, 0f, 1f};
     private float[] GREEN_COLOR = new float[]{0f, 1f, 0f, 1f};
+
+    private float axisVal;
+
+    S3Transfer transfer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +129,8 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setTitle(FilenameUtils.getBaseName(paramUri.toString()));
         }
+
+        transfer = new S3Transfer(this);
 
         scene = new SceneLoader(this);
         scene.setCallback(this);
@@ -133,14 +157,42 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
         }
         ContentUtils.printTouchCapabilities(getPackageManager());
 
-        sliderInit();
+        axisLayoutInit();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_model, menu);
+        return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+
+            case R.id.action_save:
+                if (selectedObject != null) {
+                    Object3DData replace3DData = null;
+                    try {
+                        replace3DData = Object3DBuilder.loadSelectedObject(new URL(paramUri.toString()));
+                    } catch (MalformedURLException e) {
+                        e.printStackTrace();
+                    }
+                    scene.getObjects().remove(selectedObject);
+                    replace3DData.setScale(selectedObject.getScale());
+                    replace3DData.setPosition(selectedObject.getPosition());
+                    replace3DData.setRotation(selectedObject.getRotation());
+                    scene.addObject(replace3DData);
+                    createPointCube(replace3DData);
+
+                    /*WavefrontSaver saver = new WavefrontSaver(replace3DData);
+                    File file = saver.OutFileToVertexBuffer(getExternalCacheDir().getAbsolutePath() + "/cube.obj");
+                    transfer.upload(R.string.s3_bucket_resize, file.getName(), file);*/
+                }
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -184,59 +236,50 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
         }
     }
 
-    @OnClick(R.id.select)
-    public void onSelectClicked() {
-        if (selectedObject != null) {
-            if (!selectedObject.getId().equals("models/Point.obj")) {
-                if (selectedObject.getIsClicked()) {
-                    selectedObject.setIsClicked(false);
-                    destroyPointCube();
-                } else createPointCube();
-            }
-        }
-    }
-
     @OnClick(R.id.scale)
     public void onScaleClicked() {
         if (selectedObject.getIsClicked()) destroyPointCube();
-        if (axisSliderVisible) {
-            axisSliderVisible = false;
-            axisSliderLayout.setVisibility(View.GONE);
-        }
-        scaleSliderVisible = !scaleSliderVisible;
-        scaleSlider.setVisibility(scaleSliderVisible ? View.VISIBLE : View.GONE);
+        axisMode = axisMode != AXIS_SCALE ? AXIS_SCALE : AXIS_DEFAULT;
+        axisLayout.setVisibility(axisMode != AXIS_DEFAULT ? View.VISIBLE : View.GONE);
+    }
+
+    @OnClick(R.id.rotate)
+    public void onRotateClicked() {
+        if (selectedObject.getIsClicked()) destroyPointCube();
+        axisMode = axisMode != AXIS_ROTATE ? AXIS_ROTATE : AXIS_DEFAULT;
+        axisLayout.setVisibility(axisMode != AXIS_DEFAULT ? View.VISIBLE : View.GONE);
     }
 
     @OnClick(R.id.transform)
     public void onTransformClicked() {
         if (selectedObject.getIsClicked()) destroyPointCube();
-        if (scaleSliderVisible) {
-            scaleSliderVisible = false;
-            scaleSlider.setVisibility(View.GONE);
-        }
-        axisSliderVisible = !axisSliderVisible;
-        axisSliderLayout.setVisibility(axisSliderVisible ? View.VISIBLE : View.GONE);
+        axisMode = axisMode != AXIS_TRANSFORM ? AXIS_TRANSFORM : AXIS_DEFAULT;
+        axisLayout.setVisibility(axisMode != AXIS_DEFAULT ? View.VISIBLE : View.GONE);
     }
 
-    private void createPointCube() {
+    private void createPointCube(Object3DData obj) {
         List<float[]> vertexArrayList;
 
         ContentUtils.setThreadActivity(this);
         ContentUtils.provideAssets(this);
 
-        if (!selectedObject.getIsClicked()) {
-            Object3DUnpacker unPacker = new Object3DUnpacker(selectedObject);
+        if (!obj.getIsClicked()) {
+            Object3DUnpacker unPacker = new Object3DUnpacker(obj);
 
             unPacker.unpackingArrayBuffer();
             unPacker.unpackingBuffer();
             vertexArrayList = unPacker.getVertexArrayList();
 
             for (int i = 0; i < vertexArrayList.size(); i++) {
-                Object3DData objPoint = Object3DBuilder.loadSelectedObjectPoints(this, "models/Point.obj", selectedObject);
+                Object3DData objPoint = Object3DBuilder.loadSelectedObjectPoints(this, "Point.obj", selectedObject);
+                float val1 = vertexArrayList.get(i)[0] * 16.5f + obj.getPositionX() * obj.getScaleX();
+                float val2 = vertexArrayList.get(i)[1] * 16.5f + obj.getPositionY() * obj.getScaleY();
+                float val3 = vertexArrayList.get(i)[2] * 16.5f + obj.getPositionZ() / obj.getScaleZ();
                 objPoint.setPosition(new float[]{
-                        vertexArrayList.get(i)[0] * 16.5f + selectedObject.getPositionX(),
-                        vertexArrayList.get(i)[1] * 16.5f + selectedObject.getPositionY(),
-                        vertexArrayList.get(i)[2] * 16.5f + selectedObject.getPositionZ()});
+                        (float) ((val1 * (obj.getScaleX() * 100 / SCALE_MAX) / 100) * 2.5),
+                        (float) ((val2 * (obj.getScaleY() * 100 / SCALE_MAX) / 100) * 2.5),
+                        (float) ((val3 * (obj.getScaleZ() * 100 / SCALE_MAX) / 100) * 2.5)
+                });
                 objPoint.setScale(new float[]{0.3f, 0.3f, 0.3f});
                 objPoint.setColor(RED_COLOR);
                 scene.addObject(objPoint);
@@ -245,88 +288,173 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
             ContentUtils.setThreadActivity(null);
             ContentUtils.clearDocumentsProvided();
 
-            selectedObject.setIsClicked(true);
+            obj.setIsClicked(true);
         }
     }
 
     private void destroyPointCube() {
         List<Object3DData> objects = scene.getObjects();
         for (int i = 0; i < objects.size(); i++) {
-            if (objects.get(i).getId().equals("models/Point.obj")) {
+            if (objects.get(i).getId().equals("Point.obj")) {
                 objects.remove(i--);
             }
         }
     }
 
-    private void sliderInit() {
-        scaleSlider.addOnSliderTouchListener(new RangeSlider.OnSliderTouchListener() {
-            @Override
-            public void onStartTrackingTouch(@NonNull RangeSlider slider) {
-            }
+    private void axisLayoutInit() {
+        axisVal = slider.getValue();
+        slider.addOnChangeListener((slider, value, fromUser) -> axisVal = value);
 
-            @Override
-            public void onStopTrackingTouch(@NonNull RangeSlider slider) {
-                slider.setValues(0.0f, 0.0f);
+        xAxisZoomIn.setOnClickListener(view -> {
+            switch (axisMode) {
+                case AXIS_SCALE: {
+                    float[] scale = selectedObject.getScale();
+                    if (scale[0] >= SCALE_MAX || scale[0] + axisVal >= SCALE_MAX) {
+                        selectedObject.setScale(new float[]{SCALE_MAX, scale[1], scale[2]});
+                        return;
+                    }
+                    selectedObject.setScale(new float[]{scale[0] + axisVal, scale[1], scale[2]});
+                    break;
+                }
+
+                case AXIS_ROTATE: {
+                    float[] rot = selectedObject.getRotation();
+                    selectedObject.setRotation(new float[]{rot[0] + axisVal, rot[1], rot[2]});
+                    break;
+                }
+
+                case AXIS_TRANSFORM: {
+                    float[] pos = selectedObject.getPosition();
+                    selectedObject.setPosition(new float[]{pos[0] + axisVal, pos[1], pos[2]});
+                    break;
+                }
             }
         });
-        scaleSlider.addOnChangeListener((slider, value, fromUser) -> {
-            if (selectedObject != null) {
-                float[] scale = selectedObject.getScale();
-                Log.d("Scale", Arrays.toString(scale));
-                if (scale[0] <= 0.5f && value <= 0) return;
-                if (scale[0] >= 10.0f && value >= 0) return;
-                selectedObject.setScale(new float[]{scale[0] + value, scale[1] + value, scale[2] + value});
+        xAxisZoomOut.setOnClickListener(view -> {
+            switch (axisMode) {
+                case AXIS_SCALE: {
+                    float[] scale = selectedObject.getScale();
+                    if (scale[0] <= SCALE_MIN || scale[0] - axisVal <= SCALE_MIN) {
+                        selectedObject.setScale(new float[]{SCALE_MIN, scale[1], scale[2]});
+                        return;
+                    }
+                    selectedObject.setScale(new float[]{scale[0] - axisVal, scale[1], scale[2]});
+                    break;
+                }
+
+                case AXIS_ROTATE: {
+                    float[] rot = selectedObject.getRotation();
+                    selectedObject.setRotation(new float[]{rot[0] - axisVal, rot[1], rot[2]});
+                    break;
+                }
+
+                case AXIS_TRANSFORM: {
+                    float[] pos = selectedObject.getPosition();
+                    selectedObject.setPosition(new float[]{pos[0] - axisVal, pos[1], pos[2]});
+                    break;
+                }
             }
         });
 
-        xAxisSlider.addOnSliderTouchListener(new RangeSlider.OnSliderTouchListener() {
-            @Override
-            public void onStartTrackingTouch(@NonNull RangeSlider slider) {
-            }
+        yAxisZoomIn.setOnClickListener(view -> {
+            switch (axisMode) {
+                case AXIS_SCALE: {
+                    float[] scale = selectedObject.getScale();
+                    if (scale[1] >= SCALE_MAX || scale[1] + axisVal >= SCALE_MAX) {
+                        selectedObject.setScale(new float[]{scale[0], SCALE_MAX, scale[2]});
+                        return;
+                    }
+                    selectedObject.setScale(new float[]{scale[0], scale[1] + axisVal, scale[2]});
+                    break;
+                }
 
-            @Override
-            public void onStopTrackingTouch(@NonNull RangeSlider slider) {
-                slider.setValues(0.0f, 0.0f);
+                case AXIS_ROTATE: {
+                    float[] rot = selectedObject.getRotation();
+                    selectedObject.setRotation(new float[]{rot[0], rot[1] + axisVal, rot[2]});
+                    break;
+                }
+
+                case AXIS_TRANSFORM: {
+                    float[] pos = selectedObject.getPosition();
+                    selectedObject.setPosition(new float[]{pos[0], pos[1] + axisVal, pos[2]});
+                    break;
+                }
             }
         });
-        xAxisSlider.addOnChangeListener((slider, value, fromUser) -> {
-            if (selectedObject != null) {
-                float[] pos = selectedObject.getPosition();
-                selectedObject.setPosition(new float[]{pos[0], pos[1], pos[2] + value});
+        yAxisZoomOut.setOnClickListener(view -> {
+            switch (axisMode) {
+                case AXIS_SCALE: {
+                    float[] scale = selectedObject.getScale();
+                    if (scale[1] <= SCALE_MIN || scale[1] - axisVal <= SCALE_MIN) {
+                        selectedObject.setScale(new float[]{scale[0], SCALE_MIN, scale[2]});
+                        return;
+                    }
+                    selectedObject.setScale(new float[]{scale[0], scale[1] - axisVal, scale[2]});
+                    break;
+                }
+
+                case AXIS_ROTATE: {
+                    float[] rot = selectedObject.getRotation();
+                    selectedObject.setRotation(new float[]{rot[0], rot[1] - axisVal, rot[2]});
+                    break;
+                }
+
+                case AXIS_TRANSFORM: {
+                    float[] pos = selectedObject.getPosition();
+                    selectedObject.setPosition(new float[]{pos[0], pos[1] - axisVal, pos[2]});
+                    break;
+                }
             }
         });
 
-        yAxisSlider.addOnSliderTouchListener(new RangeSlider.OnSliderTouchListener() {
-            @Override
-            public void onStartTrackingTouch(@NonNull RangeSlider slider) {
-            }
+        zAxisZoomIn.setOnClickListener(view -> {
+            switch (axisMode) {
+                case AXIS_SCALE: {
+                    float[] scale = selectedObject.getScale();
+                    if (scale[2] >= SCALE_MAX || scale[2] + axisVal >= SCALE_MAX) {
+                        selectedObject.setScale(new float[]{scale[0], scale[1], SCALE_MAX});
+                        return;
+                    }
+                    selectedObject.setScale(new float[]{scale[0], scale[1], scale[2] + axisVal});
+                    break;
+                }
 
-            @Override
-            public void onStopTrackingTouch(@NonNull RangeSlider slider) {
-                slider.setValues(0.0f, 0.0f);
+                case AXIS_ROTATE: {
+                    float[] rot = selectedObject.getRotation();
+                    selectedObject.setRotation(new float[]{rot[0], rot[1], rot[2] + axisVal});
+                    break;
+                }
+
+                case AXIS_TRANSFORM: {
+                    float[] pos = selectedObject.getPosition();
+                    selectedObject.setPosition(new float[]{pos[0], pos[1], pos[2] + axisVal});
+                    break;
+                }
             }
         });
-        yAxisSlider.addOnChangeListener((slider, value, fromUser) -> {
-            if (selectedObject != null) {
-                float[] pos = selectedObject.getPosition();
-                selectedObject.setPosition(new float[]{pos[0] + value, pos[1], pos[2]});
-            }
-        });
+        zAxisZoomOut.setOnClickListener(view -> {
+            switch (axisMode) {
+                case AXIS_SCALE: {
+                    float[] scale = selectedObject.getScale();
+                    if (scale[2] <= SCALE_MIN || scale[2] - axisVal <= SCALE_MIN) {
+                        selectedObject.setScale(new float[]{scale[0], scale[1], SCALE_MIN});
+                        return;
+                    }
+                    selectedObject.setScale(new float[]{scale[0], scale[1], scale[2] - axisVal});
+                    break;
+                }
 
-        zAxisSlider.addOnSliderTouchListener(new RangeSlider.OnSliderTouchListener() {
-            @Override
-            public void onStartTrackingTouch(@NonNull RangeSlider slider) {
-            }
+                case AXIS_ROTATE: {
+                    float[] rot = selectedObject.getRotation();
+                    selectedObject.setRotation(new float[]{rot[0], rot[1], rot[2] - axisVal});
+                    break;
+                }
 
-            @Override
-            public void onStopTrackingTouch(@NonNull RangeSlider slider) {
-                slider.setValues(0.0f, 0.0f);
-            }
-        });
-        zAxisSlider.addOnChangeListener((slider, value, fromUser) -> {
-            if (selectedObject != null) {
-                float[] pos = selectedObject.getPosition();
-                selectedObject.setPosition(new float[]{pos[0], pos[1] + value, pos[2]});
+                case AXIS_TRANSFORM: {
+                    float[] pos = selectedObject.getPosition();
+                    selectedObject.setPosition(new float[]{pos[0], pos[1], pos[2] - axisVal});
+                    break;
+                }
             }
         });
     }
@@ -338,11 +466,12 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
         this.selectedObject = selectedObject;
         if (selectedObject == null) {
             destroyPointCube();
-            axisSliderVisible = false;
-            scaleSliderVisible = false;
-            axisSliderLayout.setVisibility(View.GONE);
-            scaleSlider.setVisibility(View.GONE);
+            axisMode = AXIS_DEFAULT;
+            axisLayout.setVisibility(View.GONE);
             modifyLayout.setVisibility(View.GONE);
-        } else modifyLayout.setVisibility(View.VISIBLE);
+        } else {
+            Log.d("selectedObject", selectedObject.getId());
+            modifyLayout.setVisibility(View.VISIBLE);
+        }
     }
 }

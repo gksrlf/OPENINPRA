@@ -5,7 +5,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Process;
 import android.util.Log;
@@ -171,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
             if (successCount[0] == -1) break;
             Completable.create(sub -> {
                 File file = new File(localPath + item.getName());
-                if (!file.exists() && !Objects.equals(fileToMD5(file), item.getMd5())) {
+                if (!file.exists() || !Objects.equals(fileToMD5(file), item.getMd5())) {
                     if (!status.isConnected()) {
                         Toast.makeText(mContext, R.string.network_not_connected, Toast.LENGTH_LONG).show();
                         return;

@@ -39,16 +39,16 @@ public class Object3DUnpacker {
         vertexBuffer = createNativeByteBuffer(object3DData.getNumVerts() * 3 * 4).asFloatBuffer();
 
         // Unpacking vertexArrayBuffer
-        for(int i = 0; i < faces.getVerticesReferencesCount(); i++) {
+        for (int i = 0; i < faces.getVerticesReferencesCount(); i++) {
             vertexBuffer.put(IndexBuffer.get(i) * 3, vertexArrayBuffer.get(i * 3));
-            vertexBuffer.put(IndexBuffer.get(i) * 3 + 1,vertexArrayBuffer.get(i * 3 + 1));
-            vertexBuffer.put(IndexBuffer.get(i) * 3 + 2,vertexArrayBuffer.get(i * 3 + 2));
+            vertexBuffer.put(IndexBuffer.get(i) * 3 + 1, vertexArrayBuffer.get(i * 3 + 1));
+            vertexBuffer.put(IndexBuffer.get(i) * 3 + 2, vertexArrayBuffer.get(i * 3 + 2));
         }
     }
 
     public void unpackingBuffer() {
         // setting v contents of obj's file
-        for(int i = 0; i < object3DData.getNumVerts(); i++) {
+        for (int i = 0; i < object3DData.getNumVerts(); i++) {
             float[] position = new float[3];
 
             position[0] = vertexBuffer.get(i * 3);
@@ -74,7 +74,7 @@ public class Object3DUnpacker {
         float x0, y0, z0;
         float x, y, z;
 
-        for (int i = 0; i < vertexBuffer.capacity()/3; i++) {
+        for (int i = 0; i < vertexBuffer.capacity() / 3; i++) {
             x0 = vertexBuffer.get(i * 3);
             y0 = vertexBuffer.get(i * 3 + 1);
             z0 = vertexBuffer.get(i * 3 + 2);

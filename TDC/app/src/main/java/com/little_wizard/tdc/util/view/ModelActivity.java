@@ -272,15 +272,15 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
 
             for (int i = 0; i < vertexArrayList.size(); i++) {
                 Object3DData objPoint = Object3DBuilder.loadSelectedObjectPoints(this, "Point.obj", selectedObject);
-                float val1 = vertexArrayList.get(i)[0] * 16.5f + obj.getPositionX() * obj.getScaleX();
-                float val2 = vertexArrayList.get(i)[1] * 16.5f + obj.getPositionY() * obj.getScaleY();
-                float val3 = vertexArrayList.get(i)[2] * 16.5f + obj.getPositionZ() / obj.getScaleZ();
+                float val1 = vertexArrayList.get(i)[0] * 19.5f + obj.getPositionX() * obj.getScaleX();
+                float val2 = vertexArrayList.get(i)[1] * 19.5f + obj.getPositionY() * obj.getScaleY();
+                float val3 = vertexArrayList.get(i)[2] * 19.5f + obj.getPositionZ() * obj.getScaleZ();
                 objPoint.setPosition(new float[]{
                         (float) ((val1 * (obj.getScaleX() * 100 / SCALE_MAX) / 100) * 2.5),
                         (float) ((val2 * (obj.getScaleY() * 100 / SCALE_MAX) / 100) * 2.5),
                         (float) ((val3 * (obj.getScaleZ() * 100 / SCALE_MAX) / 100) * 2.5)
                 });
-                objPoint.setScale(new float[]{0.3f, 0.3f, 0.3f});
+                objPoint.setScale(new float[]{0.25f, 0.25f, 0.25f});
                 objPoint.setColor(RED_COLOR);
                 scene.addObject(objPoint);
             }

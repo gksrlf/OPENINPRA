@@ -174,16 +174,14 @@ public class DrawQueue {
             if(list != null) fullList.addAll(list);
         }
 
-        ListIterator<Coordinates> it = fullList.listIterator();
+        Iterator<Coordinates> it = fullList.iterator();
         Coordinates previous = new Coordinates(-1, -1);
         Coordinates lastEquals = null;
         while(it.hasNext()){
             Coordinates current = it.next();
             if(previous.getX() == current.getX()) {
-                //it.previous();
                 lastEquals = current;
                 it.remove();
-                //it.next();
             }
             else{
                 if(lastEquals != null){
@@ -226,25 +224,48 @@ public class DrawQueue {
     // text파일 만들 때 사용
     public ArrayList<Coordinates> getPairY() {
         HashMap<Float, TreeSet<Float>> hashMap = new HashMap<>();
+        ArrayList<Coordinates> fullList = new ArrayList<>();
         for (ArrayList<Coordinates> list : listY) {
-            if (list == null) continue;
-            for (Coordinates c : list) {
-                float key = c.getY() / 1000;
-                float value = c.getX() / 1000;
-                if (!hashMap.containsKey(key)) {
-                    TreeSet<Float> set = new TreeSet<>();
-                    set.add(value);
-                    hashMap.put(key, set);
-                } else {
-                    hashMap.get(key).add(value);
-                }
+            if(list != null) fullList.addAll(list);
+        }
 
-                minX = Math.min(minX, (int) c.getX());
-                minY = Math.min(minY, (int) c.getY());
-                maxX = Math.max(maxX, (int) c.getX());
-                maxY = Math.max(maxY, (int) c.getY());
+        Iterator<Coordinates> it = fullList.iterator();
+        Coordinates previous = new Coordinates(-1, -1);
+        Coordinates lastEquals = null;
+        while(it.hasNext()){
+            Coordinates current = it.next();
+            if(previous.getY() == current.getY()) {
+                lastEquals = current;
+                it.remove();
+            }
+            else{
+                if(lastEquals != null){
+                    float x = (previous.getX() + lastEquals.getX()) / 2;
+                    float y = previous.getY();
+                    previous = new Coordinates(x, y);
+                }
+                previous = current;
+                lastEquals = null;
             }
         }
+
+        for (Coordinates c : fullList) {
+            float key = c.getY() / 1000;
+            float value = c.getX() / 1000;
+            if (!hashMap.containsKey(key)) {
+                TreeSet<Float> set = new TreeSet<>();
+                set.add(value);
+                hashMap.put(key, set);
+            } else {
+                hashMap.get(key).add(value);
+            }
+
+            minX = Math.min(minX, (int) c.getX());
+            minY = Math.min(minY, (int) c.getY());
+            maxX = Math.max(maxX, (int) c.getX());
+            maxY = Math.max(maxY, (int) c.getY());
+        }
+
         TreeMap<Float, TreeSet<Float>> treeMap = new TreeMap<>(hashMap);
         ArrayList<Coordinates> result = new ArrayList<>();
         for(Float y : treeMap.keySet()){
@@ -256,24 +277,6 @@ public class DrawQueue {
         return result;
     }
 
-    // text파일 만들 때 사용
-    /*public TreeMap getPairY() {
-        HashMap<Float, Set<Float>> result = new HashMap<>();
-        for (ArrayList<Coordinates> list : listY) {
-            for (Coordinates c : list) {
-                float key = c.getY() / 1000;
-                float value = c.getX() / 1000;
-                if (result.containsKey(key)) {
-                    Set<Float> set = new HashSet<>();
-                    set.add(value);
-                    result.put(key, set);
-                } else {
-                    result.get(key).add(value);
-                }
-            }
-        }
-        return new TreeMap<>(result);
-    }*/
 
     public int getStartX() {
         return minX;

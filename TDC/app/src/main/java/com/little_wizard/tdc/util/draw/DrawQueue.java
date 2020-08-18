@@ -6,7 +6,9 @@ import android.util.Log;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -32,25 +34,7 @@ public class DrawQueue {
             return end;
         }
     }
-/*
-    private class AbsPoint {
-        private Coordinates start;
-        private Coordinates end;
 
-        public AbsPoint(Coordinates start, Coordinates end) {
-            this.start = start;
-            this.end = end;
-        }
-
-        public Coordinates getStart() {
-            return start;
-        }
-
-        public Coordinates getEnd() {
-            return end;
-        }
-    }
-*/
     private final int maxSize = 10;
     // bitmap, axis X List, axis Y List
     private ArrayDeque<Element> queue;
@@ -185,25 +169,50 @@ public class DrawQueue {
     // text파일 만들 때 사용
     public ArrayList<Coordinates> getPairX() {
         HashMap<Float, TreeSet<Float>> hashMap = new HashMap<>();
+        ArrayList<Coordinates> fullList = new ArrayList<>();
         for (ArrayList<Coordinates> list : listX) {
-            if (list == null) continue;
-            for (Coordinates c : list) {
-                float key = c.getX() / 1000;
-                float value = c.getY() / 1000;
-                if (!hashMap.containsKey(key)) {
-                    TreeSet<Float> set = new TreeSet<>();
-                    set.add(value);
-                    hashMap.put(key, set);
-                } else {
-                    hashMap.get(key).add(value);
-                }
+            if(list != null) fullList.addAll(list);
+        }
 
-                minX = Math.min(minX, (int) c.getX());
-                minY = Math.min(minY, (int) c.getY());
-                maxX = Math.max(maxX, (int) c.getX());
-                maxY = Math.max(maxY, (int) c.getY());
+        ListIterator<Coordinates> it = fullList.listIterator();
+        Coordinates previous = new Coordinates(-1, -1);
+        Coordinates lastEquals = null;
+        while(it.hasNext()){
+            Coordinates current = it.next();
+            if(previous.getX() == current.getX()) {
+                //it.previous();
+                lastEquals = current;
+                it.remove();
+                //it.next();
+            }
+            else{
+                if(lastEquals != null){
+                    float x = previous.getX();
+                    float y = (previous.getY() + lastEquals.getY()) / 2;
+                    previous = new Coordinates(x, y);
+                }
+                previous = current;
+                lastEquals = null;
             }
         }
+
+        for (Coordinates c : fullList) {
+            float key = c.getX() / 1000;
+            float value = c.getY() / 1000;
+            if (!hashMap.containsKey(key)) {
+                TreeSet<Float> set = new TreeSet<>();
+                set.add(value);
+                hashMap.put(key, set);
+            } else {
+                hashMap.get(key).add(value);
+            }
+
+            minX = Math.min(minX, (int) c.getX());
+            minY = Math.min(minY, (int) c.getY());
+            maxX = Math.max(maxX, (int) c.getX());
+            maxY = Math.max(maxY, (int) c.getY());
+        }
+
         TreeMap<Float, TreeSet<Float>> treeMap = new TreeMap<>(hashMap);
         ArrayList<Coordinates> result = new ArrayList<>();
         for(Float x : treeMap.keySet()){

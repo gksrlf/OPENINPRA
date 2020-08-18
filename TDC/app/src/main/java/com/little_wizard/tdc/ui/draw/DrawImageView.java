@@ -223,15 +223,11 @@ public class DrawImageView extends androidx.appcompat.widget.AppCompatImageView 
                         }
                     }
                 } else if(mode == ZOOM){
+                    drawPath.reset();
+                    viewPath.reset();
                     savedMatrix.getValues(savedMatrixValue);
                     matrix.getValues(matrixValue);
 
-                    //float scaleX = matrixValue[Matrix.MSCALE_X];
-                    //float scaleY = matrixValue[Matrix.MSCALE_Y];
-                    //if(scaleX > MAX_ZOOM || scaleX < MIN_ZOOM || scaleY > MAX_ZOOM || scaleY < MIN_ZOOM) {
-                    //    mode = NONE;
-                    //    break;
-                    //}
                     nowDist = spacing(event);
 
                     if (nowDist > 10f) {
@@ -283,13 +279,6 @@ public class DrawImageView extends androidx.appcompat.widget.AppCompatImageView 
         float x = event.getX(0) - event.getX(1);
         float y = event.getY(0) - event.getY(1);
         return (float) Math.sqrt(x * x + y * y);
-        //if (event.getPointerCount() > 1) {
-        //    float x = event.getX(0) - event.getX(1);
-        //    float y = event.getY(0) - event.getY(1);
-        //    return (float) Math.sqrt(x * x + y * y);
-        //} else {
-        //    return oldDist;
-        //}
     }
 
     private void midPoint(PointF point, MotionEvent event) {
@@ -306,8 +295,7 @@ public class DrawImageView extends androidx.appcompat.widget.AppCompatImageView 
         canvasBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
         originalBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
         drawCanvas = new Canvas(canvasBitmap);
-        //width = canvasBitmap.getWidth();
-        //height = canvasBitmap.getHeight();
+
         drawQueue.push(bitmap, null, null);
         drawQueue.push(null, null);
         line = originalLine;
@@ -450,6 +438,8 @@ public class DrawImageView extends androidx.appcompat.widget.AppCompatImageView 
         float mPosY = matrixValue[Matrix.MTRANS_Y];
         float width = originalBitmap.getWidth() * getRealScale();
         float height = originalBitmap.getHeight() * getRealScale();
+
+        //대칭 모드에서 축의 오른쪽인지 아닌지 확인
         if (photo_mode == SYMMETRY) {
             return (mPosX <= e.getX() && e.getX() <= mPosX + line && mPosY <= e.getY() && e.getY() <= mPosY + height) ? true : false;
         } else {

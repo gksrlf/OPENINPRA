@@ -412,7 +412,7 @@ public class CameraActivity extends AppCompatActivity implements S3Transfer.Tran
     }
 
     private void startEdit(Uri uri) {
-        final String[] menu = {getString(R.string.symmetry), getString(R.string.asymmetry)};
+        final String[] menu = {getString(R.string.symmetry), getString(R.string.asymmetry), getString(R.string.flat)};
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         alertDialogBuilder.setTitle(R.string.photo_type);
         alertDialogBuilder.setItems(menu, (dialogInterface, i) -> {
@@ -428,6 +428,14 @@ public class CameraActivity extends AppCompatActivity implements S3Transfer.Tran
                 case 1:
                     intent = new Intent(this, DrawActivity.class);
                     intent.putExtra("MODE", "ASYMMETRY");
+                    intent.setAction(Intent.ACTION_SEND);
+                    intent.setData(uri);
+                    startActivity(intent);
+                    break;
+
+                case 2:
+                    intent = new Intent(this, DrawActivity.class);
+                    intent.putExtra("MODE", "FLAT");
                     intent.setAction(Intent.ACTION_SEND);
                     intent.setData(uri);
                     startActivity(intent);

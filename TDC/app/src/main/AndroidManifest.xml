@@ -40,8 +40,12 @@
             android:name=".util.view.ModelActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.MaterialComponents.Light.NoActionBar" />
-        <activity android:name=".ui.draw.DrawActivity" />
-        <activity android:name=".ui.draw.EditActivity" />
+        <activity
+            android:name=".ui.draw.DrawActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.draw.EditActivity"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

@@ -2,12 +2,15 @@ package com.little_wizard.tdc.ui.draw;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.ImageDecoder;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
@@ -44,8 +47,9 @@ import java.util.List;
 public class DrawActivity extends AppCompatActivity implements S3Transfer.TransferCallback, DrawAdapter.ItemClickListener {
     public static final int ASYMMETRY = 1;
     public static final int SYMMETRY = 2;
+    public static final int FLAT = 3;
 
-    private MyView m;
+    private DrawImageView m;
     private boolean isDrawMode = false;
     Display display;
     private int viewHeight;
@@ -63,6 +67,14 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
     AlertDialog dialog;
     DrawAdapter adapter;
 
+    List resultList;
+    String axis;
+
+    Context mContext;
+
+    private AlertDialog alertDialog;
+    private BackgroundThread backgroundThread;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,6 +88,8 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
         transfer = new S3Transfer(this);
         transfer.setCallback(this);
 
+        mContext = this;
+
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage(getString(R.string.uploading));
         progressDialog.setCancelable(false);
@@ -87,9 +101,11 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
             Uri uri = intent.getData();
             String mode = intent.getStringExtra("MODE");
             if (mode.equals("ASYMMETRY")) {//비대칭일 때 갤러리 사진 Uri 가져옴
-                m = new MyView(this, viewHeight, viewWidth, ASYMMETRY);
-            } else { // 대칭일 때 byte array 가져옴, 축 설정
-                m = new MyView(this, viewHeight, viewWidth, SYMMETRY);
+                m = new DrawImageView(this, viewHeight, viewWidth, ASYMMETRY);
+            } else if (mode.equals("SYMMETRY")) { // 대칭일 때 byte array 가져옴, 축 설정
+                m = new DrawImageView(this, viewHeight, viewWidth, SYMMETRY);
+            } else {
+                m = new DrawImageView(this, viewHeight, viewWidth, FLAT);
             }
             line = intent.getFloatExtra("LINE", Float.MIN_VALUE);
             try {
@@ -101,11 +117,12 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
 
-        filepath = getExternalCacheDir() + "/";
-        filename = Long.toString(ZonedDateTime.now().toInstant().toEpochMilli());
-        objectBuffer = new ObjectBuffer(filepath, filename, bitmap);
+            filepath = getExternalCacheDir() + "/";
+            filename = Long.toString(ZonedDateTime.now().toInstant().toEpochMilli());
+            objectBuffer = new ObjectBuffer(filepath, filename, bitmap);
+            objectBuffer.setMode(mode);
+        }
 
         //레이아웃 설정
         setContentView(R.layout.activity_draw);
@@ -153,11 +170,16 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
 
             case R.id.draw_confirmation:
                 m.setConfirmation(true);
-                List list = m.getList();
+                if (!objectBuffer.getMode().equals("SYMMETRY")) {
+                    selectAxis();
+                    return true;
+                }
+
+                resultList = m.getSymmetryResult();
                 Bitmap bitmap = m.getCroppedImage().copy(Bitmap.Config.ARGB_8888, true);
-                if (list != null) {
-                    List newList = new ArrayList<Coordinates>(list);
-                    objectBuffer.push(bitmap, newList);
+                if (resultList != null) {
+                    List newList = new ArrayList<Coordinates>(resultList);
+                    objectBuffer.push(bitmap, newList, "");
                     Toast.makeText(this, "추가 완료", Toast.LENGTH_SHORT).show();
                 }
                 return true;
@@ -173,7 +195,9 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
                 recycler.setAdapter(adapter);
                 adapter.setElementList(objectBuffer.getBuffer());
                 builder.setView(recycler);
-                builder.setNegativeButton(R.string.cancel, (dialogInterface, i) -> {});
+                builder.setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
+
+                });
                 builder.setPositiveButton(R.string.upload, (dialogInterface, i) -> {
                     upload(objectBuffer.getName());
                 });
@@ -198,7 +222,6 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
         } else {
             newWidth = (int) (viewHeight / rate);
         }
-
         line = (line * newWidth) / width;
         return Bitmap.createScaledBitmap(source, (int) newWidth, (int) newHeight, true);
     }
@@ -208,7 +231,7 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
     }
 
     // 좌표 리스트를 텍스트 파일로 생성
-    public void saveFile(String filename, ArrayList<Coordinates> list) {
+    public void saveFile(String filename, ObjectBuffer.Element element) {
         try {
             File dir = new File(getExternalCacheDir().toString());
             //디렉토리 폴더가 없으면 생성함
@@ -220,9 +243,61 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
             //파일쓰기
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fos));
 
-            for (Coordinates c : list) {
-                writer.write(String.format("%f;%f;\n", c.getX(), c.getY()));
-                writer.flush();
+            String mode = objectBuffer.getMode();
+            float width = (float) element.getBitmap().getWidth();
+            float height = (float) element.getBitmap().getHeight();
+
+            writer.write(String.format("%s\n", mode));
+            writer.write(String.format("%f %f\n", width / 1000, height / 1000));
+            if (mode.equals("SYMMETRY")) {
+                float axisF = m.getLine() / 1000;
+                writer.write(String.format("%f\n", axisF));
+                for (Coordinates c : element.getList()) {
+                    writer.write(String.format("%f\n%f\n", c.getX(), c.getY()));
+                    writer.flush();
+                }
+            } else {
+                writer.write(String.format("%s\n", axis));
+                for (Coordinates c : element.getList()) {
+                    writer.write(String.format("%f %f\n", c.getX(), c.getY()));
+                }
+            }
+
+            writer.close();
+            fos.close();
+        } catch (IOException e) {
+
+        }
+    }
+
+    // 좌표 리스트를 텍스트 파일로 생성
+    public void saveFile(String filename, ArrayList<Coordinates> list, String axis) {
+        try {
+            File dir = new File(getExternalCacheDir().toString());
+            //디렉토리 폴더가 없으면 생성함
+            if (!dir.exists()) {
+                dir.mkdir();
+            }
+            //파일 output stream 생성
+            FileOutputStream fos = new FileOutputStream(getExternalCacheDir() + "/" + filename, true);
+            //파일쓰기
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fos));
+
+            String mode = objectBuffer.getMode();
+            writer.write(String.format("%s\n", mode));
+            if (mode.equals("SYMMETRY")) {
+                float axisF = m.getLine() / 1000;
+                writer.write(String.format("%f\n", axisF));
+                //ArrayList<Coordinates> result = m.getSymmetryResult();
+                for (Coordinates c : list) {
+                    writer.write(String.format("%f\n%f\n", c.getX(), c.getY()));
+                    writer.flush();
+                }
+            } else {
+                writer.write(String.format("%s\n", axis));
+                for (Coordinates c : list) {
+                    writer.write(String.format("%f %f\n", c.getX(), c.getY()));
+                }
             }
 
             writer.close();
@@ -327,9 +402,15 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
             int pos = 0;
             for (ObjectBuffer.Element e : objectBuffer.getBuffer()) {
                 file = new File(path + String.format("%s-%d.txt", filename, pos));
-                saveFile(String.format("%s-%d.txt", filename, pos), (ArrayList<Coordinates>) e.getList());
+                saveFile(String.format("%s-%d.txt", filename, pos), e);
                 transfer.upload(R.string.s3_bucket, FilenameUtils.getBaseName(text + ".txt")
                         .isEmpty() ? file.getName() : text + ".txt", file);
+
+                file = new File(path + String.format("%s-%d.jpg", filename, pos));
+                saveFile(String.format("%s-%d.jpg", filename, pos), e.getBitmap());
+                transfer.upload(R.string.s3_bucket, FilenameUtils.getBaseName(text + ".txt")
+                        .isEmpty() ? file.getName() : text + ".jpg", file);
+
                 pos++;
             }
             /*transfer.upload(R.string.s3_bucket, FilenameUtils.getBaseName(text)
@@ -340,4 +421,81 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
         builder.show();
     }
 
+    protected void selectAxis() {
+        final String[] menu = {getString(R.string.axis_x), getString(R.string.axis_y)};
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder.setTitle(R.string.photo_type);
+        alertDialogBuilder.setItems(menu, (dialogInterface, i) -> {
+            Bitmap bitmap;
+            switch (i) {
+                case 0:
+                    axis = "X";
+                    resultList = m.getPairX();
+                    bitmap = m.getCroppedImage().copy(Bitmap.Config.ARGB_8888, true);
+                    if (resultList != null) {
+                        List newList = new ArrayList<Coordinates>(resultList);
+                        objectBuffer.push(bitmap, newList, "X");
+                        Toast.makeText(this, "추가 완료", Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+                case 1:
+                    axis = "Y";
+                    resultList = m.getPairY();
+                    bitmap = m.getCroppedImage().copy(Bitmap.Config.ARGB_8888, true);
+                    if (resultList != null) {
+                        List newList = new ArrayList<Coordinates>(resultList);
+                        objectBuffer.push(bitmap, newList, "Y");
+                        Toast.makeText(this, "추가 완료", Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+                default:
+                    break;
+            }
+        });
+        alertDialogBuilder.setCancelable(false);
+        alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+    }
+
+    protected class BackgroundThread extends Thread {
+        volatile boolean running = false;
+        int cnt;
+
+        void setRunning(boolean b) {
+            running = b;
+            cnt = 7;
+        }
+
+        @Override
+        public void run() {
+            while (running) {
+                try {
+                    sleep(500);
+                    if (cnt-- == 0) {
+                        running = false;
+                    }
+                } catch (InterruptedException e) {
+
+                }
+            }
+            handler.sendMessage(handler.obtainMessage());
+        }
+    }
+
+    Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            alertDialog.dismiss();
+
+            boolean retry = true;
+            while (retry) {
+                try {
+                    backgroundThread.join();
+                    retry = false;
+                } catch (InterruptedException e) {
+
+                }
+            }
+        }
+    };
 }

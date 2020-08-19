@@ -36,6 +36,9 @@
     <string name="photo_type">사진 타입</string>
     <string name="symmetry">대칭</string>
     <string name="asymmetry">비대칭</string>
+    <string name="flat">평면</string>
+    <string name="axis_x">X축 대칭</string>
+    <string name="axis_y">Y축 대칭</string>
     <string name="saveFailed">저장을 실패했습니다.</string>
 
     <!-- Constance -->

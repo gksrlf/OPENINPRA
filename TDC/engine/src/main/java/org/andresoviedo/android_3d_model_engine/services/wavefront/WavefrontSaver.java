@@ -16,14 +16,15 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * This class is saving obj file use Object3DData's metadata
  */
 
 public class WavefrontSaver {
-    Object3DData obj;
     String baseName;
+    List<Object3DData> objList;
 
     // meta data
     FloatBuffer textureCoordsBuffer;
@@ -33,16 +34,14 @@ public class WavefrontSaver {
 
     Materials materials = null;
 
-    public WavefrontSaver(Object3DData obj, String baseName) {
-        this.object3DUnpacker = new Object3DUnpacker(obj);
-        this.obj = obj;
+    public WavefrontSaver(List<Object3DData> objList, String baseName) {
         this.textureCoordsBuffer = null;
-        this.faces = obj.getFaces();
+        this.objList = objList;
         this.baseName = baseName;
     }
 
     // Unpacking FloatBuffer vertexArrayBuffer to vertexBuffer
-    public void unpackingArrayBuffer() throws Exception {
+    public void unpackingArrayBuffer(Object3DData obj) throws Exception {
         ArrayList<Tuple3> texCoords = obj.getTexCoords();
         FloatBuffer textureCoordsArrayBuffer = obj.getTextureCoordsArrayBuffer();
 
@@ -70,88 +69,94 @@ public class WavefrontSaver {
     public File OutFileToVertexBuffer(String filePath, float SCALE_MAX) {
         float u, v;
 
-        // get .mtl file's name
-        materials = obj.getMaterials();
-
         File file = null;
+
         try {
-            unpackingArrayBuffer();
-
-            object3DUnpacker.unpackingBuffer();
-            List<float[]> vertexArrayList = object3DUnpacker.getVertexArrayList();
-
             file = new File(filePath);
             FileWriter fw = new FileWriter(file);
 
             fw.write("mtllib " + baseName + ".mtl" + "\n\n");
 
-            Log.i("getRotation", String.valueOf(obj.getRotationX()));
-            Log.i("getRotation", String.valueOf(obj.getRotationY()));
-            Log.i("getRotation", String.valueOf(obj.getRotationZ()));
-            for (int i = 0; i < vertexArrayList.size(); i++) {
-                float[] position = vertexArrayList.get(i);
+            for (Object3DData obj : objList) {
+                object3DUnpacker = new Object3DUnpacker(obj);
+                faces = obj.getFaces();
+                unpackingArrayBuffer(obj);
 
-                float valX = position[0] + obj.getPositionX() * obj.getScaleX();
-                float valY = position[1] + obj.getPositionY() * obj.getScaleY();
-                float valZ = position[2] + obj.getPositionZ() * obj.getScaleZ();
+                // get .mtl file's name
+                materials = obj.getMaterials();
 
-                float radianX = obj.getRotationX() * (float) (Math.PI / 180);
-                float radianY = obj.getRotationY() * (float) (Math.PI / 180);
-                float radianZ = obj.getRotationZ() * (float) (Math.PI / 180);
+                object3DUnpacker.unpackingBuffer();
+                List<float[]> vertexArrayList = object3DUnpacker.getVertexArrayList();
 
-                float rotatedX = 0;
-                float rotatedY = 0;
-                float rotatedZ = 0;
+                Log.i("getRotation", String.valueOf(obj.getRotationX()));
+                Log.i("getRotation", String.valueOf(obj.getRotationY()));
+                Log.i("getRotation", String.valueOf(obj.getRotationZ()));
+                for (int i = 0; i < vertexArrayList.size(); i++) {
+                    float[] position = vertexArrayList.get(i);
 
-                rotatedY = (float) Math.cos(radianX) * valY - (float) Math.sin(radianX) * valZ;
-                rotatedZ = (float) Math.sin(radianX) * valY + (float) Math.cos(radianX) * valZ;
+                    float valX = position[0] + obj.getPositionX() * obj.getScaleX();
+                    float valY = position[1] + obj.getPositionY() * obj.getScaleY();
+                    float valZ = position[2] + obj.getPositionZ() * obj.getScaleZ();
 
-                valY = rotatedY;
-                valZ = rotatedZ;
+                    float radianX = obj.getRotationX() * (float) (Math.PI / 180);
+                    float radianY = obj.getRotationY() * (float) (Math.PI / 180);
+                    float radianZ = obj.getRotationZ() * (float) (Math.PI / 180);
 
-                // y축 회전 연산
-                rotatedZ = (float) Math.cos(radianY) * valZ - (float) Math.sin(radianY) * valX;
-                rotatedX = (float) Math.sin(radianY) * valZ + (float) Math.cos(radianY) * valX;
+                    float rotatedX = 0;
+                    float rotatedY = 0;
+                    float rotatedZ = 0;
 
-                valZ = rotatedZ;
-                valX = rotatedX;
+                    rotatedY = (float) Math.cos(radianX) * valY - (float) Math.sin(radianX) * valZ;
+                    rotatedZ = (float) Math.sin(radianX) * valY + (float) Math.cos(radianX) * valZ;
 
-                // z축 회전 연산
-                rotatedX = (float) Math.cos(radianZ) * valX - (float) Math.sin(radianZ) * valY;
-                rotatedY = (float) Math.sin(radianZ) * valX + (float) Math.cos(radianZ) * valY;
+                    valY = rotatedY;
+                    valZ = rotatedZ;
 
-                valX = rotatedX;
-                valY = rotatedY;
+                    // y축 회전 연산
+                    rotatedZ = (float) Math.cos(radianY) * valZ - (float) Math.sin(radianY) * valX;
+                    rotatedX = (float) Math.sin(radianY) * valZ + (float) Math.cos(radianY) * valX;
 
-                Log.i("rotation", String.format("%f %f %f", rotatedX, rotatedY, rotatedZ));
-                //TODO Need to change vertex's data for sync obj file
-                fw.write("v "
-                        + ((valX * (obj.getScaleX() * 100 / SCALE_MAX) / 100)) + " "
-                        + ((valY * (obj.getScaleY() * 100 / SCALE_MAX) / 100)) + " "
-                        + ((valZ * (obj.getScaleZ() * 100 / SCALE_MAX) / 100)) + " "
-                        + "\n");
-            }
+                    valZ = rotatedZ;
+                    valX = rotatedX;
 
-            for (int i = 0; i < obj.getNumTextures(); i++) {
-                u = textureCoordsBuffer.get(i * 2);
-                v = (obj.isFlipTextCoords() ? 1 - textureCoordsBuffer.get(i * 2 + 1) : textureCoordsBuffer.get(i * 2 + 1));
-                fw.write("vt " + u + " " + v + "\n");
-            }
+                    // z축 회전 연산
+                    rotatedX = (float) Math.cos(radianZ) * valX - (float) Math.sin(radianZ) * valY;
+                    rotatedY = (float) Math.sin(radianZ) * valX + (float) Math.cos(radianZ) * valY;
 
-            // setting f contents of obj's file
-            for (int i = 0; i < faces.facesTexIdxs.size(); i++) {
-                String[] face = new String[3];
-                int[] text = faces.facesTexIdxs.get(i);
+                    valX = rotatedX;
+                    valY = rotatedY;
 
-                for (int j = 0; j < 3; j++)
-                    face[j] = (faces.facesVertIdxs.get(i * 3 + j) + 1) + "/" + (text[j] + 1);
+                    Log.i("rotation", String.format("%f %f %f", rotatedX, rotatedY, rotatedZ));
+                    //TODO Need to change vertex's data for sync obj file
+                    fw.write("v "
+                            + String.format(Locale.KOREA, "%.1f", (valX * (obj.getScaleX() * 100 / SCALE_MAX) / 100)) + " "
+                            + String.format(Locale.KOREA, "%.1f", (valY * (obj.getScaleY() * 100 / SCALE_MAX) / 100)) + " "
+                            + String.format(Locale.KOREA, "%.1f", (valZ * (obj.getScaleZ() * 100 / SCALE_MAX) / 100)) + " "
+                            + "\n");
+                }
 
-                //TODO Need to change faces's data for sync obj file
-                fw.write("f " + face[0] + " " + face[1] + " " + face[2] + "\n");
+                for (int i = 0; i < obj.getNumTextures(); i++) {
+                    u = textureCoordsBuffer.get(i * 2);
+                    v = (obj.isFlipTextCoords() ? 1 - textureCoordsBuffer.get(i * 2 + 1) : textureCoordsBuffer.get(i * 2 + 1));
+                    fw.write("vt " + u + " " + v + "\n");
+                }
+
+                // setting f contents of obj's file
+                for (int i = 0; i < faces.facesTexIdxs.size(); i++) {
+                    String[] face = new String[3];
+                    int[] text = faces.facesTexIdxs.get(i);
+
+                    for (int j = 0; j < 3; j++)
+                        face[j] = (faces.facesVertIdxs.get(i * 3 + j) + 1) + "/" + (text[j] + 1);
+
+                    //TODO Need to change faces's data for sync obj file
+                    fw.write("f " + face[0] + " " + face[1] + " " + face[2] + "\n");
+                }
             }
             fw.close();
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
         return file;
     }

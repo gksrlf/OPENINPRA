@@ -182,8 +182,8 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
 
             case R.id.action_save: {
                 ContentUtils.setThreadActivity(this);
-                WavefrontSaver saver = new WavefrontSaver(replace3DData(), FilenameUtils.getBaseName(paramUri.toString()));
-                File file = saver.OutFileToVertexBuffer(getExternalCacheDir().getAbsolutePath() + "/TestCube.obj", SCALE_MAX);
+                WavefrontSaver saver = new WavefrontSaver(scene.getObjects(), FilenameUtils.getBaseName(paramUri.toString()));
+                File file = saver.OutFileToVertexBuffer(getExternalCacheDir().getAbsolutePath() + "/Test.obj", SCALE_MAX);
                 if (file != null) {
                     transfer.upload(R.string.s3_bucket_resize, file.getName(), file);
                     finish();
@@ -485,10 +485,9 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
             Object3DData obj = Object3DBuilder.loadSelectedObject(file);
             InputStream open = ContentUtils.getInputStream(obj.getTextureFile());
             obj.setTextureData(IOUtils.read(open));
-            obj.centerAndScale(2.0f);
-            obj.centerAndScale(2.0f);
-            obj.setPosition(new float[]{2f, 0f, 0f});
-            obj.setColor(new float[]{1.0f, 1.0f, 1.0f, 1.0f});
+            obj.setScale(new float[]{SCALE_MAX, SCALE_MAX, SCALE_MAX});
+            obj.setPosition(new float[]{0.0f, 0.0f, 0.0f});
+            obj.setRotation(new float[]{0.0f, 0.0f, 0.0f});
             scene.addObject(obj);
             Toast.makeText(this, file.getName() + " 생성 완료.", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {

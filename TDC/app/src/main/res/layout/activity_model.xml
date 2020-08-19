@@ -66,7 +66,7 @@
             app:layout_constraintStart_toStartOf="parent">
 
             <com.google.android.material.slider.Slider
-                android:id="@+id/slider"
+                android:id="@+id/valueSlider"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:value="1"
@@ -78,82 +78,82 @@
                 app:trackColor="#210B61" />
 
             <ImageButton
-                android:id="@+id/xAxisZoomIn"
+                android:id="@+id/xAxisPlus"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_plus"
                 app:layout_constraintEnd_toStartOf="@id/xAxisSpace"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/slider" />
+                app:layout_constraintTop_toBottomOf="@id/valueSlider" />
 
             <Space
                 android:id="@+id/xAxisSpace"
                 android:layout_width="30dp"
                 android:layout_height="0dp"
-                app:layout_constraintEnd_toStartOf="@id/xAxisZoomOut"
-                app:layout_constraintStart_toEndOf="@id/xAxisZoomIn"
-                app:layout_constraintTop_toBottomOf="@id/slider" />
+                app:layout_constraintEnd_toStartOf="@id/xAxisMinus"
+                app:layout_constraintStart_toEndOf="@id/xAxisPlus"
+                app:layout_constraintTop_toBottomOf="@id/valueSlider" />
 
             <ImageButton
-                android:id="@+id/xAxisZoomOut"
+                android:id="@+id/xAxisMinus"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_minus"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/xAxisSpace"
-                app:layout_constraintTop_toBottomOf="@id/slider" />
+                app:layout_constraintTop_toBottomOf="@id/valueSlider" />
 
             <ImageButton
-                android:id="@+id/yAxisZoomIn"
+                android:id="@+id/yAxisPlus"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_plus"
                 app:layout_constraintEnd_toStartOf="@id/yAxisSpace"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/xAxisZoomIn" />
+                app:layout_constraintTop_toBottomOf="@id/xAxisPlus" />
 
             <Space
                 android:id="@+id/yAxisSpace"
                 android:layout_width="30dp"
                 android:layout_height="0dp"
-                app:layout_constraintEnd_toStartOf="@id/yAxisZoomOut"
-                app:layout_constraintStart_toEndOf="@id/yAxisZoomIn"
+                app:layout_constraintEnd_toStartOf="@id/yAxisMinus"
+                app:layout_constraintStart_toEndOf="@id/yAxisPlus"
                 app:layout_constraintTop_toBottomOf="@id/xAxisSpace" />
 
             <ImageButton
-                android:id="@+id/yAxisZoomOut"
+                android:id="@+id/yAxisMinus"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_minus"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/yAxisSpace"
-                app:layout_constraintTop_toBottomOf="@id/xAxisZoomOut" />
+                app:layout_constraintTop_toBottomOf="@id/xAxisMinus" />
 
             <ImageButton
-                android:id="@+id/zAxisZoomIn"
+                android:id="@+id/zAxisPlus"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_plus"
                 app:layout_constraintEnd_toStartOf="@id/zAxisSpace"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/yAxisZoomIn" />
+                app:layout_constraintTop_toBottomOf="@id/yAxisPlus" />
 
             <Space
                 android:id="@+id/zAxisSpace"
                 android:layout_width="30dp"
                 android:layout_height="0dp"
-                app:layout_constraintEnd_toStartOf="@id/zAxisZoomOut"
-                app:layout_constraintStart_toEndOf="@id/zAxisZoomIn"
+                app:layout_constraintEnd_toStartOf="@id/zAxisMinus"
+                app:layout_constraintStart_toEndOf="@id/zAxisPlus"
                 app:layout_constraintTop_toBottomOf="@id/yAxisSpace" />
 
             <ImageButton
-                android:id="@+id/zAxisZoomOut"
+                android:id="@+id/zAxisMinus"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_minus"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/zAxisSpace"
-                app:layout_constraintTop_toBottomOf="@id/yAxisZoomOut" />
+                app:layout_constraintTop_toBottomOf="@id/yAxisMinus" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

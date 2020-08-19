@@ -31,15 +31,14 @@ import com.little_wizard.tdc.util.demo.SceneLoader;
 
 import org.andresoviedo.android_3d_model_engine.model.Object3DData;
 import org.andresoviedo.android_3d_model_engine.services.Object3DBuilder;
-import org.andresoviedo.android_3d_model_engine.services.Object3DUnpacker;
 import org.andresoviedo.android_3d_model_engine.services.wavefront.WavefrontSaver;
 import org.andresoviedo.util.android.ContentUtils;
+import org.andresoviedo.util.io.IOUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
@@ -67,20 +66,20 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
     LinearLayout modifyLayout;
     @BindView(R.id.rotate)
     ImageButton rotate;
-    @BindView(R.id.slider)
-    Slider slider;
-    @BindView(R.id.xAxisZoomIn)
-    ImageButton xAxisZoomIn;
-    @BindView(R.id.xAxisZoomOut)
-    ImageButton xAxisZoomOut;
-    @BindView(R.id.yAxisZoomIn)
-    ImageButton yAxisZoomIn;
-    @BindView(R.id.yAxisZoomOut)
-    ImageButton yAxisZoomOut;
-    @BindView(R.id.zAxisZoomIn)
-    ImageButton zAxisZoomIn;
-    @BindView(R.id.zAxisZoomOut)
-    ImageButton zAxisZoomOut;
+    @BindView(R.id.valueSlider)
+    Slider valueSlider;
+    @BindView(R.id.xAxisPlus)
+    ImageButton xAxisPlus;
+    @BindView(R.id.xAxisMinus)
+    ImageButton xAxisMinus;
+    @BindView(R.id.yAxisPlus)
+    ImageButton yAxisPlus;
+    @BindView(R.id.yAxisMinus)
+    ImageButton yAxisMinus;
+    @BindView(R.id.zAxisPlus)
+    ImageButton zAxisPlus;
+    @BindView(R.id.zAxisMinus)
+    ImageButton zAxisMinus;
     @BindView(R.id.axisLayout)
     ConstraintLayout axisLayout;
 
@@ -102,9 +101,6 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
     final float SCALE_MAX = 12.0f;
 
     private Object3DData selectedObject;
-
-    private float[] RED_COLOR = new float[]{1f, 0f, 0f, 1f};
-    private float[] GREEN_COLOR = new float[]{0f, 1f, 0f, 1f};
 
     private float axisVal;
 
@@ -131,6 +127,8 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setTitle(FilenameUtils.getBaseName(paramUri.toString()));
         }
+
+        ContentUtils.setThreadActivity(this);
 
         transfer = new S3Transfer(this);
 
@@ -177,21 +175,22 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
                 return true;
 
             case R.id.action_load: {
-                LoadDialog loadDialog = new LoadDialog(this, scene.getObjects(), this);
+                LoadDialog loadDialog = new LoadDialog(this, this);
                 loadDialog.show();
                 return true;
             }
 
             case R.id.action_save: {
-                if (selectedObject != null) {
-                    ContentUtils.setThreadActivity(this);
-                    WavefrontSaver saver = new WavefrontSaver(replace3DData(), FilenameUtils.getBaseName(paramUri.toString()));
-                    File file = saver.OutFileToVertexBuffer(getExternalCacheDir().getAbsolutePath() + "/TestCube.obj", SCALE_MAX);
+                ContentUtils.setThreadActivity(this);
+                WavefrontSaver saver = new WavefrontSaver(scene.getObjects(), FilenameUtils.getBaseName(paramUri.toString()));
+                File file = saver.OutFileToVertexBuffer(getExternalCacheDir().getAbsolutePath() + "/TestCube.obj", SCALE_MAX);
+                if (file != null) {
                     transfer.upload(R.string.s3_bucket_resize, file.getName(), file);
                     finish();
-                }
+                } else
+                    Toast.makeText(this, getString(R.string.saveFailed), Toast.LENGTH_SHORT).show();
+                return true;
             }
-            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -237,75 +236,30 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
 
     @OnClick(R.id.scale)
     public void onScaleClicked() {
-        if (selectedObject.getIsClicked()) destroyPointCube();
+        vibrate();
         axisMode = axisMode != AXIS_SCALE ? AXIS_SCALE : AXIS_DEFAULT;
         axisLayout.setVisibility(axisMode != AXIS_DEFAULT ? View.VISIBLE : View.GONE);
     }
 
     @OnClick(R.id.rotate)
     public void onRotateClicked() {
-        if (selectedObject.getIsClicked()) destroyPointCube();
+        vibrate();
         axisMode = axisMode != AXIS_ROTATE ? AXIS_ROTATE : AXIS_DEFAULT;
         axisLayout.setVisibility(axisMode != AXIS_DEFAULT ? View.VISIBLE : View.GONE);
     }
 
     @OnClick(R.id.transform)
     public void onTransformClicked() {
-        if (selectedObject.getIsClicked()) destroyPointCube();
+        vibrate();
         axisMode = axisMode != AXIS_TRANSFORM ? AXIS_TRANSFORM : AXIS_DEFAULT;
         axisLayout.setVisibility(axisMode != AXIS_DEFAULT ? View.VISIBLE : View.GONE);
     }
 
-    private void createPointCube(Object3DData obj) {
-        List<float[]> vertexArrayList;
-
-        ContentUtils.setThreadActivity(this);
-        ContentUtils.provideAssets(this);
-
-        if (!obj.getIsClicked()) {
-            Object3DUnpacker unPacker = new Object3DUnpacker(obj);
-
-            unPacker.unpackingArrayBuffer();
-            unPacker.unpackingBuffer();
-            vertexArrayList = unPacker.getVertexArrayList();
-
-            for (int i = 0; i < vertexArrayList.size(); i++) {
-                Object3DData objPoint = Object3DBuilder.loadSelectedObjectPoints(this, "Point.obj", selectedObject);
-                float val1 = vertexArrayList.get(i)[0] * 19.5f + obj.getPositionX() * obj.getScaleX();
-                float val2 = vertexArrayList.get(i)[1] * 19.5f + obj.getPositionY() * obj.getScaleY();
-                float val3 = vertexArrayList.get(i)[2] * 19.5f + obj.getPositionZ() * obj.getScaleZ();
-                objPoint.setPosition(new float[]{
-                        (float) ((val1 * (obj.getScaleX() * 100 / SCALE_MAX) / 100) * 2.5),
-                        (float) ((val2 * (obj.getScaleY() * 100 / SCALE_MAX) / 100) * 2.5),
-                        (float) ((val3 * (obj.getScaleZ() * 100 / SCALE_MAX) / 100) * 2.5)
-                });
-                objPoint.setRotation(obj.getRotation());
-                objPoint.setScale(new float[]{0.25f, 0.25f, 0.25f});
-                objPoint.setColor(RED_COLOR);
-                scene.addObject(objPoint);
-            }
-
-            ContentUtils.setThreadActivity(null);
-            ContentUtils.clearDocumentsProvided();
-
-            obj.setIsClicked(true);
-        }
-    }
-
-    private void destroyPointCube() {
-        List<Object3DData> objects = scene.getObjects();
-        for (int i = 0; i < objects.size(); i++) {
-            if (objects.get(i).getId().equals("Point.obj")) {
-                objects.remove(i--);
-            }
-        }
-    }
-
     private void axisLayoutInit() {
-        axisVal = slider.getValue();
-        slider.addOnChangeListener((slider, value, fromUser) -> axisVal = value);
+        axisVal = valueSlider.getValue();
+        valueSlider.addOnChangeListener((slider, value, fromUser) -> axisVal = value);
 
-        xAxisZoomIn.setOnClickListener(view -> {
+        xAxisPlus.setOnClickListener(view -> {
             switch (axisMode) {
                 case AXIS_SCALE: {
                     float[] scale = selectedObject.getScale();
@@ -332,7 +286,7 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
             replace3DData();
         });
 
-        xAxisZoomOut.setOnClickListener(view -> {
+        xAxisMinus.setOnClickListener(view -> {
             switch (axisMode) {
                 case AXIS_SCALE: {
                     float[] scale = selectedObject.getScale();
@@ -359,7 +313,7 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
             replace3DData();
         });
 
-        yAxisZoomIn.setOnClickListener(view -> {
+        yAxisPlus.setOnClickListener(view -> {
             switch (axisMode) {
                 case AXIS_SCALE: {
                     float[] scale = selectedObject.getScale();
@@ -386,7 +340,7 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
             replace3DData();
         });
 
-        yAxisZoomOut.setOnClickListener(view -> {
+        yAxisMinus.setOnClickListener(view -> {
             switch (axisMode) {
                 case AXIS_SCALE: {
                     float[] scale = selectedObject.getScale();
@@ -413,7 +367,7 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
             replace3DData();
         });
 
-        zAxisZoomIn.setOnClickListener(view -> {
+        zAxisPlus.setOnClickListener(view -> {
             switch (axisMode) {
                 case AXIS_SCALE: {
                     float[] scale = selectedObject.getScale();
@@ -440,7 +394,7 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
             replace3DData();
         });
 
-        zAxisZoomOut.setOnClickListener(view -> {
+        zAxisMinus.setOnClickListener(view -> {
             switch (axisMode) {
                 case AXIS_SCALE: {
                     float[] scale = selectedObject.getScale();
@@ -470,6 +424,7 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
 
     private Object3DData replace3DData() {
         if (selectedObject != null) {
+            /*
             Object3DData replace3DData;
             replace3DData = Object3DBuilder.loadSelectedObject(new File(selectedObject.getId()));
             scene.getObjects().remove(selectedObject);
@@ -478,27 +433,41 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
             replace3DData.setRotation(selectedObject.getRotation());
             scene.addObject(replace3DData);
             selectedObject = replace3DData;
+             */
+
+            Object3DData replace3DData = null;
+            try {
+                replace3DData = Object3DBuilder.loadSelectedObject(new File(selectedObject.getId()));
+                InputStream open = ContentUtils.getInputStream(replace3DData.getTextureFile());
+                replace3DData.setTextureData(IOUtils.read(open));
+                scene.getObjects().remove(selectedObject);
+                replace3DData.setScale(selectedObject.getScale());
+                replace3DData.setPosition(selectedObject.getPosition());
+                replace3DData.setRotation(selectedObject.getRotation());
+                scene.addObject(replace3DData);
+                selectedObject = replace3DData;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             return replace3DData;
         }
         return null;
     }
 
-    @Override
-    public void onSelectedObjectChanged(Object3DData selectedObject) {
+    private void vibrate() {
         Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         vibe.vibrate(VibrationEffect.createOneShot(10, VibrationEffect.DEFAULT_AMPLITUDE));
+    }
+
+    @Override
+    public void onSelectedObjectChanged(Object3DData selectedObject) {
+        vibrate();
         this.selectedObject = selectedObject;
         if (selectedObject == null) {
-            destroyPointCube();
             axisMode = AXIS_DEFAULT;
             axisLayout.setVisibility(View.GONE);
             modifyLayout.setVisibility(View.GONE);
-        } else {
-            float[] pos = selectedObject.getPosition();
-            Log.d("POS", Arrays.toString(pos));
-            Log.d("selectedObject", selectedObject.getId());
-            modifyLayout.setVisibility(View.VISIBLE);
-        }
+        } else modifyLayout.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -512,7 +481,18 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
 
     @Override
     public void onSelectedItem(File file) {
-        scene.addObject(Object3DBuilder.loadSelectedObject(file));
-        Toast.makeText(this, file.getName() + " 생성 완료.", Toast.LENGTH_SHORT).show();
+        try {
+            Object3DData obj = Object3DBuilder.loadSelectedObject(file);
+            InputStream open = ContentUtils.getInputStream(obj.getTextureFile());
+            obj.setTextureData(IOUtils.read(open));
+            obj.centerAndScale(2.0f);
+            obj.centerAndScale(2.0f);
+            obj.setPosition(new float[]{2f, 0f, 0f});
+            obj.setColor(new float[]{1.0f, 1.0f, 1.0f, 1.0f});
+            scene.addObject(obj);
+            Toast.makeText(this, file.getName() + " 생성 완료.", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

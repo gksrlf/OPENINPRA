@@ -7,8 +7,6 @@
     <string name="takePicture">사진 찍기</string>
     <string name="permission_denied">권한이 승인되지 않았습니다.</string>
     <string name="album">앨범</string>
-    <string name="image_description">이미지</string>
-    <string name="name">이름</string>
     <string name="upload">업로드</string>
     <string name="uploading">업로드 중…</string>
     <string name="downloading">다운로드 중…</string>
@@ -38,6 +36,7 @@
     <string name="photo_type">사진 타입</string>
     <string name="symmetry">대칭</string>
     <string name="asymmetry">비대칭</string>
+    <string name="saveFailed">저장을 실패했습니다.</string>
 
     <!-- Constance -->
     <string name="s3_bucket">imagebucket20200724</string>

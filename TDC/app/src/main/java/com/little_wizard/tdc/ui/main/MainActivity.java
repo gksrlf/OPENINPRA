@@ -406,7 +406,6 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
         Log.i("Menu", "Launching renderer for '" + uri + "'");
         Intent intent = new Intent(getApplicationContext(), ModelActivity.class);
         intent.putExtra("URI", uri);
-        intent.putExtra("MODIFY", false);
         startActivity(intent);
     }
 }

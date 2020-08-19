@@ -19,15 +19,13 @@
         <ImageView
             android:id="@+id/imageView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:contentDescription="@string/image_description" />
+            android:layout_height="match_parent" />
 
         <TextView
             android:id="@+id/name"
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:gravity="start|center_vertical"
-            android:text="@string/name"
             app:layout_constraintBottom_toBottomOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

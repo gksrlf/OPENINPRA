@@ -486,7 +486,7 @@ public class SceneLoader implements LoaderTask.Callback {
         return selectedObject;
     }
 
-    private void setSelectedObject(Object3DData selectedObject) {
+    public void setSelectedObject(Object3DData selectedObject) {
         this.selectedObject = selectedObject;
         if (callback != null)
             callback.onSelectedObjectChanged(selectedObject);

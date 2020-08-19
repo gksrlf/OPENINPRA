@@ -47,13 +47,11 @@ public class LoadDialog extends Dialog implements RepositoryAdapter.ItemClickLis
     LinearLayout emptyLayout;
 
     RepositoryAdapter adapter;
-    List<Object3DData> dataList;
 
     Context context;
 
-    public LoadDialog(@NonNull Context context, List<Object3DData> dataList, Callback callback) {
+    public LoadDialog(@NonNull Context context, Callback callback) {
         super(context);
-        this.dataList = dataList;
         this.callback = callback;
     }
 
@@ -82,13 +80,11 @@ public class LoadDialog extends Dialog implements RepositoryAdapter.ItemClickLis
         adapter.setClickListener(this);
 
         File f = new File(context.getExternalCacheDir().getAbsolutePath() + "/");
-        File[] files = f.listFiles(pathName -> {
-            for (Object3DData data : dataList) {
-                if (data.getId().equals(pathName.getPath())) {
-                    return false;
-                }
+        File[] files = f.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File pathName) {
+                return FilenameUtils.getExtension(pathName.getName()).equals("obj");
             }
-            return FilenameUtils.getExtension(pathName.getName()).equals("obj");
         });
         List<RepoItem> items = new ArrayList<>();
         assert files != null;

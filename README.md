@@ -14,7 +14,7 @@
     <img src="Image/5.JPG width="50%" height="50%" alt="축선택2"></img>
     * 사진을 회전하거나 평행이동하여 대칭 축을 빨간 선에 맞추세요.
 
-    <img src="/Image/6.JPG width="50%" height="50%" alt="대칭모드"></img>
+    <img src="OPENINPRA/Image/6.JPG width="50%" height="50%" alt="대칭모드"></img>
     * 설정한 축을 따라 좌표를 땁니다.
     * 잘못 그렸을 때 <- 버튼을 눌러 사진을 바로 이전 단계로 되돌릴 수 있습니다.
 

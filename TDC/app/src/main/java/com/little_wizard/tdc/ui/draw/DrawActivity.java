@@ -3,6 +3,7 @@ package com.little_wizard.tdc.ui.draw;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.ImageDecoder;
@@ -380,11 +381,6 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
     //TODO: MainActivity
     private void upload(String name) {
         String path = getExternalCacheDir() + "/";
-        NetworkStatus status = new NetworkStatus(this);
-        if (!status.isConnected()) {
-            Toast.makeText(this, R.string.network_not_connected, Toast.LENGTH_LONG).show();
-            return;
-        }
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         EditText editText = new EditText(this);
         builder.setView(editText);
@@ -396,6 +392,9 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
             //TODO: 원본 비트맵 파일 전송
             saveFile(filename + ".jpg", objectBuffer.getOriginalImage());
             File file = new File(path + filename + ".jpg");
+
+            //TODO: 서버가 완료되지 않아 업로드할 수 없음.
+            /*
             transfer.upload(R.string.s3_bucket, FilenameUtils.getBaseName(text + ".jpg")
                     .isEmpty() ? file.getName() : text + ".jpg", file);
 
@@ -413,8 +412,11 @@ public class DrawActivity extends AppCompatActivity implements S3Transfer.Transf
 
                 pos++;
             }
-            /*transfer.upload(R.string.s3_bucket, FilenameUtils.getBaseName(text)
-                    .isEmpty() ? file.getName() : text, file);*/
+             */
+            AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
+            builder1.setTitle("업로드 금지");
+            builder1.setMessage("서버가 완성되지 않아서 업로드를 할 수 없습니다.");
+            builder1.setPositiveButton("OK", (dialogInterface1, i1) -> finish());
         });
         builder.setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
         });

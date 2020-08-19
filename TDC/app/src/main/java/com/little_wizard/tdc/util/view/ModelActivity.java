@@ -1,5 +1,6 @@
 package com.little_wizard.tdc.util.view;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -20,6 +21,8 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.google.android.material.slider.Slider;
 import com.little_wizard.tdc.R;
 import com.little_wizard.tdc.classes.RepoItem;
@@ -106,6 +109,8 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
 
     S3Transfer transfer;
 
+    ProgressDialog progressDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         if (MainActivity.darkMode) setTheme(R.style.Theme_MaterialComponents_NoActionBar);
@@ -131,6 +136,11 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
         ContentUtils.setThreadActivity(this);
 
         transfer = new S3Transfer(this);
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage(getString(R.string.uploading));
+        progressDialog.setCancelable(false);
+        progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Horizontal);
 
         scene = new SceneLoader(this);
         scene.setCallback(this);
@@ -182,13 +192,34 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
 
             case R.id.action_save: {
                 ContentUtils.setThreadActivity(this);
-                WavefrontSaver saver = new WavefrontSaver(scene.getObjects(), FilenameUtils.getBaseName(paramUri.toString()));
-                File file = saver.OutFileToVertexBuffer(getExternalCacheDir().getAbsolutePath() + "/Test.obj", SCALE_MAX);
+                WavefrontSaver saver = new WavefrontSaver(replace3DData(), FilenameUtils.getBaseName(paramUri.toString()));
+                File file = saver.OutFileToVertexBuffer(paramUri.getPath(), SCALE_MAX);
                 if (file != null) {
-                    transfer.upload(R.string.s3_bucket_resize, file.getName(), file);
-                    finish();
+                    progressDialog.show();
+                    transfer.upload(R.string.s3_bucket_resize, file.getName(), file)
+                            .setTransferListener(new TransferListener() {
+                                @Override
+                                public void onStateChanged(int id, TransferState state) {
+                                    if (state != TransferState.IN_PROGRESS)
+                                        progressDialog.dismiss();
+                                    if (state == TransferState.COMPLETED) {
+                                        finish();
+                                        Toast.makeText(ModelActivity.this, R.string.transfer_completed, Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+
+                                @Override
+                                public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+
+                                }
+
+                                @Override
+                                public void onError(int id, Exception ex) {
+                                    ex.printStackTrace();
+                                }
+                            });
                 } else
-                    Toast.makeText(this, getString(R.string.saveFailed), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.saveFailed, Toast.LENGTH_SHORT).show();
                 return true;
             }
         }

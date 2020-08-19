@@ -51,13 +51,10 @@ import com.little_wizard.tdc.R;
 import com.little_wizard.tdc.ui.draw.DrawActivity;
 import com.little_wizard.tdc.ui.draw.EditActivity;
 import com.little_wizard.tdc.ui.main.MainActivity;
-import com.little_wizard.tdc.util.NetworkStatus;
 import com.little_wizard.tdc.util.S3Transfer;
 import com.little_wizard.tdc.util.permission.PermissionHelper;
 
-import org.apache.commons.io.FilenameUtils;
 
-import java.io.File;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.Arrays;

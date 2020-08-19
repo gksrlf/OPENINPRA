@@ -162,6 +162,7 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
 
     @Override
     public void onItemClick(View view, List<RepoItem> list) {
+        slidingPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
         ProgressDialog progressDialog = new ProgressDialog(mContext);
         progressDialog.setMessage(getString(R.string.downloading));
         progressDialog.setCancelable(false);
@@ -182,7 +183,6 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
                     transfer.download(R.string.s3_bucket_resize, file).setTransferListener(new TransferListener() {
                         @Override
                         public void onStateChanged(int id, TransferState state) {
-                            Log.d(TAG, state.toString());
                             if (state == TransferState.COMPLETED)
                                 sub.onComplete();
                             if (state != TransferState.IN_PROGRESS)

@@ -260,8 +260,8 @@ public class DrawQueue {
         ArrayList<Coordinates> result = new ArrayList<>();
         for(Float x : treeMap.keySet()){
             if(treeMap.get(x).first() == treeMap.get(x).last()) continue;
-            result.add(new Coordinates(x, treeMap.get(x).first()));
             result.add(new Coordinates(x, treeMap.get(x).last()));
+            result.add(new Coordinates(x, treeMap.get(x).first()));
         }
         return result;
     }
@@ -317,9 +317,8 @@ public class DrawQueue {
         ArrayList<Coordinates> result = new ArrayList<>();
         for(Float y : treeMap.keySet()){
             if(treeMap.get(y).first() == treeMap.get(y).last()) continue;
-
-            result.add(new Coordinates(treeMap.get(y).first(), y));
             result.add(new Coordinates(treeMap.get(y).last(), y));
+            result.add(new Coordinates(treeMap.get(y).first(), y));
         }
         return result;
     }

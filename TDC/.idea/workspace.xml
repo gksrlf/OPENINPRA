@@ -10,14 +10,7 @@
     <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="Show only selected application" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1280432e-51e9-4d00-b76b-c57315dbf3d1" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gradle/6.1.1/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.1.1/fileHashes/fileHashes.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/6.1.1/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.1.1/fileHashes/fileHashes.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/little_wizard/tdc/ui/draw/DrawImageView.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/little_wizard/tdc/ui/draw/DrawImageView.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/little_wizard/tdc/util/draw/DrawQueue.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/little_wizard/tdc/util/draw/DrawQueue.java" afterDir="false" />
-    </list>
+    <list default="true" id="1280432e-51e9-4d00-b76b-c57315dbf3d1" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -265,11 +258,11 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="93" y="100" width="1734" height="847" key="com.intellij.history.integration.ui.views.FileHistoryDialog/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1597606424726" />
-    <state x="535" y="361" key="com.intellij.ide.util.TipDialog" timestamp="1597581456333">
+    <state x="535" y="361" key="com.intellij.ide.util.TipDialog" timestamp="1597799921016">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="-1385" y="361" key="com.intellij.ide.util.TipDialog/0.0.1920.1040/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1597330790485" />
-    <state x="535" y="361" key="com.intellij.ide.util.TipDialog/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1597581456333" />
+    <state x="535" y="361" key="com.intellij.ide.util.TipDialog/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1597799921016" />
     <state x="561" y="126" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1597598200219">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
@@ -319,17 +312,17 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/com/little_wizard/tdc/ui/draw/DrawActivity.java</url>
-          <line>297</line>
+          <line>337</line>
           <option name="timeStamp" value="80" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/com/little_wizard/tdc/ui/draw/DrawActivity.java</url>
-          <line>403</line>
+          <line>449</line>
           <option name="timeStamp" value="87" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/com/little_wizard/tdc/ui/draw/DrawActivity.java</url>
-          <line>291</line>
+          <line>331</line>
           <option name="timeStamp" value="88" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="java-line">

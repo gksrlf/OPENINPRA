@@ -50,19 +50,8 @@ public class RepositoryAdapter extends RecyclerView.Adapter<RepositoryAdapter.Vi
     @Override
     public void onBindViewHolder(ViewHolder holder, int pos) {
         String key = (String) itemMap.keySet().toArray()[pos];
-        RepoItem item = null;
-        for (RepoItem tmp : Objects.requireNonNull(itemMap.get(key))) {
-            if (FilenameUtils.getExtension(tmp.getName()).equals("jpg")) {
-                item = tmp;
-                break;
-            }
-        }
-        if (item == null) {
-            Toast.makeText(mContext, R.string.jpg_not_exists, Toast.LENGTH_SHORT).show();
-            return;
-        }
-        String path = "https://" + mContext.getString(R.string.s3_bucket_resize)
-                + ".s3.ap-northeast-2.amazonaws.com/" + item.getName();
+        String path = "https://" + mContext.getString(R.string.s3_bucket)
+                + ".s3.ap-northeast-2.amazonaws.com/" + FilenameUtils.getBaseName(key) + ".jpg";
         Glide.with(mContext).load(path).centerCrop().into(holder.imageView);
         holder.name.setText(key);
     }

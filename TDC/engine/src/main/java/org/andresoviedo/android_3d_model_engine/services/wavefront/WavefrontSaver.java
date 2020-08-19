@@ -10,7 +10,6 @@ import org.andresoviedo.android_3d_model_engine.services.wavefront.WavefrontLoad
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;

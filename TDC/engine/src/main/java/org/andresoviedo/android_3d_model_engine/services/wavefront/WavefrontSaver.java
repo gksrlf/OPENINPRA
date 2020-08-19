@@ -42,13 +42,16 @@ public class WavefrontSaver {
     }
 
     // Unpacking FloatBuffer vertexArrayBuffer to vertexBuffer
-    public void unpackingArrayBuffer() {
+    public void unpackingArrayBuffer() throws Exception {
         ArrayList<Tuple3> texCoords = obj.getTexCoords();
         FloatBuffer textureCoordsArrayBuffer = obj.getTextureCoordsArrayBuffer();
 
         // allocating memory to returnVertexBuffer
         if (texCoords != null)
             textureCoordsBuffer = createNativeByteBuffer(texCoords.size() * 2 * 4).asFloatBuffer();
+
+        if (textureCoordsBuffer == null || textureCoordsArrayBuffer == null)
+            throw new Exception("Unpack failed.");
 
         // Unpacking textureCoordsArrayBuffer
         int count = 0;
@@ -67,21 +70,17 @@ public class WavefrontSaver {
     public File OutFileToVertexBuffer(String filePath, float SCALE_MAX) {
         float u, v;
 
-        int[] VT = new int[3];
-
-        ArrayList<String> facesString = new ArrayList<String>();
-
         // get .mtl file's name
         materials = obj.getMaterials();
 
-        // unpacking ArrayBuffers to Buffers and reinstating vertex
-        unpackingArrayBuffer();
-
-        object3DUnpacker.unpackingBuffer();
-        List<float[]> vertexArrayList = object3DUnpacker.getVertexArrayList();
-
-        File file = new File(filePath);
+        File file = null;
         try {
+            unpackingArrayBuffer();
+
+            object3DUnpacker.unpackingBuffer();
+            List<float[]> vertexArrayList = object3DUnpacker.getVertexArrayList();
+
+            file = new File(filePath);
             FileWriter fw = new FileWriter(file);
 
             fw.write("mtllib " + baseName + ".mtl" + "\n\n");
@@ -96,30 +95,30 @@ public class WavefrontSaver {
                 float valY = position[1] + obj.getPositionY() * obj.getScaleY();
                 float valZ = position[2] + obj.getPositionZ() * obj.getScaleZ();
 
-                float radianX = obj.getRotationX() * (float)(Math.PI / 180);
-                float radianY = obj.getRotationY() * (float)(Math.PI / 180);
-                float radianZ = obj.getRotationZ() * (float)(Math.PI / 180);
+                float radianX = obj.getRotationX() * (float) (Math.PI / 180);
+                float radianY = obj.getRotationY() * (float) (Math.PI / 180);
+                float radianZ = obj.getRotationZ() * (float) (Math.PI / 180);
 
                 float rotatedX = 0;
                 float rotatedY = 0;
                 float rotatedZ = 0;
 
-                rotatedY = (float)Math.cos(radianX) * valY - (float)Math.sin(radianX) * valZ;
-                rotatedZ = (float)Math.sin(radianX) * valY + (float)Math.cos(radianX) * valZ;
+                rotatedY = (float) Math.cos(radianX) * valY - (float) Math.sin(radianX) * valZ;
+                rotatedZ = (float) Math.sin(radianX) * valY + (float) Math.cos(radianX) * valZ;
 
                 valY = rotatedY;
                 valZ = rotatedZ;
 
                 // y축 회전 연산
-                rotatedZ = (float)Math.cos(radianY) * valZ - (float)Math.sin(radianY) * valX;
-                rotatedX = (float)Math.sin(radianY) * valZ + (float)Math.cos(radianY) * valX;
+                rotatedZ = (float) Math.cos(radianY) * valZ - (float) Math.sin(radianY) * valX;
+                rotatedX = (float) Math.sin(radianY) * valZ + (float) Math.cos(radianY) * valX;
 
                 valZ = rotatedZ;
                 valX = rotatedX;
 
                 // z축 회전 연산
-                rotatedX = (float)Math.cos(radianZ) * valX - (float)Math.sin(radianZ) * valY;
-                rotatedY = (float)Math.sin(radianZ) * valX + (float)Math.cos(radianZ) * valY;
+                rotatedX = (float) Math.cos(radianZ) * valX - (float) Math.sin(radianZ) * valY;
+                rotatedY = (float) Math.sin(radianZ) * valX + (float) Math.cos(radianZ) * valY;
 
                 valX = rotatedX;
                 valY = rotatedY;
@@ -133,14 +132,11 @@ public class WavefrontSaver {
                         + "\n");
             }
 
-            // setting vt contents of obj's file
-            //for (int i = 0; i < obj.getNumTextures(); i++) {
-            //    u = textureCoordsBuffer.get(i * 2);
-            //    v = (obj.isFlipTextCoords() ? 1 - textureCoordsBuffer.get(i * 2 + 1) : textureCoordsBuffer.get(i * 2 + 1));
-//
-            //    //TODO Need to change texture vertex's data for sync obj file
-            //    fw.write("vt " + u + " " + v + "\n");
-            //}
+            for (int i = 0; i < obj.getNumTextures(); i++) {
+                u = textureCoordsBuffer.get(i * 2);
+                v = (obj.isFlipTextCoords() ? 1 - textureCoordsBuffer.get(i * 2 + 1) : textureCoordsBuffer.get(i * 2 + 1));
+                fw.write("vt " + u + " " + v + "\n");
+            }
 
             // setting f contents of obj's file
             for (int i = 0; i < faces.facesTexIdxs.size(); i++) {
@@ -154,7 +150,7 @@ public class WavefrontSaver {
                 fw.write("f " + face[0] + " " + face[1] + " " + face[2] + "\n");
             }
             fw.close();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return file;

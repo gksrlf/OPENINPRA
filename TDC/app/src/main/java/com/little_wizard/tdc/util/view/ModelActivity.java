@@ -182,7 +182,7 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
 
             case R.id.action_save: {
                 ContentUtils.setThreadActivity(this);
-                WavefrontSaver saver = new WavefrontSaver(scene.getObjects(), FilenameUtils.getBaseName(paramUri.toString()));
+                WavefrontSaver saver = new WavefrontSaver(replace3DData(), FilenameUtils.getBaseName(paramUri.toString()));
                 File file = saver.OutFileToVertexBuffer(getExternalCacheDir().getAbsolutePath() + "/TestCube.obj", SCALE_MAX);
                 if (file != null) {
                     transfer.upload(R.string.s3_bucket_resize, file.getName(), file);

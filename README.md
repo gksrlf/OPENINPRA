@@ -1,6 +1,6 @@
 # 사용설명서
  ## 초기화면
-    ![1](https://user-images.githubusercontent.com/38202551/90659074-3e2bc000-e27f-11ea-893a-b74921bcfe96.jpg)
+    ![initial](https://user-images.githubusercontent.com/38202551/90659074-3e2bc000-e27f-11ea-893a-b74921bcfe96.jpg)
     
  ## 사진선택
     <img src="Image/2.JPG width="50%" height="50%" alt="사진선택"></img>

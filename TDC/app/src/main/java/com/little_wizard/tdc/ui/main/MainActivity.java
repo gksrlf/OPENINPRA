@@ -51,8 +51,6 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -69,6 +67,8 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
+    @BindView(R.id.logo)
+    ImageView logo;
     @BindView(R.id.camera)
     Button camera;
     @BindView(R.id.slidingPanel)
@@ -111,6 +111,9 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+
+        if (darkMode) logo.setImageResource(R.drawable.ic_logo_black);
+        slidingPanel.setBackgroundResource(darkMode ? android.R.color.black : android.R.color.white);
 
         init();
     }
@@ -374,7 +377,7 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
         observable.subscribe(observer);
     }
 
-    private String fileToMD5(File file) {
+    public static String fileToMD5(File file) {
         try (InputStream inputStream = new FileInputStream(file)) {
             byte[] buffer = new byte[1024];
             MessageDigest digest = MessageDigest.getInstance("MD5");
@@ -391,7 +394,7 @@ public class MainActivity extends AppCompatActivity implements RepositoryAdapter
         }
     }
 
-    private String convertHashToString(byte[] md5Bytes) {
+    public static String convertHashToString(byte[] md5Bytes) {
         StringBuilder returnVal = new StringBuilder();
         for (byte md5Byte : md5Bytes) {
             returnVal.append(Integer.toString((md5Byte & 0xff) + 0x100, 16).substring(1));

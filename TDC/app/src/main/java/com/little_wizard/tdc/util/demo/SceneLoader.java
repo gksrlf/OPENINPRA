@@ -48,7 +48,7 @@ public class SceneLoader implements LoaderTask.Callback {
     /**
      * List of data objects containing info for building the opengl objects
      */
-    private List<Object3DData> objects = new ArrayList<>();
+    private ArrayList<Object3DData> objects = new ArrayList<>();
     /**
      * Show axis or not
      */
@@ -251,7 +251,7 @@ public class SceneLoader implements LoaderTask.Callback {
     }
 
     synchronized public void addObject(Object3DData obj) {
-        List<Object3DData> newList = new ArrayList<Object3DData>(objects);
+        ArrayList<Object3DData> newList = new ArrayList<Object3DData>(objects);
         newList.add(obj);
         this.objects = newList;
         requestRender();
@@ -264,7 +264,7 @@ public class SceneLoader implements LoaderTask.Callback {
         }
     }
 
-    public synchronized List<Object3DData> getObjects() {
+    public synchronized ArrayList<Object3DData> getObjects() {
         return objects;
     }
 

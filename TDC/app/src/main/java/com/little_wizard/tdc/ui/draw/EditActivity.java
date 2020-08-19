@@ -31,6 +31,8 @@ public class EditActivity extends AppCompatActivity {
     String TAG = getClass().getSimpleName();
     String filePath;
 
+    boolean loadMode = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +46,7 @@ public class EditActivity extends AppCompatActivity {
             Bitmap bitmap = ImageDecoder.decodeBitmap(source);
             bitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
             imageView.setBitmap(bitmap, getWindowManager().getDefaultDisplay());
+            loadMode = intent.getBooleanExtra("Key", false);
         } catch (IOException e) {
             Toast.makeText(getApplicationContext(), "오류", Toast.LENGTH_LONG);
         }
@@ -87,6 +90,7 @@ public class EditActivity extends AppCompatActivity {
                     intent.setAction(Intent.ACTION_SEND);
                     intent.putExtra("MODE", "SYMMETRY");
                     intent.putExtra("LINE", imageView.getLinePosX());
+                    intent.putExtra("LoadMode", loadMode);
                     intent.setData(Uri.fromFile(new File(filePath)));
                     startActivity(intent);
                     finish();

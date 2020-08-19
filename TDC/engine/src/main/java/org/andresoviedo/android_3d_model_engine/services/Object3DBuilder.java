@@ -20,6 +20,8 @@ import org.andresoviedo.util.android.ContentUtils;
 import org.andresoviedo.util.math.Math3DUtils;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -369,22 +371,22 @@ public final class Object3DBuilder {
                 .setDrawMode(GLES20.GL_LINES).setFaces(new Faces(0));
     }
 
-    public static Object3DData loadSelectedObject(URL modelUrl) {
+    public static Object3DData loadSelectedObject(File modelFile) {
         try {
-            InputStream is = modelUrl.openStream();
+            InputStream is = new FileInputStream(modelFile);
             WavefrontLoader wfl = new WavefrontLoader();
             wfl.analyzeModel(is);
             is.close();
 
             wfl.allocateBuffers();
 
-            is = modelUrl.openStream();
+            is = new FileInputStream(modelFile);
             wfl.loadModel(is);
             is.close();
 
             Object3DData data3D = new Object3DData(wfl.getVerts(), wfl.getNormals(), wfl.getTexCoords(), wfl.getFaces(),
                     wfl.getFaceMats(), wfl.getMaterials(), wfl.getNumVerts(), wfl.getNumNormals(), wfl.getNumTextures(), wfl.getNumFaces());
-            data3D.setId(modelUrl.toString());
+            data3D.setId(modelFile.toString());
             // set original 3D data's uri
 
             // data3D.setAssetsDir(assetDir);

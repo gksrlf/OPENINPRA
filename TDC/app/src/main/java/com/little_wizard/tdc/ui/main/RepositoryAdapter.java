@@ -36,7 +36,7 @@ public class RepositoryAdapter extends RecyclerView.Adapter<RepositoryAdapter.Vi
 
     private ItemClickListener mClickListener;
 
-    RepositoryAdapter(Context context) {
+    public RepositoryAdapter(Context context) {
         this.mContext = context;
         this.mInflater = LayoutInflater.from(context);
     }
@@ -129,7 +129,7 @@ public class RepositoryAdapter extends RecyclerView.Adapter<RepositoryAdapter.Vi
         }
     }
 
-    void setClickListener(ItemClickListener listener) {
+    public void setClickListener(ItemClickListener listener) {
         this.mClickListener = listener;
     }
 

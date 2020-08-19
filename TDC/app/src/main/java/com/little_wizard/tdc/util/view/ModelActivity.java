@@ -14,7 +14,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -23,7 +22,9 @@ import androidx.constraintlayout.widget.ConstraintSet;
 
 import com.google.android.material.slider.Slider;
 import com.little_wizard.tdc.R;
+import com.little_wizard.tdc.classes.RepoItem;
 import com.little_wizard.tdc.ui.main.MainActivity;
+import com.little_wizard.tdc.ui.main.RepositoryAdapter;
 import com.little_wizard.tdc.util.S3Transfer;
 import com.little_wizard.tdc.util.demo.ModelSurfaceView;
 import com.little_wizard.tdc.util.demo.SceneLoader;
@@ -39,6 +40,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.List;
 
 import butterknife.BindView;
@@ -50,7 +52,7 @@ import butterknife.OnClick;
  *
  * @author andresoviedo
  */
-public class ModelActivity extends AppCompatActivity implements SceneLoader.Callback {
+public class ModelActivity extends AppCompatActivity implements SceneLoader.Callback, RepositoryAdapter.ItemClickListener, LoadDialog.Callback {
 
     private static final int REQUEST_CODE_LOAD_TEXTURE = 1000;
     @BindView(R.id.layout)
@@ -135,6 +137,7 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
         scene = new SceneLoader(this);
         scene.setCallback(this);
         scene.init();
+        scene.setDrawAxis(true);
 
         // Create a GLSurfaceView instance and set it
         // as the ContentView for this Activity.
@@ -173,26 +176,22 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
                 finish();
                 return true;
 
-            case R.id.action_save:
-                if (selectedObject != null) {
-                    Object3DData replace3DData = null;
-                    try {
-                        replace3DData = Object3DBuilder.loadSelectedObject(new URL(paramUri.toString()));
-                    } catch (MalformedURLException e) {
-                        e.printStackTrace();
-                    }
-                    scene.getObjects().remove(selectedObject);
-                    replace3DData.setScale(selectedObject.getScale());
-                    replace3DData.setPosition(selectedObject.getPosition());
-                    replace3DData.setRotation(selectedObject.getRotation());
-                    scene.addObject(replace3DData);
-                    createPointCube(replace3DData);
-
-                    /*WavefrontSaver saver = new WavefrontSaver(replace3DData);
-                    File file = saver.OutFileToVertexBuffer(getExternalCacheDir().getAbsolutePath() + "/cube.obj");
-                    transfer.upload(R.string.s3_bucket_resize, file.getName(), file);*/
-                }
+            case R.id.action_load: {
+                LoadDialog loadDialog = new LoadDialog(this, scene.getObjects(), this);
+                loadDialog.show();
                 return true;
+            }
+
+            case R.id.action_save: {
+                if (selectedObject != null) {
+                    ContentUtils.setThreadActivity(this);
+                    WavefrontSaver saver = new WavefrontSaver(replace3DData(), FilenameUtils.getBaseName(paramUri.toString()));
+                    File file = saver.OutFileToVertexBuffer(getExternalCacheDir().getAbsolutePath() + "/TestCube.obj", SCALE_MAX);
+                    transfer.upload(R.string.s3_bucket_resize, file.getName(), file);
+                    finish();
+                }
+            }
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -280,6 +279,7 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
                         (float) ((val2 * (obj.getScaleY() * 100 / SCALE_MAX) / 100) * 2.5),
                         (float) ((val3 * (obj.getScaleZ() * 100 / SCALE_MAX) / 100) * 2.5)
                 });
+                objPoint.setRotation(obj.getRotation());
                 objPoint.setScale(new float[]{0.25f, 0.25f, 0.25f});
                 objPoint.setColor(RED_COLOR);
                 scene.addObject(objPoint);
@@ -329,7 +329,9 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
                     break;
                 }
             }
+            replace3DData();
         });
+
         xAxisZoomOut.setOnClickListener(view -> {
             switch (axisMode) {
                 case AXIS_SCALE: {
@@ -354,6 +356,7 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
                     break;
                 }
             }
+            replace3DData();
         });
 
         yAxisZoomIn.setOnClickListener(view -> {
@@ -380,7 +383,9 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
                     break;
                 }
             }
+            replace3DData();
         });
+
         yAxisZoomOut.setOnClickListener(view -> {
             switch (axisMode) {
                 case AXIS_SCALE: {
@@ -405,6 +410,7 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
                     break;
                 }
             }
+            replace3DData();
         });
 
         zAxisZoomIn.setOnClickListener(view -> {
@@ -431,7 +437,9 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
                     break;
                 }
             }
+            replace3DData();
         });
+
         zAxisZoomOut.setOnClickListener(view -> {
             switch (axisMode) {
                 case AXIS_SCALE: {
@@ -456,7 +464,23 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
                     break;
                 }
             }
+            replace3DData();
         });
+    }
+
+    private Object3DData replace3DData() {
+        if (selectedObject != null) {
+            Object3DData replace3DData;
+            replace3DData = Object3DBuilder.loadSelectedObject(new File(selectedObject.getId()));
+            scene.getObjects().remove(selectedObject);
+            replace3DData.setScale(selectedObject.getScale());
+            replace3DData.setPosition(selectedObject.getPosition());
+            replace3DData.setRotation(selectedObject.getRotation());
+            scene.addObject(replace3DData);
+            selectedObject = replace3DData;
+            return replace3DData;
+        }
+        return null;
     }
 
     @Override
@@ -470,8 +494,25 @@ public class ModelActivity extends AppCompatActivity implements SceneLoader.Call
             axisLayout.setVisibility(View.GONE);
             modifyLayout.setVisibility(View.GONE);
         } else {
+            float[] pos = selectedObject.getPosition();
+            Log.d("POS", Arrays.toString(pos));
             Log.d("selectedObject", selectedObject.getId());
             modifyLayout.setVisibility(View.VISIBLE);
         }
+    }
+
+    @Override
+    public void onItemClick(View view, List<RepoItem> list) {
+
+    }
+
+    @Override
+    public void onItemLongClick(View view, List<RepoItem> list) {
+    }
+
+    @Override
+    public void onSelectedItem(File file) {
+        scene.addObject(Object3DBuilder.loadSelectedObject(file));
+        Toast.makeText(this, file.getName() + " 생성 완료.", Toast.LENGTH_SHORT).show();
     }
 }

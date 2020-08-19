@@ -87,9 +87,6 @@ public class CameraActivity extends AppCompatActivity implements S3Transfer.Tran
     @BindView(R.id.capture)
     ImageButton capture;
 
-    NetworkStatus status;
-    S3Transfer transfer;
-
     ProgressDialog progressDialog;
 
     private String TAG = getClass().getSimpleName();
@@ -108,11 +105,6 @@ public class CameraActivity extends AppCompatActivity implements S3Transfer.Tran
         progressDialog.setMessage(getString(R.string.uploading));
         progressDialog.setCancelable(false);
         progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Horizontal);
-
-        status = new NetworkStatus(this);
-
-        transfer = new S3Transfer(this);
-        transfer.setCallback(this);
 
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         initSurfaceView();
@@ -215,11 +207,7 @@ public class CameraActivity extends AppCompatActivity implements S3Transfer.Tran
         } catch (Exception e) {
             e.printStackTrace();
         }
-        //String path = getRealPathFromURI(Uri.parse(insertImage(getContentResolver(), bitmap
-        //, "" + System.currentTimeMillis(), "")));
-        //TODO: 추상주소로 바꿔줌
         String uri = insertImage(getContentResolver(), bitmap, "" + System.currentTimeMillis(), "");
-        //upload(path);
         startEdit(Uri.parse(uri));
     });
 
@@ -387,28 +375,6 @@ public class CameraActivity extends AppCompatActivity implements S3Transfer.Tran
         return result;
     }
 
-    //TODO: DrawActivity에 upload함수 추가
-    private void upload(String path) {
-        if (!status.isConnected()) {
-            Toast.makeText(this, R.string.network_not_connected, Toast.LENGTH_LONG).show();
-            return;
-        }
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        EditText editText = new EditText(this);
-        builder.setView(editText);
-        builder.setMessage(R.string.name_setting);
-        builder.setCancelable(false);
-        builder.setPositiveButton(R.string.save, (dialogInterface, i) -> {
-            File file = new File(path);
-            String text = editText.getText().toString() + ".jpg";
-            transfer.upload(R.string.s3_bucket, FilenameUtils.getBaseName(text)
-                    .isEmpty() ? file.getName() : text, file);
-        });
-        builder.setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
-        });
-        builder.show();
-    }
-
     @OnClick(R.id.album)
     public void onAlbumClicked() {
         Intent intent = new Intent(Intent.ACTION_PICK);
@@ -458,14 +424,13 @@ public class CameraActivity extends AppCompatActivity implements S3Transfer.Tran
                     intent.setData(uri);
                     startActivity(intent);
                     break;
+
                 case 1:
                     intent = new Intent(this, DrawActivity.class);
                     intent.putExtra("MODE", "ASYMMETRY");
                     intent.setAction(Intent.ACTION_SEND);
                     intent.setData(uri);
                     startActivity(intent);
-                    break;
-                default:
                     break;
             }
         });

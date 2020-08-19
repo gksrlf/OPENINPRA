@@ -1,7 +1,5 @@
 package org.andresoviedo.android_3d_model_engine.services.wavefront;
 
-import android.util.Log;
-
 import org.andresoviedo.android_3d_model_engine.model.Object3DData;
 import org.andresoviedo.android_3d_model_engine.services.Object3DUnpacker;
 import org.andresoviedo.android_3d_model_engine.services.wavefront.WavefrontLoader.Faces;
@@ -22,7 +20,8 @@ import java.util.List;
  */
 
 public class WavefrontSaver {
-    Object3DData object3DData;
+    Object3DData obj;
+    String baseName;
 
     // meta data
     FloatBuffer textureCoordsBuffer;
@@ -32,17 +31,18 @@ public class WavefrontSaver {
 
     Materials materials = null;
 
-    public WavefrontSaver(Object3DData object3DData) {
-        this.object3DUnpacker = new Object3DUnpacker(object3DData);
-        this.object3DData = object3DData;
+    public WavefrontSaver(Object3DData obj, String baseName) {
+        this.object3DUnpacker = new Object3DUnpacker(obj);
+        this.obj = obj;
         this.textureCoordsBuffer = null;
-        this.faces = object3DData.getFaces();
+        this.faces = obj.getFaces();
+        this.baseName = baseName;
     }
 
     // Unpacking FloatBuffer vertexArrayBuffer to vertexBuffer
     public void unpackingArrayBuffer() {
-        ArrayList<Tuple3> texCoords = object3DData.getTexCoords();
-        FloatBuffer textureCoordsArrayBuffer = object3DData.getTextureCoordsArrayBuffer();
+        ArrayList<Tuple3> texCoords = obj.getTexCoords();
+        FloatBuffer textureCoordsArrayBuffer = obj.getTextureCoordsArrayBuffer();
 
         // allocating memory to returnVertexBuffer
         if (texCoords != null)
@@ -62,7 +62,7 @@ public class WavefrontSaver {
         object3DUnpacker.ReinstateVertex();
     }
 
-    public File OutFileToVertexBuffer(String filePath) {
+    public File OutFileToVertexBuffer(String filePath, float SCALE_MAX) {
         float u, v;
 
         int[] VT = new int[3];
@@ -70,7 +70,7 @@ public class WavefrontSaver {
         ArrayList<String> facesString = new ArrayList<String>();
 
         // get .mtl file's name
-        materials = object3DData.getMaterials();
+        materials = obj.getMaterials();
 
         // unpacking ArrayBuffers to Buffers and reinstating vertex
         unpackingArrayBuffer();
@@ -81,22 +81,34 @@ public class WavefrontSaver {
         File file = new File(filePath);
         try {
             FileWriter fw = new FileWriter(file);
-            // setting v contents of obj's file
+
+            fw.write("mtllib " + baseName + ".mtl" + "\n\n");
+
             for (int i = 0; i < vertexArrayList.size(); i++) {
                 float[] position = vertexArrayList.get(i);
 
+                float val1 = position[0] + obj.getPositionX() * obj.getScaleX();
+                float val2 = position[1] + obj.getPositionY() * obj.getScaleY();
+                float val3 = position[2] + obj.getPositionZ() * obj.getScaleZ();
+
                 //TODO Need to change vertex's data for sync obj file
-                fw.write("v " + (position[0] + object3DData.getPositionX()) + " " + (position[1] + object3DData.getPositionY()) + " " + (position[2] + object3DData.getPositionZ()) + "\n");
+                fw.write("v "
+                        + ((val1 * (obj.getScaleX() * 100 / SCALE_MAX) / 100) * 2.5) + " "
+                        + ((val2 * (obj.getScaleY() * 100 / SCALE_MAX) / 100) * 2.5) + " "
+                        + ((val3 * (obj.getScaleZ() * 100 / SCALE_MAX) / 100) * 2.5) + " "
+                        + "\n");
             }
 
+            /*
             // setting vt contents of obj's file
-            for (int i = 0; i < object3DData.getNumTextures(); i++) {
+            for (int i = 0; i < obj.getNumTextures(); i++) {
                 u = textureCoordsBuffer.get(i * 2);
-                v = (object3DData.isFlipTextCoords() ? 1 - textureCoordsBuffer.get(i * 2 + 1) : textureCoordsBuffer.get(i * 2 + 1));
+                v = (obj.isFlipTextCoords() ? 1 - textureCoordsBuffer.get(i * 2 + 1) : textureCoordsBuffer.get(i * 2 + 1));
 
                 //TODO Need to change texture vertex's data for sync obj file
                 fw.write("vt " + u + " " + v + "\n");
             }
+             */
 
             // setting f contents of obj's file
             for (int i = 0; i < faces.facesTexIdxs.size(); i++) {
@@ -104,7 +116,7 @@ public class WavefrontSaver {
                 int[] text = faces.facesTexIdxs.get(i);
 
                 for (int j = 0; j < 3; j++)
-                    face[j] = (faces.facesVertIdxs.get(i * 3 + j) + 1) + "/" + (text[j] + 1);
+                    face[j] = (faces.facesVertIdxs.get(i * 3 + j) + 1) + "/" + (text[j] + 1) + "/" + 0;
 
                 //TODO Need to change faces's data for sync obj file
                 fw.write("f " + face[0] + " " + face[1] + " " + face[2] + "\n");
